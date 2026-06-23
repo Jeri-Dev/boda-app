@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test'
 import {
   getAnonClient,
   getHostClient,
+  getNonHostClient,
   getServiceClient,
 } from './fixtures/supabase'
 
@@ -61,6 +62,45 @@ test.describe('RLS — public/private isolation', () => {
       .eq('id', 1)
       .select()
     // RLS UPDATE with no policy: no error, but zero rows are affected.
+    expect(error).toBeNull()
+    expect(data ?? []).toHaveLength(0)
+  })
+})
+
+test.describe('RLS — authenticated non-host (membership is the gate)', () => {
+  // The realistic attacker with signup open: a signed-in user who is NOT in the
+  // allowlist. These lock the invariant that `authenticated` ≠ authorized — a
+  // regression to `auth.role() = 'authenticated'` would turn them red.
+  test('non-host CANNOT read wedding_private', async () => {
+    const nonHost = await getNonHostClient()
+    const { data, error } = await nonHost.from('wedding_private').select('*')
+    expect(error).toBeNull()
+    expect(data ?? []).toHaveLength(0)
+  })
+
+  test('non-host CANNOT read host_allowlist', async () => {
+    const nonHost = await getNonHostClient()
+    const { data, error } = await nonHost.from('host_allowlist').select('*')
+    // Self-row policy returns only the caller's own row — they have none.
+    expect(error).toBeNull()
+    expect(data ?? []).toHaveLength(0)
+  })
+
+  test('non-host CANNOT insert into wedding_private', async () => {
+    const nonHost = await getNonHostClient()
+    const { error } = await nonHost
+      .from('wedding_private')
+      .insert({ planning_notes: 'intruso autenticado' })
+    expect(error).not.toBeNull()
+  })
+
+  test('non-host CANNOT update wedding_private', async () => {
+    const nonHost = await getNonHostClient()
+    const { data, error } = await nonHost
+      .from('wedding_private')
+      .update({ planning_notes: 'intruso autenticado' })
+      .eq('id', 1)
+      .select()
     expect(error).toBeNull()
     expect(data ?? []).toHaveLength(0)
   })

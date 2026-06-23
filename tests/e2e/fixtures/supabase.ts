@@ -27,6 +27,10 @@ function envOr(key: string): string {
 export const TEST_HOST_EMAIL = process.env.PLAYWRIGHT_HOST_EMAIL ?? 'host@test.local'
 export const TEST_HOST_PASSWORD =
   process.env.PLAYWRIGHT_HOST_PASSWORD ?? 'test-host-password-123'
+export const TEST_NONHOST_EMAIL =
+  process.env.PLAYWRIGHT_NONHOST_EMAIL ?? 'nonhost@test.local'
+export const TEST_NONHOST_PASSWORD =
+  process.env.PLAYWRIGHT_NONHOST_PASSWORD ?? 'test-nonhost-password-123'
 
 const noPersist = { auth: { persistSession: false, autoRefreshToken: false } }
 
@@ -70,6 +74,30 @@ export async function getHostClient(): Promise<SupabaseClient> {
   if (error) {
     throw new Error(
       `Could not sign in test host (${TEST_HOST_EMAIL}): ${error.message}. ` +
+        `Has global-setup run? See tests/e2e/README.md.`,
+    )
+  }
+  return client
+}
+
+/**
+ * A fresh client signed in as the test NON-HOST user (the `authenticated` role
+ * WITHOUT allowlist membership). Used to prove that being authenticated is not
+ * the same as being authorized — the realistic attacker when signup is open.
+ */
+export async function getNonHostClient(): Promise<SupabaseClient> {
+  const client = createClient(
+    envOr('NEXT_PUBLIC_SUPABASE_URL'),
+    envOr('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+    noPersist,
+  )
+  const { error } = await client.auth.signInWithPassword({
+    email: TEST_NONHOST_EMAIL,
+    password: TEST_NONHOST_PASSWORD,
+  })
+  if (error) {
+    throw new Error(
+      `Could not sign in test non-host (${TEST_NONHOST_EMAIL}): ${error.message}. ` +
         `Has global-setup run? See tests/e2e/README.md.`,
     )
   }

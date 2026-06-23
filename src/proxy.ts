@@ -70,6 +70,21 @@ export async function proxy(request: NextRequest) {
   response.headers.set('x-client-ip', clientIp)
   request.headers.set('x-client-ip', clientIp)
 
+  const { pathname } = request.nextUrl
+  const isPublic = isPublicPath(pathname)
+  const hasAuthCookie = request.cookies
+    .getAll()
+    .some((c) => c.name.startsWith('sb-'))
+
+  // Fast path: an anonymous request (no Supabase auth cookie) to a public route
+  // has no session to refresh and is allowed by the gate regardless — skip the
+  // blocking `getUser()` Auth round-trip. This keeps the highest-traffic,
+  // fully-anonymous surface (guest invitations /i/[token], /info) off the
+  // Supabase Auth API. Cookie-bearing requests still refresh below.
+  if (isPublic && !hasAuthCookie) {
+    return response
+  }
+
   // Validate the session against Supabase. `getUser()` re-checks the JWT
   // signature server-side — this is what triggers the cookie refresh wired up
   // via `cookies.setAll` above.
@@ -77,10 +92,8 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { pathname } = request.nextUrl
-
   // Deny-by-default: no session + a non-public path = bounce to login.
-  if (!user && !isPublicPath(pathname)) {
+  if (!user && !isPublic) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     // Carry any cookies `setAll` staged on `response` (e.g. a clearing write

@@ -106,8 +106,15 @@ self.addEventListener('fetch', (event) => {
       (async () => {
         try {
           const res = await fetch(request)
-          const cache = await caches.open(PAGES_CACHE)
-          cache.put(request, res.clone())
+          // Only cache successful, non-redirected documents. A 4xx/5xx body
+          // would poison the offline fallback (served instead of /~offline),
+          // and an opaqueredirect (e.g. the /login bounce) makes cache.put
+          // reject. Fire-and-forget with a catch so a put failure can never
+          // reject the navigation itself.
+          if (res.ok && !res.redirected) {
+            const cache = await caches.open(PAGES_CACHE)
+            cache.put(request, res.clone()).catch(() => {})
+          }
           return res
         } catch {
           const cache = await caches.open(PAGES_CACHE)

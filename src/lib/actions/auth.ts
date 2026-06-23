@@ -77,6 +77,12 @@ export async function loginAction(
  * Sign out the current host and bounce them to the login page. Invoked from a
  * `<form action={logoutAction}>` button in the host nav. The redirect clears
  * the rendered tree so the cookie deletion is visible on the next request.
+ *
+ * DELIBERATELY EXEMPT from the "every host Server Action calls requireHost()
+ * first" invariant: logout only clears the CALLER'S OWN session cookie and
+ * redirects to /login. It exposes no data and must stay callable by any session
+ * — including one already removed from the allowlist (who must still be able to
+ * sign out). signOut() on an absent session is a harmless no-op.
  */
 export async function logoutAction(): Promise<void> {
   const supabase = await createClient()

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Fraunces } from "next/font/google";
 import "./globals.css";
 
+import { PWARegister } from "@/components/pwa-register";
 import { site } from "@/lib/site";
 
 /**
@@ -37,6 +38,10 @@ export const metadata: Metadata = {
   },
   description: "Gestión de nuestra boda: invitación, confirmaciones e información.",
   applicationName: site.name,
+  icons: {
+    icon: "/icon-192.png",
+    apple: "/apple-touch-icon.png",
+  },
   // The back-office is private; the guest surface opts back in per-route.
   robots: { index: false, follow: false },
   formatDetection: { telephone: false },
@@ -59,8 +64,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${sans.variable} ${display.variable}`}>
-      <body className="min-h-dvh font-sans antialiased">{children}</body>
+    <html
+      lang="es"
+      data-scroll-behavior="smooth"
+      className={`${sans.variable} ${display.variable}`}
+    >
+      <body className="min-h-dvh font-sans antialiased">
+        {children}
+        <PWARegister />
+      </body>
     </html>
   );
 }

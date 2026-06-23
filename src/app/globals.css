@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+/*
+ * boda-app design tokens.
+ *
+ * An elegant, romantic wedding palette: warm ivory paper, deep plum-ink text,
+ * a dusty rose accent, with sage and champagne-gold as secondary notes. Aim is
+ * editorial and tactile — not a generic SaaS template.
+ *
+ * Colors use OKLCH for perceptual uniformity. The neutral `stone` ramp drifts
+ * gently toward plum at the dark end so shadows read warm, never cold gray.
+ */
+
+@theme inline {
+  /* ------------------------------------------------------------------ */
+  /* Surface + text                                                      */
+  /* ------------------------------------------------------------------ */
+  --color-background: oklch(0.987 0.007 70);  /* warm ivory */
+  --color-foreground: oklch(0.27 0.025 340);  /* deep plum-ink */
+
+  /* ------------------------------------------------------------------ */
+  /* Stone ramp — warm neutral greige from paper to near-black plum      */
+  /* ------------------------------------------------------------------ */
+  --color-stone-50:  oklch(0.975 0.006 70);
+  --color-stone-100: oklch(0.945 0.008 68);
+  --color-stone-200: oklch(0.900 0.010 66);
+  --color-stone-300: oklch(0.835 0.012 60);
+  --color-stone-400: oklch(0.720 0.014 55);
+  --color-stone-500: oklch(0.600 0.016 50);
+  --color-stone-600: oklch(0.490 0.016 48);
+  --color-stone-700: oklch(0.395 0.017 45);
+  --color-stone-800: oklch(0.310 0.018 350);
+  --color-stone-900: oklch(0.235 0.020 345);
+
+  /* ------------------------------------------------------------------ */
+  /* Accents                                                             */
+  /* ------------------------------------------------------------------ */
+  --color-accent: oklch(0.55 0.125 10);             /* dusty rose / wine-rose */
+  --color-accent-foreground: oklch(0.987 0.007 70); /* ivory on rose */
+
+  /* Secondary accents */
+  --color-sage: oklch(0.60 0.045 150);  /* eucalyptus green */
+  --color-gold: oklch(0.80 0.075 85);   /* champagne gold */
+
+  /* ------------------------------------------------------------------ */
+  /* Neutrals derived from the warm palette                              */
+  /* ------------------------------------------------------------------ */
+  --color-muted: oklch(0.955 0.010 75);
+  --color-muted-foreground: oklch(0.50 0.018 50);
+
+  --color-card: oklch(0.995 0.004 75);
+  --color-card-foreground: var(--color-foreground);
+
+  --color-border: oklch(0.900 0.012 65);
+  --color-input: oklch(0.900 0.012 65);
+  --color-ring: oklch(0.55 0.125 10); /* matches accent for focus */
+
+  /* Feedback */
+  --color-destructive: oklch(0.555 0.205 27);
+  --color-destructive-foreground: oklch(0.987 0.007 70);
+  --color-success: oklch(0.575 0.105 150);
+  --color-success-foreground: oklch(0.987 0.007 70);
+
+  /* ------------------------------------------------------------------ */
+  /* Typography                                                          */
+  /* ------------------------------------------------------------------ */
+  --font-sans: var(--font-sans-stack);
+  --font-display: var(--font-display-stack);
+
+  /* ------------------------------------------------------------------ */
+  /* Radii — gentle, not pillowy                                         */
+  /* ------------------------------------------------------------------ */
+  --radius-sm: 0.375rem;
+  --radius: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  /* ------------------------------------------------------------------ */
+  /* Shadows — warm-tinted, never pure black                             */
+  /* ------------------------------------------------------------------ */
+  --shadow-soft:
+    0 1px 2px oklch(0.30 0.03 340 / 0.06),
+    0 2px 6px oklch(0.30 0.03 340 / 0.05);
+  --shadow-warm:
+    0 4px 12px oklch(0.30 0.03 340 / 0.08),
+    0 12px 28px oklch(0.30 0.03 340 / 0.07);
+  --shadow-press: 0 1px 0 oklch(0.30 0.03 340 / 0.15) inset;
+}
+
+/* ====================================================================== */
+/* Base                                                                    */
+/* ====================================================================== */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "kern", "liga", "calt";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Display headings use the serif by default; per-component overrides win. */
+  h1, h2, h3 {
+    font-family: var(--font-display), ui-serif, Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* Consistent, branded focus ring across all interactive elements. */
+  *:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Remove the tap highlight on mobile in favor of our own active states. */
+  a, button, [role="button"], input, select, textarea, label {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Native dialog backdrop styling. */
+  dialog::backdrop {
+    background-color: oklch(0.22 0.02 340 / 0.55);
+    backdrop-filter: blur(2px);
+  }
+
+  dialog {
+    color: var(--color-foreground);
+  }
+
+  /* Disable the default placeholder italic on Safari. */
+  ::placeholder {
+    color: var(--color-muted-foreground);
+    opacity: 1;
+  }
+
+  /* Hide native number-input spinners — they're rarely useful. */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  /* Selection picks up the accent. */
+  ::selection {
+    background-color: oklch(0.55 0.125 10 / 0.22);
+    color: var(--color-foreground);
+  }
+}

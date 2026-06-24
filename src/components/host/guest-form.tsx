@@ -89,14 +89,6 @@ export function GuestForm({
           </Field>
         </div>
 
-        <Field
-          label="Alergias"
-          hint="Opcional · dato de salud"
-          error={errs?.allergies?.[0]}
-        >
-          <Input name="allergies" defaultValue={guest?.allergies ?? ''} />
-        </Field>
-
         <label className="flex items-center gap-2.5 text-[0.9375rem] text-[var(--color-foreground)]">
           <input
             type="checkbox"

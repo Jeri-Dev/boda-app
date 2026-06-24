@@ -1,7 +1,14 @@
 import { randomUUID } from 'node:crypto'
 
 import { sql } from 'drizzle-orm'
-import { check, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import {
+  check,
+  index,
+  integer,
+  sqliteTable,
+  text,
+  uniqueIndex,
+} from 'drizzle-orm/sqlite-core'
 
 /**
  * boda-app schema (Drizzle + SQLite/libSQL).
@@ -62,8 +69,6 @@ export const guests = sqliteTable(
       .notNull()
       .default('pending'),
     menu: text('menu'),
-    /** Health data (RGPD Art. 9) — nullable; every read must tolerate NULL. */
-    allergies: text('allergies'),
     /** Whether this guest may bring a +1. */
     plusOne: integer('plus_one', { mode: 'boolean' }).notNull().default(false),
     plusOneName: text('plus_one_name'),
@@ -246,3 +251,90 @@ export const tasks = sqliteTable('tasks', {
 
 export type Task = typeof tasks.$inferSelect
 export type NewTask = typeof tasks.$inferInsert
+
+/**
+ * Invitation tokens + RSVP infrastructure (U2.1).
+ *
+ * Security model (no RLS — the browser never touches the DB; the Next server is
+ * the only DB client). The token is a 256-bit URL-safe SECRET (see lib/tokens),
+ * never `randomUUID`. Validity is COMPUTED on every read (`status='valido'` AND
+ * not past `expires_at`) — there is no persisted "expired" state to drift.
+ * `party_size` is how many people the invitation covers (1 = individual).
+ */
+export const INVITE_STATUSES = ['valido', 'revocado'] as const
+export type InviteStatus = (typeof INVITE_STATUSES)[number]
+
+export const inviteTokens = sqliteTable(
+  'invite_tokens',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    /** High-entropy URL-safe secret (256 bits) — set via lib/tokens, not here. */
+    token: text('token').notNull().unique(),
+    /** How many people this invitation is for (its linked guest rows). */
+    partySize: integer('party_size').notNull().default(1),
+    status: text('status', { enum: INVITE_STATUSES })
+      .notNull()
+      .default('valido'),
+    /** Computed-validity cutoff; NULL = never expires. */
+    expiresAt: integer('expires_at', { mode: 'timestamp' }),
+    /** Back-office label, e.g. "Familia Pérez". */
+    label: text('label'),
+    /** The guest's free-text RSVP message (one per invitation). */
+    message: text('message'),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`)
+      .$onUpdate(() => sql`(unixepoch())`),
+  },
+  (t) => [
+    check('invite_tokens_status_check', sql`${t.status} in ('valido', 'revocado')`),
+    check('invite_tokens_party_size_check', sql`${t.partySize} >= 1`),
+  ],
+)
+
+export type InviteToken = typeof inviteTokens.$inferSelect
+export type NewInviteToken = typeof inviteTokens.$inferInsert
+
+/**
+ * Bridge token↔guests (soft refs, no enforced FK — cleaned in app code on
+ * delete). A token covers `party_size` guest rows; an INNER JOIN discards
+ * orphaned links naturally.
+ */
+export const tokenGuests = sqliteTable(
+  'token_guests',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    tokenId: text('token_id').notNull(),
+    guestId: text('guest_id').notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    uniqueIndex('token_guests_token_guest_uq').on(t.tokenId, t.guestId),
+    index('token_guests_token_idx').on(t.tokenId),
+    index('token_guests_guest_idx').on(t.guestId),
+  ],
+)
+
+export type TokenGuest = typeof tokenGuests.$inferSelect
+
+/**
+ * Persistent rate-limit store (libSQL is the shared store across serverless
+ * invocations; an in-memory Map would be fail-open useless on Vercel). Fixed
+ * window via atomic UPSERT.
+ */
+export const rateLimits = sqliteTable('rate_limits', {
+  key: text('key').primaryKey(),
+  count: integer('count').notNull().default(0),
+  windowStart: integer('window_start', { mode: 'timestamp' }).notNull(),
+})
+
+export type RateLimit = typeof rateLimits.$inferSelect

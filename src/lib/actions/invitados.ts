@@ -37,7 +37,6 @@ const GuestSchema = z.object({
   phone: z.string().trim().max(40, 'Máximo 40 caracteres').optional(),
   rsvpStatus: z.enum(RSVP_STATUSES),
   menu: z.string().trim().max(120, 'Máximo 120 caracteres').optional(),
-  allergies: z.string().trim().max(500, 'Máximo 500 caracteres').optional(),
   plusOne: z.boolean(),
   plusOneName: z.string().trim().max(160, 'Máximo 160 caracteres').optional(),
   notes: z.string().trim().max(2000, 'Máximo 2000 caracteres').optional(),
@@ -70,7 +69,6 @@ function readForm(formData: FormData) {
     phone: opt('phone'),
     rsvpStatus: str('rsvpStatus') || 'pending',
     menu: opt('menu'),
-    allergies: opt('allergies'),
     // Checkbox: present ('on') when checked, absent otherwise.
     plusOne: formData.get('plusOne') != null,
     plusOneName: opt('plusOneName'),
@@ -87,7 +85,6 @@ function toRow(data: z.infer<typeof GuestSchema>) {
     phone: data.phone ?? null,
     rsvpStatus: data.rsvpStatus,
     menu: data.menu ?? null,
-    allergies: data.allergies ?? null,
     plusOne: data.plusOne,
     // Keep the +1 name coherent with the flag: no orphan name when there's no +1.
     plusOneName: data.plusOne ? (data.plusOneName ?? null) : null,

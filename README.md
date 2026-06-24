@@ -9,14 +9,14 @@ Stack: **Next.js 16** (App Router, React 19) · **Drizzle ORM + libSQL** (SQLite
 
 ## Estado
 
-**Fase 0 · Cimientos — completa.** Scaffold, capa de datos (Drizzle + libSQL), shell PWA offline y cabeceras de seguridad. Hoja de ruta en [`docs/plans/`](docs/plans/).
+**Fases 0–1 completas.** Cimientos (scaffold, datos Drizzle/libSQL, PWA offline, cabeceras) y el núcleo privado: gestión de invitados, proveedores, presupuesto, tareas y un dashboard que lo agrega. Hoja de ruta en [`docs/plans/`](docs/plans/).
 
 > Nota: la hoja de ruta original asumía Supabase + auth de cuenta única (RLS, frontera público/privado). El proyecto se replanteó como **app abierta sobre Drizzle/libSQL**; ese documento queda como histórico y será revisado por fase.
 
 | Fase | Alcance |
 |------|---------|
 | **0 — Cimientos** ✅ | Scaffold · datos (Drizzle/libSQL) · PWA · cabeceras/CSP |
-| 1 — Núcleo privado | Invitados · proveedores · presupuesto · tareas · dashboard |
+| **1 — Núcleo privado** ✅ | Invitados · proveedores · presupuesto · tareas · dashboard |
 | 2 — Cara al invitado | Tokens + RSVP · invitación · web/regalos · RGPD |
 | 3 — Distribución | Mesas · plano 2D (SVG) · vista día-B offline |
 

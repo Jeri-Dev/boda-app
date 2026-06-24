@@ -5,7 +5,7 @@ import { site } from '@/lib/site'
 /**
  * PWA manifest (Next file convention → served at `/manifest.webmanifest`,
  * auto-linked into <head>). `start_url` is the back-office root so the installed
- * app opens straight into the dashboard (or /login when the session lapses).
+ * app opens straight into the dashboard.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {

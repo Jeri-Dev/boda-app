@@ -45,8 +45,8 @@ next-env.d.ts
 # Playwright
 /playwright-report
 /test-results
-/tests/.auth
 
-# Supabase CLI local cache (linked-project info, tool versions)
-/supabase/.temp
-/supabase/.branches
+# Local SQLite database (Drizzle + libSQL dev)
+/local.db
+/local.db-shm
+/local.db-wal

@@ -34,9 +34,8 @@ widens `connect-src` to localhost websockets for Turbopack HMR.
 ### Why not nonce-strict now
 
 1. A nonce + `'strict-dynamic'` CSP forces **every page into dynamic rendering**
-   (Next applies the nonce only during SSR) and must be threaded through the
-   auth proxy. That's risk against the gate that protects all private data — not
-   worth taking in Fase 0.
+   (Next applies the nonce only during SSR) and needs a per-request edge/proxy
+   layer to mint the nonce — infrastructure we don't add in Fase 0.
 2. It directly fights the **public-page caching** the roadmap wants for the Fase
    2 invitation surface (the plan calls this tension out explicitly).
 3. Fase 0 renders **no untrusted user content**. The stored-XSS surface (guest
@@ -46,11 +45,12 @@ widens `connect-src` to localhost websockets for Turbopack HMR.
 ### Fase 2 HARD GATE
 
 Before the public invitation/RSVP surface ships, upgrade `script-src` to
-`'self' 'nonce-<n>' 'strict-dynamic'` generated per-request in `src/proxy.ts`
-(canonical mechanism: `node_modules/next/dist/docs/01-app/02-guides/content-
-security-policy.md`), and decide how nonce-driven dynamic rendering coexists
-with caching the public pages. Pair it with output escaping of all guest text
-(React default; never `dangerouslySetInnerHTML`) per the roadmap risk table.
+`'self' 'nonce-<n>' 'strict-dynamic'` generated per-request in an edge/proxy
+layer (canonical mechanism: `node_modules/next/dist/docs/01-app/02-guides/
+content-security-policy.md`), and decide how nonce-driven dynamic rendering
+coexists with caching the public pages. Pair it with output escaping of all
+guest text (React default; never `dangerouslySetInnerHTML`) per the roadmap
+risk table.
 
 ## Verified by
 

@@ -22,7 +22,7 @@
  *   No PII is ever precached.
  */
 
-const CACHE_VERSION = 'v1'
+const CACHE_VERSION = 'v2'
 const STATIC_CACHE = `static-${CACHE_VERSION}`
 const PAGES_CACHE = `pages-${CACHE_VERSION}`
 const OFFLINE_URL = '/~offline'
@@ -108,9 +108,8 @@ self.addEventListener('fetch', (event) => {
           const res = await fetch(request)
           // Only cache successful, non-redirected documents. A 4xx/5xx body
           // would poison the offline fallback (served instead of /~offline),
-          // and an opaqueredirect (e.g. the /login bounce) makes cache.put
-          // reject. Fire-and-forget with a catch so a put failure can never
-          // reject the navigation itself.
+          // and an opaqueredirect makes cache.put reject. Fire-and-forget with
+          // a catch so a put failure can never reject the navigation itself.
           if (res.ok && !res.redirected) {
             const cache = await caches.open(PAGES_CACHE)
             cache.put(request, res.clone()).catch(() => {})

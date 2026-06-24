@@ -1,28 +1,5 @@
 import type { NextConfig } from "next";
 
-// Derive the Supabase hostname + full origin at config-eval time. `next/image`
-// needs the hostname allowlist before the server starts; the CSP needs the full
-// origin (scheme + port) so the browser can reach the API/Storage. Both fall
-// back to empty on a fresh clone so `pnpm build` still succeeds. Mirrors
-// my-app/next.config.ts.
-const supabaseHost = (() => {
-  try {
-    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").hostname;
-  } catch {
-    return "";
-  }
-})();
-
-const supabaseOrigin = (() => {
-  try {
-    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").origin;
-  } catch {
-    return "";
-  }
-})();
-
-const supabaseWsOrigin = supabaseOrigin.replace(/^http/, "ws");
-
 const isDev = process.env.NODE_ENV !== "production";
 
 /**
@@ -33,15 +10,18 @@ const isDev = process.env.NODE_ENV !== "production";
  * `base-uri 'self'`, `frame-ancestors 'none'`, `form-action 'self'`. We accept
  * `'unsafe-inline'` on `script-src`/`style-src` here because:
  *   1. The strict alternative (nonce + 'strict-dynamic') forces ALL pages into
- *      dynamic rendering and must be threaded through the auth proxy — risk we
- *      don't take against the gate in Fase 0.
+ *      dynamic rendering — risk we don't take in Fase 0.
  *   2. Fase 0 renders NO untrusted user content (the stored-XSS surface — guest
  *      RSVP messages — arrives in Fase 2). The marginal value now is low.
  *
+ * Data is read server-side via Drizzle (same origin) — no external `connect-src`
+ * or image host is needed. Fase 1 re-adds an `img-src`/`remotePatterns` entry if
+ * assets are served from an external provider.
+ *
  * FASE 2 HARD GATE: before the public invitation/RSVP surface ships, upgrade
- * `script-src` to `'self' 'nonce-<n>' 'strict-dynamic'` via the proxy (Next 16
- * mechanism: node_modules/next/dist/docs/01-app/02-guides/content-security-
- * policy.md) and reconcile with public-page caching. Tracked in
+ * `script-src` to `'self' 'nonce-<n>' 'strict-dynamic'` (Next 16 mechanism:
+ * node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md) and
+ * reconcile with public-page caching. Tracked in
  * docs/solutions/2026-06-23-fase0-security-headers.md.
  *
  * Dev relaxes script-src with `'unsafe-eval'` (Turbopack HMR) and widens
@@ -51,9 +31,9 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' blob: data:${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
+  "img-src 'self' blob: data:",
   "font-src 'self' data:",
-  `connect-src 'self'${supabaseOrigin ? ` ${supabaseOrigin} ${supabaseWsOrigin}` : ""}${
+  `connect-src 'self'${
     isDev ? " ws://127.0.0.1:* ws://localhost:* http://127.0.0.1:* http://localhost:*" : ""
   }`,
   "worker-src 'self'",
@@ -91,21 +71,17 @@ const nextConfig: NextConfig = {
   // Already the default for `next start`; set explicitly so this file answers
   // the "are responses compressed?" checklist question without a doc dive.
   compress: true,
+  // @libsql/client ships native bindings — keep it out of the server bundle so
+  // it resolves at runtime (avoids "module not found" for the platform binary).
+  serverExternalPackages: ["@libsql/client", "libsql"],
   turbopack: {
     // Pin the workspace root to this project. A stray lockfile in $HOME
     // otherwise makes Next infer the wrong root (see build warning).
     root: import.meta.dirname,
   },
   images: {
-    remotePatterns: supabaseHost
-      ? [
-          {
-            protocol: "https",
-            hostname: supabaseHost,
-            pathname: "/storage/v1/object/public/**",
-          },
-        ]
-      : [],
+    // Fase 1 adds the asset host here if images come from an external provider.
+    remotePatterns: [],
   },
   async headers() {
     return [

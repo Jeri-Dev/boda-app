@@ -11,7 +11,7 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Security headers', () => {
   test('document responses carry the hardening headers', async ({ request }) => {
-    const res = await request.get('/login')
+    const res = await request.get('/')
     const h = res.headers()
 
     expect(h['x-content-type-options']).toBe('nosniff')
@@ -30,7 +30,7 @@ test.describe('Security headers', () => {
   })
 
   test('the X-Powered-By fingerprint header is stripped', async ({ request }) => {
-    const res = await request.get('/login')
+    const res = await request.get('/')
     expect(res.headers()['x-powered-by']).toBeUndefined()
   })
 

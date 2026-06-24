@@ -34,17 +34,13 @@ function loadEnvLocal() {
 loadEnvLocal()
 
 /**
- * Playwright config for the boda-app E2E + integration suite.
+ * Playwright config for the boda-app E2E suite.
  *
- * Serial by design: specs share one local Supabase stack, so running in
- * parallel would race on the singleton config rows and leak state. `global-
- * setup` provisions the test host user + allowlist membership and captures an
- * authenticated `storageState` once per run.
+ * Serial by design (`workers: 1`) to keep a single dev server + database state
+ * deterministic across specs.
  *
- * Required env (see `.env.local` / `tests/e2e/README.md`):
- *   NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
- *   PLAYWRIGHT_SUPABASE_SERVICE_KEY  (service/secret key — RLS asserts + setup)
- *   PLAYWRIGHT_HOST_EMAIL, PLAYWRIGHT_HOST_PASSWORD
+ * Optional env (see `.env.local`):
+ *   PLAYWRIGHT_BASE_URL  (defaults to http://localhost:3000)
  */
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000'
 
@@ -57,7 +53,6 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   forbidOnly: Boolean(process.env.CI),
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
-  globalSetup: './tests/e2e/global-setup.ts',
   use: {
     baseURL,
     trace: 'on-first-retry',

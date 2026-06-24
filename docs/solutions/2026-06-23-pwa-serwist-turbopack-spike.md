@@ -39,8 +39,9 @@ requirement (R19: read-only día-B) without coupling the bundler.
   (`NODE_ENV` is inlined, so dev compiles to a no-op).
 - `next.config.ts` serves `/sw.js` with `Cache-Control: no-store` + a JS MIME.
 - The **SW contract** (cache names, strategies, exclusions) is fixed in U0.4 so
-  Fase 3 (U3.3 día-B offline) only ADDS a dedicated, expiring cache name +
-  `PURGE_CACHES` on logout — it does not redesign the worker.
+  Fase 3 (U3.3 día-B offline) only ADDS a dedicated, expiring cache name + a
+  manual `PURGE_CACHES` message (día-B PII hygiene) — it does not redesign the
+  worker.
 
 ## Revisit if
 

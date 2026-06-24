@@ -151,3 +151,74 @@ export const vendors = sqliteTable(
 
 export type Vendor = typeof vendors.$inferSelect
 export type NewVendor = typeof vendors.$inferInsert
+
+/**
+ * Budget + payments (U1.3). A budget `category` holds the PLANNED amount
+ * (previsto); `payments` track the real spend. "Real" = sum of paid payments
+ * (globally and per category). Payments link to a category and (optionally) a
+ * vendor by **soft reference** (plain id columns, no enforced FK — libSQL/Turso
+ * doesn't enforce FKs reliably over HTTP). Delete actions null these refs in
+ * application code; reads LEFT JOIN and tolerate orphans.
+ */
+export const budgetCategories = sqliteTable(
+  'budget_categories',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    name: text('name').notNull(),
+    /** Planned amount (previsto), in DOP cents. */
+    plannedCents: integer('planned_cents').notNull().default(0),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`)
+      .$onUpdate(() => sql`(unixepoch())`),
+  },
+  (t) => [
+    check('budget_categories_planned_check', sql`${t.plannedCents} >= 0`),
+  ],
+)
+
+export type BudgetCategory = typeof budgetCategories.$inferSelect
+export type NewBudgetCategory = typeof budgetCategories.$inferInsert
+
+export const PAYMENT_STATUSES = ['pendiente', 'pagado'] as const
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number]
+
+export const payments = sqliteTable(
+  'payments',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    concept: text('concept').notNull(),
+    /** Payment amount in DOP cents (0 is allowed). */
+    amountCents: integer('amount_cents').notNull().default(0),
+    status: text('status', { enum: PAYMENT_STATUSES })
+      .notNull()
+      .default('pendiente'),
+    /** Due / expected date as a calendar date `YYYY-MM-DD` (timezone-free). */
+    dueDate: text('due_date'),
+    /** Soft references (no enforced FK) — nulled by app code on parent delete. */
+    vendorId: text('vendor_id'),
+    categoryId: text('category_id'),
+    notes: text('notes'),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`)
+      .$onUpdate(() => sql`(unixepoch())`),
+  },
+  (t) => [
+    check('payments_amount_check', sql`${t.amountCents} >= 0`),
+    check('payments_status_check', sql`${t.status} in ('pendiente', 'pagado')`),
+  ],
+)
+
+export type Payment = typeof payments.$inferSelect
+export type NewPayment = typeof payments.$inferInsert

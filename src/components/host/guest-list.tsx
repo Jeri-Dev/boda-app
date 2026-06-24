@@ -50,8 +50,9 @@ export function GuestList({ guests }: { guests: Guest[] }) {
     }
     setDeletingId(g.id)
     startTransition(async () => {
-      await deleteGuest(g.id)
+      const res = await deleteGuest(g.id)
       setDeletingId(null)
+      if (!res.ok) window.alert(res.error)
     })
   }
 

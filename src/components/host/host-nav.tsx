@@ -10,6 +10,7 @@ const LINKS = [
   { href: '/', label: 'Panel' },
   { href: '/invitados', label: 'Invitados' },
   { href: '/proveedores', label: 'Proveedores' },
+  { href: '/presupuesto', label: 'Presupuesto' },
 ] as const
 
 export function HostNav() {

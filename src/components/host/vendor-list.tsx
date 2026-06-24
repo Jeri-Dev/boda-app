@@ -51,8 +51,9 @@ export function VendorList({ vendors }: { vendors: Vendor[] }) {
     }
     setDeletingId(v.id)
     startTransition(async () => {
-      await deleteVendor(v.id)
+      const res = await deleteVendor(v.id)
       setDeletingId(null)
+      if (!res.ok) window.alert(res.error)
     })
   }
 

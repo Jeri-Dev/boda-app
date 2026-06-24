@@ -16,7 +16,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { db } from '@/lib/db'
-import { vendors, VENDOR_STATUSES } from '@/lib/db/schema'
+import { payments, vendors, VENDOR_STATUSES } from '@/lib/db/schema'
 import { parseMoneyToCents } from '@/lib/utils/money'
 
 const VendorSchema = z.object({
@@ -158,10 +158,12 @@ export async function deleteVendor(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
-    const deleted = await db
-      .delete(vendors)
-      .where(eq(vendors.id, id))
-      .returning({ id: vendors.id })
+    // Soft-ref cleanup + delete in one atomic batch: detach payments from the
+    // vendor, then remove it.
+    const [, deleted] = await db.batch([
+      db.update(payments).set({ vendorId: null }).where(eq(payments.vendorId, id)),
+      db.delete(vendors).where(eq(vendors.id, id)).returning({ id: vendors.id }),
+    ])
     if (deleted.length === 0) {
       return { ok: false, error: 'Proveedor no encontrado' }
     }
@@ -170,5 +172,6 @@ export async function deleteVendor(
   }
 
   revalidatePath('/proveedores')
+  revalidatePath('/presupuesto')
   return { ok: true }
 }

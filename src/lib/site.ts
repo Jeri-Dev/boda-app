@@ -1,10 +1,10 @@
 /**
  * Static site/brand constants.
  *
- * The wedding's *content* (couple names, date, venue, dress code) lives in the
- * `wedding_public` / `wedding_private` tables and is edited from the back-office
- * — this module only holds app-level identity + locale that never changes per
- * deploy. Read `NEXT_PUBLIC_SITE_URL` for absolute URL resolution.
+ * The wedding's *content* (couple names, date, venue) lives in the `wedding`
+ * table (Drizzle) and is edited from the back-office — this module only holds
+ * app-level identity + locale that never changes per deploy. Read
+ * `NEXT_PUBLIC_SITE_URL` for absolute URL resolution.
  */
 export const site = {
   /** App name shown in the title bar / PWA manifest before the couple configures theirs. */

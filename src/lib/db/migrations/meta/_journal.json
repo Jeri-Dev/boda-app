@@ -15,6 +15,13 @@
       "when": 1782316621001,
       "tag": "0001_salty_pandemic",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1782320997840,
+      "tag": "0002_melodic_blink",
+      "breakpoints": true
     }
   ]
 }

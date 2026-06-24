@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { deletePayment } from '@/lib/actions/presupuesto'
 import type { Payment, PaymentStatus } from '@/lib/db/schema'
+import { formatDateEs } from '@/lib/utils/dates'
 import { formatCents } from '@/lib/utils/money'
 import { PaymentForm } from './payment-form'
 
@@ -59,10 +60,6 @@ export function PaymentList({
     })
   }
 
-  function formatDate(iso: string) {
-    const [y, m, d] = iso.split('-')
-    return `${d}/${m}/${y}`
-  }
   function dueInfo(p: Payment): { color: string; tag: string | null } {
     if (p.status !== 'pendiente' || !p.dueDate) return { color: '', tag: null }
     if (p.dueDate < today) {
@@ -155,7 +152,7 @@ export function PaymentList({
                       return (
                         <span className="inline-flex items-center gap-2 tabular-nums">
                           <span className={due.color}>
-                            {formatDate(p.dueDate)}
+                            {formatDateEs(p.dueDate)}
                           </span>
                           {due.tag ? (
                             <span

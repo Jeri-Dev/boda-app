@@ -11,6 +11,7 @@ const LINKS = [
   { href: '/invitados', label: 'Invitados' },
   { href: '/proveedores', label: 'Proveedores' },
   { href: '/presupuesto', label: 'Presupuesto' },
+  { href: '/tareas', label: 'Tareas' },
 ] as const
 
 export function HostNav() {

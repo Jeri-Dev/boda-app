@@ -222,3 +222,27 @@ export const payments = sqliteTable(
 
 export type Payment = typeof payments.$inferSelect
 export type NewPayment = typeof payments.$inferInsert
+
+/**
+ * Task checklist (U1.4). In-app only (no proactive notifications). Ordered by
+ * urgency in the read; `dueDate` is a timezone-free `YYYY-MM-DD`.
+ */
+export const tasks = sqliteTable('tasks', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => randomUUID()),
+  title: text('title').notNull(),
+  dueDate: text('due_date'),
+  done: integer('done', { mode: 'boolean' }).notNull().default(false),
+  notes: text('notes'),
+  createdAt: integer('created_at', { mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer('updated_at', { mode: 'timestamp' })
+    .notNull()
+    .default(sql`(unixepoch())`)
+    .$onUpdate(() => sql`(unixepoch())`),
+})
+
+export type Task = typeof tasks.$inferSelect
+export type NewTask = typeof tasks.$inferInsert

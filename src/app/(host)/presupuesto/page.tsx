@@ -5,6 +5,7 @@ import { BudgetCategories } from '@/components/host/budget-categories'
 import { PaymentList } from '@/components/host/payment-list'
 import { db } from '@/lib/db'
 import { budgetCategories, payments, vendors } from '@/lib/db/schema'
+import { isoDateDR, plusDaysDR } from '@/lib/utils/dates'
 import { formatCents } from '@/lib/utils/money'
 
 export const metadata: Metadata = {
@@ -15,18 +16,6 @@ export const metadata: Metadata = {
 // has no dynamic API (no searchParams) to opt into it automatically — so force
 // per-request rendering instead of a build-time static snapshot.
 export const dynamic = 'force-dynamic'
-
-// Calendar date in the wedding's local zone (RD is UTC-4, no DST). Using UTC
-// here would flag a payment due "today" as overdue after ~20:00 local.
-const doDateFmt = new Intl.DateTimeFormat('en-CA', {
-  timeZone: 'America/Santo_Domingo',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-})
-function isoDate(d: Date) {
-  return doDateFmt.format(d)
-}
 
 export default async function PresupuestoPage() {
   const [categories, paymentRows, vendorRows] = await Promise.all([
@@ -76,9 +65,8 @@ export default async function PresupuestoPage() {
   }))
   const categoryOptions = categories.map((c) => ({ id: c.id, name: c.name }))
 
-  const now = new Date()
-  const today = isoDate(now)
-  const soon = isoDate(new Date(now.getTime() + 14 * 86_400_000))
+  const today = isoDateDR()
+  const soon = plusDaysDR(14)
 
   const stats = [
     { label: 'Previsto', value: previstoTotal },

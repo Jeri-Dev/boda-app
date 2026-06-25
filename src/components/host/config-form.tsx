@@ -68,6 +68,102 @@ export function ConfigForm({ wedding }: { wedding: Wedding | null }) {
         />
       </Field>
 
+      <fieldset className="grid gap-5 border-t border-[var(--color-border)] pt-6">
+        <legend className="font-display text-lg text-[var(--color-foreground)]">
+          Información para invitados
+        </legend>
+        <p className="text-sm text-[var(--color-muted-foreground)]">
+          Se muestra en la página pública <code>/info</code>. Los apartados
+          vacíos se ocultan.
+        </p>
+
+        <Field label="Enlace al mapa" hint="Google Maps u otro" error={errs?.mapUrl?.[0]}>
+          <Input
+            name="mapUrl"
+            type="url"
+            placeholder="https://maps.google.com/…"
+            defaultValue={wedding?.mapUrl ?? ''}
+          />
+        </Field>
+
+        <Field label="Horario / agenda" error={errs?.schedule?.[0]}>
+          <Textarea
+            name="schedule"
+            rows={3}
+            placeholder="5:00 PM Ceremonia · 7:00 PM Cóctel · 8:00 PM Recepción"
+            defaultValue={wedding?.schedule ?? ''}
+          />
+        </Field>
+
+        <Field label="Código de vestimenta" error={errs?.dressCode?.[0]}>
+          <Input
+            name="dressCode"
+            placeholder="Formal / etiqueta"
+            defaultValue={wedding?.dressCode ?? ''}
+          />
+        </Field>
+
+        <Field label="Alojamiento" error={errs?.accommodation?.[0]}>
+          <Textarea
+            name="accommodation"
+            rows={3}
+            defaultValue={wedding?.accommodation ?? ''}
+          />
+        </Field>
+
+        <Field label="Transporte" error={errs?.transport?.[0]}>
+          <Textarea
+            name="transport"
+            rows={3}
+            defaultValue={wedding?.transport ?? ''}
+          />
+        </Field>
+      </fieldset>
+
+      <fieldset className="grid gap-5 border-t border-[var(--color-border)] pt-6">
+        <legend className="font-display text-lg text-[var(--color-foreground)]">
+          Mesa de regalos
+        </legend>
+
+        <Field label="Mensaje" error={errs?.giftMessage?.[0]}>
+          <Textarea
+            name="giftMessage"
+            rows={3}
+            placeholder="Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo…"
+            defaultValue={wedding?.giftMessage ?? ''}
+          />
+        </Field>
+
+        <Field
+          label="Datos para transferencia"
+          hint="Cuenta / IBAN. La página pública no se indexa."
+          error={errs?.giftDetails?.[0]}
+        >
+          <Textarea
+            name="giftDetails"
+            rows={3}
+            defaultValue={wedding?.giftDetails ?? ''}
+          />
+        </Field>
+      </fieldset>
+
+      <fieldset className="grid gap-5 border-t border-[var(--color-border)] pt-6">
+        <legend className="font-display text-lg text-[var(--color-foreground)]">
+          Privacidad
+        </legend>
+        <Field
+          label="Contacto para datos personales"
+          hint="Email/teléfono para que los invitados ejerzan sus derechos (RGPD)"
+          error={errs?.privacyContact?.[0]}
+        >
+          <Input
+            name="privacyContact"
+            placeholder="novios@ejemplo.com"
+            defaultValue={wedding?.privacyContact ?? ''}
+          />
+        </Field>
+      </fieldset>
+
       <div className="flex items-center gap-3">
         <Button type="submit" variant="primary" disabled={pending} aria-busy={pending}>
           Guardar

@@ -33,6 +33,17 @@ export const wedding = sqliteTable(
     venue: text('venue'),
     /** Welcome / invitation message shown on the public invitation. */
     message: text('message'),
+    /* ── Public info page (/info), U2.5 — all optional, hidden when empty ── */
+    mapUrl: text('map_url'),
+    schedule: text('schedule'),
+    dressCode: text('dress_code'),
+    accommodation: text('accommodation'),
+    transport: text('transport'),
+    /** Gift registry intro + transfer details (no payment gateway). */
+    giftMessage: text('gift_message'),
+    giftDetails: text('gift_details'),
+    /** Contact for exercising data rights (RGPD notice, U2.6). */
+    privacyContact: text('privacy_contact'),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),

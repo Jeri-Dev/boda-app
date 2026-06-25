@@ -28,6 +28,27 @@ const ConfigSchema = z.object({
   eventTime: z.string().trim().max(40, 'Máximo 40 caracteres').optional(),
   venue: z.string().trim().max(200, 'Máximo 200 caracteres').optional(),
   message: z.string().trim().max(2000, 'Máximo 2000 caracteres').optional(),
+  // Public info (U2.5).
+  mapUrl: z
+    .string()
+    .trim()
+    .url('Enlace inválido (debe empezar por http)')
+    .max(2048, 'Enlace demasiado largo')
+    .refine((u) => {
+      try {
+        return ['http:', 'https:'].includes(new URL(u).protocol)
+      } catch {
+        return false
+      }
+    }, 'Solo se permiten enlaces http/https')
+    .optional(),
+  schedule: z.string().trim().max(2000, 'Máximo 2000 caracteres').optional(),
+  dressCode: z.string().trim().max(200, 'Máximo 200 caracteres').optional(),
+  accommodation: z.string().trim().max(2000, 'Máximo 2000 caracteres').optional(),
+  transport: z.string().trim().max(2000, 'Máximo 2000 caracteres').optional(),
+  giftMessage: z.string().trim().max(2000, 'Máximo 2000 caracteres').optional(),
+  giftDetails: z.string().trim().max(2000, 'Máximo 2000 caracteres').optional(),
+  privacyContact: z.string().trim().max(200, 'Máximo 200 caracteres').optional(),
 })
 
 export type ConfigActionState =
@@ -57,17 +78,34 @@ export async function saveConfig(
     eventTime: opt('eventTime'),
     venue: opt('venue'),
     message: opt('message'),
+    mapUrl: opt('mapUrl'),
+    schedule: opt('schedule'),
+    dressCode: opt('dressCode'),
+    accommodation: opt('accommodation'),
+    transport: opt('transport'),
+    giftMessage: opt('giftMessage'),
+    giftDetails: opt('giftDetails'),
+    privacyContact: opt('privacyContact'),
   })
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors }
   }
 
+  const d = parsed.data
   const values = {
-    coupleNames: parsed.data.coupleNames,
-    eventDate: parsed.data.eventDate ? new Date(parsed.data.eventDate) : null,
-    eventTime: parsed.data.eventTime ?? null,
-    venue: parsed.data.venue ?? null,
-    message: parsed.data.message ?? null,
+    coupleNames: d.coupleNames,
+    eventDate: d.eventDate ? new Date(d.eventDate) : null,
+    eventTime: d.eventTime ?? null,
+    venue: d.venue ?? null,
+    message: d.message ?? null,
+    mapUrl: d.mapUrl ?? null,
+    schedule: d.schedule ?? null,
+    dressCode: d.dressCode ?? null,
+    accommodation: d.accommodation ?? null,
+    transport: d.transport ?? null,
+    giftMessage: d.giftMessage ?? null,
+    giftDetails: d.giftDetails ?? null,
+    privacyContact: d.privacyContact ?? null,
   }
 
   try {
@@ -80,6 +118,7 @@ export async function saveConfig(
   }
 
   revalidatePath('/configuracion')
+  revalidatePath('/info')
   // The invitation surface reads this; bust any cached render.
   revalidatePath('/i', 'layout')
   return { ok: true }

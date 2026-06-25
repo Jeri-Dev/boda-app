@@ -1,6 +1,9 @@
+import Link from 'next/link'
+
 import type { RsvpView } from '@/lib/data/rsvp'
 import type { Wedding } from '@/lib/db/schema'
 
+import { PrivacyNotice } from './privacy-notice'
 import { RsvpForm } from './rsvp-form'
 
 /**
@@ -88,11 +91,20 @@ export function Invitation({
             members={view.members}
             initialMessage={view.message}
           />
+          <div className="mt-5 border-t border-[var(--color-border)] pt-4">
+            <PrivacyNotice contact={wedding?.privacyContact ?? null} />
+          </div>
         </div>
       </section>
 
       <footer className="mt-auto pt-12 text-center text-xs text-[var(--color-muted-foreground)]">
-        Con cariño, {couple}.
+        <Link
+          href="/info"
+          className="text-[var(--color-accent)] underline-offset-4 hover:underline"
+        >
+          Más información sobre la boda →
+        </Link>
+        <p className="mt-3">Con cariño, {couple}.</p>
       </footer>
     </main>
   )

@@ -9,7 +9,7 @@ Stack: **Next.js 16** (App Router, React 19) · **Drizzle ORM + libSQL** (SQLite
 
 ## Estado
 
-**Fases 0–2 completas.** Cimientos (scaffold, datos Drizzle/libSQL, PWA offline, cabeceras), el núcleo privado (invitados, proveedores, presupuesto, tareas, dashboard) y la cara al invitado: invitaciones por token, RSVP público seguro, recordatorios, web informativa, mesa de regalos y aviso de privacidad. Hoja de ruta en [`docs/plans/`](docs/plans/).
+**Las 3 fases completas.** Cimientos (scaffold, datos Drizzle/libSQL, PWA offline, cabeceras), núcleo privado (invitados, proveedores, presupuesto, tareas, dashboard), cara al invitado (invitaciones por token, RSVP público seguro, recordatorios, web informativa, regalos, privacidad) y distribución (mesas, plano 2D arrastrable, vista día-B offline). Hoja de ruta en [`docs/plans/`](docs/plans/).
 
 > Nota: la hoja de ruta original asumía Supabase + auth de cuenta única (RLS, frontera público/privado). El proyecto se replanteó como **app abierta sobre Drizzle/libSQL**; ese documento queda como histórico y será revisado por fase.
 
@@ -18,7 +18,7 @@ Stack: **Next.js 16** (App Router, React 19) · **Drizzle ORM + libSQL** (SQLite
 | **0 — Cimientos** ✅ | Scaffold · datos (Drizzle/libSQL) · PWA · cabeceras/CSP |
 | **1 — Núcleo privado** ✅ | Invitados · proveedores · presupuesto · tareas · dashboard |
 | **2 — Cara al invitado** ✅ | Tokens + RSVP seguro · invitación · pendientes · web/regalos · privacidad |
-| 3 — Distribución | Mesas · plano 2D (SVG) · vista día-B offline |
+| **3 — Distribución** ✅ | Mesas · plano 2D (SVG) · vista día-B offline |
 
 ## Arquitectura (claves)
 

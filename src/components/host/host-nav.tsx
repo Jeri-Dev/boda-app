@@ -15,6 +15,7 @@ const LINKS = [
   { href: '/presupuesto', label: 'Presupuesto' },
   { href: '/tareas', label: 'Tareas' },
   { href: '/mesas', label: 'Mesas' },
+  { href: '/dia-b', label: 'Día B' },
   { href: '/configuracion', label: 'Configuración' },
 ] as const
 

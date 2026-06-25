@@ -8,11 +8,14 @@
  * only offline requirement (R19: read-only día-B) without coupling the bundler.
  * See docs/solutions/2026-06-23-pwa-serwist-turbopack-spike.md.
  *
- * ── SW CONTRACT (fixed here in U0.4; U3.3 only ADDS to it) ──────────────────
+ * ── SW CONTRACT (fixed here in U0.4) ───────────────────────────────────────
  *   Caches:
  *     static-<v>  CacheFirst   content-hashed build assets (safe forever)
  *     pages-<v>   NetworkFirst HTML navigations, fallback to /~offline
- *     (U3.3 adds) diaB-<v>     NetworkFirst día-B data, dedicated + expiring
+ *   U3.3 NOTE: the día-B read-only view (/dia-b) needs no dedicated cache — it's
+ *   a plain navigation, already served NetworkFirst from `pages-<v>` (fresh when
+ *   online, last snapshot when offline). PII hygiene relies on device lock + the
+ *   CACHE_VERSION bump purge; no allergies are stored anywhere.
  *   NEVER cached:
  *     - non-GET (Server Actions are POSTs)
  *     - RSC / prefetch / Server-Action navigations (headers RSC,
@@ -28,8 +31,7 @@ const PAGES_CACHE = `pages-${CACHE_VERSION}`
 const OFFLINE_URL = '/~offline'
 const PRECACHE = [OFFLINE_URL]
 
-// Caches this SW version owns. Anything else is purged on activate. U3.3 adds
-// its día-B cache name here so it survives activation.
+// Caches this SW version owns. Anything else is purged on activate.
 const OWNED_CACHES = new Set([STATIC_CACHE, PAGES_CACHE])
 
 self.addEventListener('install', (event) => {

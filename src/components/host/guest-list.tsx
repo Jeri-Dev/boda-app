@@ -120,6 +120,11 @@ export function GuestList({ guests }: { guests: Guest[] }) {
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={g.rsvpStatus} />
+                    {g.lastModifiedSource === 'guest' ? (
+                      <span className="mt-0.5 block text-[0.7rem] text-[var(--color-muted-foreground)]">
+                        por el invitado
+                      </span>
+                    ) : null}
                   </td>
                   <td className="px-4 py-3 text-[var(--color-muted-foreground)]">
                     {g.plusOne ? (g.plusOneName ?? 'Sí') : '—'}

@@ -125,10 +125,9 @@ export async function applyRsvp(
   input: ApplyRsvpInput,
   database = db,
 ): Promise<ApplyRsvpResult> {
-  if (input.members.length === 0) {
-    return { ok: false, error: 'No hay datos que guardar' }
-  }
-
+  // An empty members list is allowed: the guest may only be (re)writing the
+  // group message. Untouched members are intentionally NOT submitted, so they
+  // keep whatever the host set — never clobbered to null.
   const tk = (
     await database
       .select({

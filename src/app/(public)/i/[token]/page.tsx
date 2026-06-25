@@ -33,5 +33,5 @@ export default async function InvitationPage({
   const weddingRow =
     (await db.select().from(wedding).where(eq(wedding.id, 1)).limit(1))[0] ?? null
 
-  return <Invitation view={view} wedding={weddingRow} />
+  return <Invitation view={view} wedding={weddingRow} token={token} />
 }

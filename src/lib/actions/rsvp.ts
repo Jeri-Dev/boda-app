@@ -33,7 +33,9 @@ const MemberSchema = z
 
 const PayloadSchema = z
   .object({
-    members: z.array(MemberSchema).min(1).max(20),
+    // May be empty: the guest can submit only the group message, and untouched
+    // members are intentionally not posted (so their host-set data is kept).
+    members: z.array(MemberSchema).max(20),
     message: z.string().trim().max(2000, 'Máximo 2000 caracteres').optional(),
   })
   .strict()

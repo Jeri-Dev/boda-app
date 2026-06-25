@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { applyRsvp, getRsvpView } from '@/lib/data/rsvp'
@@ -152,6 +153,41 @@ describe('applyRsvp (scoped atomic write)', () => {
     expect(all.find((g) => g.id === b)!.plusOneName).toBeNull()
   })
 
+  it('does not clobber an untouched member (partial-group submit)', async () => {
+    const { token, a, b } = await seedGroup()
+    // Host pre-sets B's menu while B is still pending (simulate host edit).
+    await db
+      .update(guests)
+      .set({ menu: 'carne', lastModifiedSource: 'host' })
+      .where(eq(guests.id, b))
+
+    // Guest confirms only A; B is NOT submitted.
+    const res = await applyRsvp(
+      { token, members: [{ guestId: a, rsvpStatus: 'confirmed', menu: 'pescado' }] },
+      db,
+    )
+    expect(res).toEqual({ ok: true })
+
+    const all = await db.select().from(guests)
+    const aRow = all.find((g) => g.id === a)!
+    const bRow = all.find((g) => g.id === b)!
+    // A updated by guest.
+    expect(aRow.rsvpStatus).toBe('confirmed')
+    expect(aRow.lastModifiedSource).toBe('guest')
+    // B untouched: host data preserved, NOT flipped to guest.
+    expect(bRow.rsvpStatus).toBe('pending')
+    expect(bRow.menu).toBe('carne')
+    expect(bRow.lastModifiedSource).toBe('host')
+  })
+
+  it('accepts a message-only submission (no members)', async () => {
+    const { token } = await seedGroup()
+    const res = await applyRsvp({ token, members: [], message: 'Hola' }, db)
+    expect(res).toEqual({ ok: true })
+    const tk = (await db.select().from(inviteTokens)).find((t) => t.token === token)!
+    expect(tk.message).toBe('Hola')
+  })
+
   it('is atomic: a DB-level CHECK violation reverts the whole batch', async () => {
     const { token, a, b } = await seedGroup()
     const res = await applyRsvp(
@@ -181,6 +217,26 @@ describe('applyRsvp (scoped atomic write)', () => {
     )
     expect(res.ok).toBe(false)
     expect((await db.select().from(guests)).find((g) => g.id === a)!.rsvpStatus).toBe('pending')
+  })
+
+  it('stores free-text verbatim (XSS payloads are escaped at render, not here)', async () => {
+    const { token, a } = await seedGroup()
+    const payload = '<script>alert(1)</script>'
+    const res = await applyRsvp(
+      {
+        token,
+        members: [{ guestId: a, rsvpStatus: 'confirmed', menu: payload }],
+        message: payload,
+      },
+      db,
+    )
+    expect(res).toEqual({ ok: true })
+    // The data layer stores raw text (no HTML execution/mangling); React escapes
+    // it on output. Storing it un-mangled is correct.
+    const ana = (await db.select().from(guests)).find((g) => g.id === a)!
+    expect(ana.menu).toBe(payload)
+    const tk = (await db.select().from(inviteTokens)).find((t) => t.token === token)!
+    expect(tk.message).toBe(payload)
   })
 
   it('rejects writes against an expired token', async () => {

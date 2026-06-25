@@ -50,6 +50,12 @@ export function GuestForm({
     // blocking submit with a native bubble.
     <form action={formAction} noValidate>
       <DialogBody className="grid gap-4">
+        {guest?.lastModifiedSource === 'guest' ? (
+          <p className="rounded-[var(--radius)] border border-[var(--color-gold)] bg-[var(--color-gold)]/10 px-3 py-2 text-xs text-[var(--color-foreground)]">
+            Este invitado ya respondió desde su enlace. Si guardas, sobrescribirás
+            su respuesta.
+          </p>
+        ) : null}
         <Field label="Nombre" error={errs?.name?.[0]} required>
           <Input name="name" defaultValue={guest?.name ?? ''} autoFocus />
         </Field>

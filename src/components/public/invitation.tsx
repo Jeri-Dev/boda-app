@@ -1,20 +1,15 @@
-import type { RsvpMember, RsvpView } from '@/lib/data/rsvp'
+import type { RsvpView } from '@/lib/data/rsvp'
 import type { Wedding } from '@/lib/db/schema'
-import type { RsvpStatus } from '@/lib/db/schema'
+
+import { RsvpForm } from './rsvp-form'
 
 /**
- * Public invitation (U2.2) — read-only display rendered from the wedding config
- * + the token's projected view. The interactive RSVP form lands in U2.3 inside
- * the `#confirmar` section. All guest/host text is rendered as plain children,
- * so React escapes it (the project's primary XSS defense for the public
- * surface — see docs/solutions).
+ * Public invitation (U2.2/U2.3) — display rendered from the wedding config + the
+ * token's projected view, with the interactive RSVP form in the `#confirmar`
+ * section. All guest/host text is rendered as plain children, so React escapes
+ * it (the project's primary XSS defense for the public surface — see
+ * docs/solutions).
  */
-
-const STATUS_LABEL: Record<RsvpStatus, { label: string; dot: string }> = {
-  pending: { label: 'Sin responder', dot: 'var(--color-gold)' },
-  confirmed: { label: 'Confirmado', dot: 'var(--color-success)' },
-  declined: { label: 'No asiste', dot: 'var(--color-destructive)' },
-}
 
 function formatLongDate(date: Date): string {
   // Format the stored calendar date in UTC so it matches what the host entered
@@ -28,40 +23,14 @@ function formatLongDate(date: Date): string {
   }).format(date)
 }
 
-function MemberRow({ member }: { member: RsvpMember }) {
-  const meta = STATUS_LABEL[member.rsvpStatus]
-  return (
-    <li className="flex items-center justify-between gap-3 border-b border-[var(--color-border)] py-3 last:border-b-0">
-      <div className="min-w-0">
-        <span className="block truncate text-[var(--color-foreground)]">
-          {member.name}
-        </span>
-        {member.plusOne ? (
-          <span className="text-xs text-[var(--color-muted-foreground)]">
-            {member.plusOneName
-              ? `+1: ${member.plusOneName}`
-              : 'Puede traer acompañante'}
-          </span>
-        ) : null}
-      </div>
-      <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-sm text-[var(--color-muted-foreground)]">
-        <span
-          aria-hidden
-          className="h-2 w-2 rounded-full"
-          style={{ background: meta.dot }}
-        />
-        {meta.label}
-      </span>
-    </li>
-  )
-}
-
 export function Invitation({
   view,
   wedding,
+  token,
 }: {
   view: Extract<RsvpView, { state: 'valid' }>
   wedding: Wedding | null
+  token: string
 }) {
   const couple = wedding?.coupleNames?.trim() || 'Nuestra Boda'
 
@@ -103,22 +72,22 @@ export function Invitation({
         </section>
       ) : null}
 
-      {/* Group + status (read-only; the editable form arrives in U2.3) */}
+      {/* RSVP form (U2.3) */}
       <section id="confirmar" className="mt-12">
         <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-6 py-5 shadow-[var(--shadow-soft)]">
           <h2 className="font-display text-xl tracking-tight text-[var(--color-foreground)]">
             {view.members.length === 1
-              ? 'Tu invitación'
-              : `Invitación para ${view.partySize} ${view.partySize === 1 ? 'persona' : 'personas'}`}
+              ? 'Confirma tu asistencia'
+              : `Confirmación para ${view.partySize} ${view.partySize === 1 ? 'persona' : 'personas'}`}
           </h2>
-          <ul className="mt-3">
-            {view.members.map((m) => (
-              <MemberRow key={m.id} member={m} />
-            ))}
-          </ul>
-          <p className="mt-4 text-sm text-[var(--color-muted-foreground)]">
-            Pronto podrás confirmar tu asistencia desde aquí.
+          <p className="mt-1 mb-5 text-sm text-[var(--color-muted-foreground)]">
+            Puedes editar tu respuesta más adelante con este mismo enlace.
           </p>
+          <RsvpForm
+            token={token}
+            members={view.members}
+            initialMessage={view.message}
+          />
         </div>
       </section>
 

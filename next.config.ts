@@ -18,10 +18,14 @@ const isDev = process.env.NODE_ENV !== "production";
  * or image host is needed. Fase 1 re-adds an `img-src`/`remotePatterns` entry if
  * assets are served from an external provider.
  *
- * FASE 2 HARD GATE: before the public invitation/RSVP surface ships, upgrade
- * `script-src` to `'self' 'nonce-<n>' 'strict-dynamic'` (Next 16 mechanism:
- * node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md) and
- * reconcile with public-page caching. Tracked in
+ * FASE 2 (resolved): the roadmap's "upgrade to nonce + 'strict-dynamic' before
+ * the public surface ships" hard gate was OVERTAKEN by the no-auth pivot — its
+ * justification was protecting a privileged back-office session, which no longer
+ * exists (open app, no login, no session secrets). The public invitation/RSVP
+ * surface renders all guest/host text through React (output-escaped), which is
+ * the primary XSS defense; reintroducing a per-request nonce proxy would force
+ * every page dynamic and fight public-page caching for no session to protect.
+ * Decision: keep `'unsafe-inline'`, rely on React escaping. See
  * docs/solutions/2026-06-23-fase0-security-headers.md.
  *
  * Dev relaxes script-src with `'unsafe-eval'` (Turbopack HMR) and widens

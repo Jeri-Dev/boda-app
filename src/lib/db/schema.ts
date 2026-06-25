@@ -28,7 +28,11 @@ export const wedding = sqliteTable(
     id: integer('id').primaryKey().default(1),
     coupleNames: text('couple_names').notNull().default(''),
     eventDate: integer('event_date', { mode: 'timestamp' }),
+    /** Free-text time of day, e.g. "5:00 PM". */
+    eventTime: text('event_time'),
     venue: text('venue'),
+    /** Welcome / invitation message shown on the public invitation. */
+    message: text('message'),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),

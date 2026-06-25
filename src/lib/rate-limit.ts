@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { sql } from 'drizzle-orm'
+import { lt, sql } from 'drizzle-orm'
 
 import { db } from '@/lib/db'
 import { rateLimits } from '@/lib/db/schema'
@@ -18,10 +18,9 @@ import { rateLimits } from '@/lib/db/schema'
  * is acceptable because the 256-bit token is the primary defense against
  * enumeration; the rate limit is secondary (anti-spam).
  *
- * TODO(U2.2): the table has no TTL — each distinct `tok:`/`ip:` key inserts a
- * row. Add a GC (delete where `window_start < now - maxWindow`) when the
- * `/i/[token]` route is wired and a cleanup cadence exists. Negligible at a
- * single-wedding scale; not route-reachable yet.
+ * Row growth is bounded by `pruneRateLimits`, called opportunistically from the
+ * public RSVP action (each distinct `tok:`/`ip:` key would otherwise leave a
+ * stale row once its window passes).
  *
  * @param key   bucket key, e.g. `ip:<sha256>` or `tok:<tokenId>`
  * @param limit max requests per window
@@ -54,5 +53,22 @@ export async function checkRateLimit(
     return { ok: count <= limit }
   } catch {
     return { ok: true } // fail-open
+  }
+}
+
+/**
+ * Best-effort GC of expired rate-limit rows (windows older than `olderThanSecs`,
+ * which should exceed the longest active window so live buckets are never
+ * pruned). Safe to call opportunistically; failures are swallowed.
+ */
+export async function pruneRateLimits(
+  olderThanSecs: number,
+  database = db,
+): Promise<void> {
+  try {
+    const cutoff = new Date(Date.now() - olderThanSecs * 1000)
+    await database.delete(rateLimits).where(lt(rateLimits.windowStart, cutoff))
+  } catch {
+    /* best-effort */
   }
 }

@@ -9,9 +9,11 @@ import { site } from '@/lib/site'
 const LINKS = [
   { href: '/', label: 'Panel' },
   { href: '/invitados', label: 'Invitados' },
+  { href: '/invitaciones', label: 'Invitaciones' },
   { href: '/proveedores', label: 'Proveedores' },
   { href: '/presupuesto', label: 'Presupuesto' },
   { href: '/tareas', label: 'Tareas' },
+  { href: '/configuracion', label: 'Configuración' },
 ] as const
 
 export function HostNav() {

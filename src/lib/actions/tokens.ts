@@ -23,7 +23,7 @@ export async function createInvitation(args: {
   expiresAt?: Date | null
 }): Promise<CreateInvitationResult> {
   const res = await createInvitationCore(args)
-  if (res.ok) revalidatePath('/invitados')
+  if (res.ok) revalidatePath('/invitaciones')
   return res
 }
 
@@ -31,7 +31,7 @@ export async function revokeInvitation(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const res = await revokeInvitationCore(id)
-  if (res.ok) revalidatePath('/invitados')
+  if (res.ok) revalidatePath('/invitaciones')
   return res
 }
 
@@ -39,6 +39,6 @@ export async function regenerateInvitation(
   id: string,
 ): Promise<CreateInvitationResult> {
   const res = await regenerateInvitationCore(id)
-  if (res.ok) revalidatePath('/invitados')
+  if (res.ok) revalidatePath('/invitaciones')
   return res
 }

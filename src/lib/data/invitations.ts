@@ -5,8 +5,65 @@ import { randomUUID } from 'node:crypto'
 import { eq } from 'drizzle-orm'
 
 import { db } from '@/lib/db'
-import { inviteTokens, tokenGuests } from '@/lib/db/schema'
+import {
+  guests,
+  inviteTokens,
+  tokenGuests,
+  type InviteStatus,
+} from '@/lib/db/schema'
 import { newInviteToken } from '@/lib/tokens'
+
+/** Back-office view of an invitation, with its linked guests. */
+export type InvitationRow = {
+  id: string
+  token: string
+  label: string | null
+  partySize: number
+  status: InviteStatus
+  members: { id: string; name: string }[]
+}
+
+export async function listInvitations(database = db): Promise<InvitationRow[]> {
+  const tokens = await database
+    .select({
+      id: inviteTokens.id,
+      token: inviteTokens.token,
+      label: inviteTokens.label,
+      partySize: inviteTokens.partySize,
+      status: inviteTokens.status,
+      createdAt: inviteTokens.createdAt,
+    })
+    .from(inviteTokens)
+    .orderBy(inviteTokens.createdAt)
+
+  const links = await database
+    .select({
+      tokenId: tokenGuests.tokenId,
+      id: guests.id,
+      name: guests.name,
+    })
+    .from(tokenGuests)
+    .innerJoin(guests, eq(tokenGuests.guestId, guests.id))
+
+  const byToken = new Map<string, { id: string; name: string }[]>()
+  for (const l of links) {
+    const arr = byToken.get(l.tokenId) ?? []
+    arr.push({ id: l.id, name: l.name })
+    byToken.set(l.tokenId, arr)
+  }
+
+  return tokens
+    .map((t) => ({
+      id: t.id,
+      token: t.token,
+      label: t.label,
+      partySize: t.partySize,
+      status: t.status,
+      members: byToken.get(t.id) ?? [],
+    }))
+    // Newest first.
+    .reverse()
+}
 
 /**
  * Invitation management core (U2.1). Testable: accepts an explicit `database`

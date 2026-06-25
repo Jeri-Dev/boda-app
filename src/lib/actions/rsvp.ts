@@ -10,7 +10,7 @@ import { z } from 'zod'
 
 import { applyRsvp } from '@/lib/data/rsvp'
 import { RSVP_STATUSES } from '@/lib/db/schema'
-import { checkRateLimit } from '@/lib/rate-limit'
+import { checkRateLimit, pruneRateLimits } from '@/lib/rate-limit'
 
 /**
  * Public RSVP Server Action (U2.1). NO auth (public surface). Pipeline:
@@ -66,6 +66,10 @@ export async function submitRsvp(
   if ((formData.get('website') as string)?.trim()) {
     return { ok: true }
   }
+
+  // Opportunistic GC so the rate_limits table can't grow unbounded (rows older
+  // than 1h are long past any active window). ~5% of submissions.
+  if (Math.random() < 0.05) await pruneRateLimits(3600)
 
   // Rate-limit: per token (non-spoofable) and per trusted IP. Generous limits —
   // the token entropy is the real defense; this is anti-spam.

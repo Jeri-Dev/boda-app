@@ -42,15 +42,24 @@ widens `connect-src` to localhost websockets for Turbopack HMR.
    RSVP free text rendered in the privileged back-office) does not exist until
    Fase 2. The marginal protection of nonce-strict `script-src` today is low.
 
-### Fase 2 HARD GATE
+### Fase 2 hard gate — RESOLVED (overtaken by the no-auth pivot)
 
-Before the public invitation/RSVP surface ships, upgrade `script-src` to
-`'self' 'nonce-<n>' 'strict-dynamic'` generated per-request in an edge/proxy
-layer (canonical mechanism: `node_modules/next/dist/docs/01-app/02-guides/
-content-security-policy.md`), and decide how nonce-driven dynamic rendering
-coexists with caching the public pages. Pair it with output escaping of all
-guest text (React default; never `dangerouslySetInnerHTML`) per the roadmap
-risk table.
+The roadmap mandated upgrading `script-src` to `'self' 'nonce-<n>'
+'strict-dynamic'` before the public invitation/RSVP surface shipped, as
+defense-in-depth against stored XSS in a **privileged back-office session**.
+
+That justification no longer holds: the project pivoted to an **open app** (no
+Supabase, no auth, no login) — there is no privileged session to protect, and
+the back-office holds no session secrets an XSS could exfiltrate. Reintroducing
+a per-request nonce would force every page into dynamic rendering, re-add a
+proxy layer we deleted, and fight the public-page caching the invitation surface
+wants — all to protect a session that doesn't exist.
+
+**Decision (U2.2):** keep `'unsafe-inline'` on `script-src`; rely on **React
+output escaping** as the XSS defense for the public surface (all guest/host
+free-text — invitation message, names, RSVP message — is rendered as escaped
+children, never `dangerouslySetInnerHTML`). If a privileged surface is ever
+reintroduced, revisit nonce-strict then.
 
 ## Verified by
 

@@ -20,19 +20,23 @@ test.describe('Tareas (U1.4)', () => {
       page.getByRole('listitem').filter({ hasText: title }),
     ).toBeVisible()
 
+    // Scope chip clicks to the filter nav so they don't collide with the
+    // top-bar nav links (which also has a "Pendientes" entry).
+    const filters = page.getByRole('navigation', { name: 'Filtrar tareas' })
+
     // ── Complete (in "Todas" so it stays visible) ────────────────────────
-    await page.getByRole('link', { name: /Todas/ }).click()
+    await filters.getByRole('link', { name: /Todas/ }).click()
     const item = page.getByRole('listitem').filter({ hasText: title })
     await item.getByRole('checkbox').click()
     await expect(item.getByRole('checkbox')).toBeChecked()
 
     // ── Filter: gone from Pendientes, present in Hechas ──────────────────
-    await page.getByRole('link', { name: /Pendientes/ }).click()
+    await filters.getByRole('link', { name: /Pendientes/ }).click()
     await expect(
       page.getByRole('listitem').filter({ hasText: title }),
     ).toHaveCount(0)
 
-    await page.getByRole('link', { name: /Hechas/ }).click()
+    await filters.getByRole('link', { name: /Hechas/ }).click()
     const doneItem = page.getByRole('listitem').filter({ hasText: title })
     await expect(doneItem).toBeVisible()
 

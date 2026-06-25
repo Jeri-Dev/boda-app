@@ -10,6 +10,7 @@ const LINKS = [
   { href: '/', label: 'Panel' },
   { href: '/invitados', label: 'Invitados' },
   { href: '/invitaciones', label: 'Invitaciones' },
+  { href: '/pendientes', label: 'Pendientes' },
   { href: '/proveedores', label: 'Proveedores' },
   { href: '/presupuesto', label: 'Presupuesto' },
   { href: '/tareas', label: 'Tareas' },

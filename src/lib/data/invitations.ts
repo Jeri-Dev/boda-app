@@ -10,8 +10,15 @@ import {
   inviteTokens,
   tokenGuests,
   type InviteStatus,
+  type RsvpStatus,
 } from '@/lib/db/schema'
 import { newInviteToken } from '@/lib/tokens'
+
+export type InvitationMember = {
+  id: string
+  name: string
+  rsvpStatus: RsvpStatus
+}
 
 /** Back-office view of an invitation, with its linked guests. */
 export type InvitationRow = {
@@ -20,7 +27,7 @@ export type InvitationRow = {
   label: string | null
   partySize: number
   status: InviteStatus
-  members: { id: string; name: string }[]
+  members: InvitationMember[]
 }
 
 export async function listInvitations(database = db): Promise<InvitationRow[]> {
@@ -41,14 +48,15 @@ export async function listInvitations(database = db): Promise<InvitationRow[]> {
       tokenId: tokenGuests.tokenId,
       id: guests.id,
       name: guests.name,
+      rsvpStatus: guests.rsvpStatus,
     })
     .from(tokenGuests)
     .innerJoin(guests, eq(tokenGuests.guestId, guests.id))
 
-  const byToken = new Map<string, { id: string; name: string }[]>()
+  const byToken = new Map<string, InvitationMember[]>()
   for (const l of links) {
     const arr = byToken.get(l.tokenId) ?? []
-    arr.push({ id: l.id, name: l.name })
+    arr.push({ id: l.id, name: l.name, rsvpStatus: l.rsvpStatus })
     byToken.set(l.tokenId, arr)
   }
 

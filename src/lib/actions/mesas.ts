@@ -7,8 +7,12 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { db } from '@/lib/db'
-import { tables } from '@/lib/db/schema'
-import { assignGuestCore, deleteTableCore } from '@/lib/data/seating'
+import { tables, TABLE_SHAPES } from '@/lib/db/schema'
+import {
+  assignGuestCore,
+  deleteTableCore,
+  setTablePositionCore,
+} from '@/lib/data/seating'
 
 /**
  * Seating Server Actions (U3.1). Open app (no auth gate). Table CRUD here;
@@ -33,6 +37,7 @@ const TableSchema = z.object({
       .min(1, 'Mínimo 1')
       .max(100, 'Máximo 100'),
   ),
+  shape: z.enum(TABLE_SHAPES).catch('round'),
 })
 
 export type TableActionState =
@@ -46,9 +51,11 @@ export type TableActionState =
 function readTable(formData: FormData) {
   const label = formData.get('label')
   const capacity = formData.get('capacity')
+  const shape = formData.get('shape')
   return {
     label: typeof label === 'string' ? label.trim() : '',
     capacity: typeof capacity === 'string' ? capacity : '',
+    shape: typeof shape === 'string' ? shape : 'round',
   }
 }
 
@@ -63,6 +70,7 @@ export async function createTable(
     await db.insert(tables).values({
       label: parsed.data.label,
       capacity: parsed.data.capacity,
+      shape: parsed.data.shape,
     })
   } catch {
     return { error: 'No se pudo crear la mesa' }
@@ -83,7 +91,11 @@ export async function updateTable(
   try {
     const updated = await db
       .update(tables)
-      .set({ label: parsed.data.label, capacity: parsed.data.capacity })
+      .set({
+        label: parsed.data.label,
+        capacity: parsed.data.capacity,
+        shape: parsed.data.shape,
+      })
       .where(eq(tables.id, id))
       .returning({ id: tables.id })
     if (updated.length === 0) return { error: 'Mesa no encontrada' }
@@ -108,6 +120,16 @@ export async function assignGuest(
   tableId: string | null,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const res = await assignGuestCore(guestId, tableId)
+  if (res.ok) revalidatePath('/mesas')
+  return res
+}
+
+export async function setTablePosition(
+  id: string,
+  x: number,
+  y: number,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await setTablePositionCore(id, x, y)
   if (res.ok) revalidatePath('/mesas')
   return res
 }

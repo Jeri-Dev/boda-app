@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { assignGuestCore, deleteTableCore } from '@/lib/data/seating'
+import {
+  assignGuestCore,
+  deleteTableCore,
+  setTablePositionCore,
+} from '@/lib/data/seating'
 import { guests, tables } from '@/lib/db/schema'
 
 import { makeTestDb, type TestDb } from './helpers/db'
@@ -52,5 +56,24 @@ describe('deleteTableCore', () => {
 
   it('returns not-found for a missing table', async () => {
     expect((await deleteTableCore('nope', db)).ok).toBe(false)
+  })
+})
+
+describe('setTablePositionCore', () => {
+  it('persists clamped, rounded coordinates', async () => {
+    expect((await setTablePositionCore('t1', 123.7, 456.2, db)).ok).toBe(true)
+    const t = (await db.select().from(tables)).find((x) => x.id === 't1')!
+    expect(t.posX).toBe(124)
+    expect(t.posY).toBe(456)
+  })
+
+  it('clamps out-of-range and rejects non-finite / missing table', async () => {
+    await setTablePositionCore('t1', -50, 99_999, db)
+    const t = (await db.select().from(tables)).find((x) => x.id === 't1')!
+    expect(t.posX).toBe(0)
+    expect(t.posY).toBe(10_000)
+
+    expect((await setTablePositionCore('t1', NaN, 10, db)).ok).toBe(false)
+    expect((await setTablePositionCore('nope', 1, 1, db)).ok).toBe(false)
   })
 })

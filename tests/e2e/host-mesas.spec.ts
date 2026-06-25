@@ -31,7 +31,7 @@ test.describe('Mesas (U3.1)', () => {
     await page.getByRole('spinbutton', { name: 'Capacidad' }).fill('1')
     await page.getByRole('button', { name: 'Crear mesa' }).click()
 
-    const tableCard = page.getByRole('region').filter({ hasText: tableLabel })
+    const tableCard = page.getByRole('region', { name: tableLabel })
     await expect(tableCard).toBeVisible()
     await expect(tableCard).toContainText('0 / 1')
 
@@ -46,7 +46,7 @@ test.describe('Mesas (U3.1)', () => {
     // ── Delete the table → both guests return to "Sin sentar" ────────────
     page.once('dialog', (d) => d.accept())
     await tableCard.getByRole('button', { name: 'Borrar' }).click()
-    await expect(page.getByRole('region').filter({ hasText: tableLabel })).toHaveCount(0)
+    await expect(page.getByRole('region', { name: tableLabel })).toHaveCount(0)
 
     // Both guests are listed under "Sin sentar" again.
     await expect(page.getByRole('combobox', { name: `Mesa de ${a}` })).toBeVisible()

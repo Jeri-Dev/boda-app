@@ -16,6 +16,34 @@ import { guests, tables } from '@/lib/db/schema'
  * here.
  */
 
+/**
+ * Persist a table's floor-plan position (U3.2). Coordinates are clamped to a
+ * sane canvas range so a bad client can't store absurd values. Idempotent;
+ * called debounced on drag-end.
+ */
+export async function setTablePositionCore(
+  id: string,
+  x: number,
+  y: number,
+  database = db,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!Number.isFinite(x) || !Number.isFinite(y)) {
+    return { ok: false, error: 'Posición inválida' }
+  }
+  const clamp = (n: number) => Math.max(0, Math.min(10_000, Math.round(n)))
+  try {
+    const updated = await database
+      .update(tables)
+      .set({ posX: clamp(x), posY: clamp(y) })
+      .where(eq(tables.id, id))
+      .returning({ id: tables.id })
+    if (updated.length === 0) return { ok: false, error: 'Mesa no encontrada' }
+  } catch {
+    return { ok: false, error: 'No se pudo guardar la posición' }
+  }
+  return { ok: true }
+}
+
 export async function deleteTableCore(
   id: string,
   database = db,

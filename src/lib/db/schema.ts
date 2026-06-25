@@ -363,6 +363,9 @@ export type RateLimit = typeof rateLimits.$inferSelect
  * `guests.table_id` ref; capacity is a SOFT constraint (recomputed on read,
  * over-capacity warns, never blocks).
  */
+export const TABLE_SHAPES = ['round', 'rect'] as const
+export type TableShape = (typeof TABLE_SHAPES)[number]
+
 export const tables = sqliteTable(
   'tables',
   {
@@ -371,6 +374,10 @@ export const tables = sqliteTable(
       .$defaultFn(() => randomUUID()),
     label: text('label').notNull(),
     capacity: integer('capacity').notNull().default(8),
+    /** Floor-plan geometry (U3.2). NULL = not placed yet (auto-laid-out). */
+    posX: integer('pos_x'),
+    posY: integer('pos_y'),
+    shape: text('shape', { enum: TABLE_SHAPES }).notNull().default('round'),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),
@@ -379,7 +386,10 @@ export const tables = sqliteTable(
       .default(sql`(unixepoch())`)
       .$onUpdate(() => sql`(unixepoch())`),
   },
-  (t) => [check('tables_capacity_check', sql`${t.capacity} >= 1`)],
+  (t) => [
+    check('tables_capacity_check', sql`${t.capacity} >= 1`),
+    check('tables_shape_check', sql`${t.shape} in ('round', 'rect')`),
+  ],
 )
 
 export type Table = typeof tables.$inferSelect

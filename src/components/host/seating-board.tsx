@@ -21,9 +21,14 @@ import {
   updateTable,
   type TableActionState,
 } from '@/lib/actions/mesas'
-import type { RsvpStatus } from '@/lib/db/schema'
+import type { RsvpStatus, TableShape } from '@/lib/db/schema'
 
-export type TableLite = { id: string; label: string; capacity: number }
+export type TableLite = {
+  id: string
+  label: string
+  capacity: number
+  shape: TableShape
+}
 export type GuestLite = {
   id: string
   name: string
@@ -113,15 +118,23 @@ function TableForm({
         <Field label="Nombre de la mesa" error={state?.fieldErrors?.label?.[0]} required>
           <Input name="label" placeholder="Mesa 1 / Familia" defaultValue={table?.label ?? ''} autoFocus />
         </Field>
-        <Field label="Capacidad" error={state?.fieldErrors?.capacity?.[0]}>
-          <Input
-            name="capacity"
-            type="number"
-            min={1}
-            max={100}
-            defaultValue={table?.capacity ?? 8}
-          />
-        </Field>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Capacidad" error={state?.fieldErrors?.capacity?.[0]}>
+            <Input
+              name="capacity"
+              type="number"
+              min={1}
+              max={100}
+              defaultValue={table?.capacity ?? 8}
+            />
+          </Field>
+          <Field label="Forma">
+            <Select name="shape" defaultValue={table?.shape ?? 'round'}>
+              <option value="round">Redonda</option>
+              <option value="rect">Rectangular</option>
+            </Select>
+          </Field>
+        </div>
         {state?.error ? (
           <p role="alert" className="text-sm font-medium text-[var(--color-destructive)]">
             {state.error}

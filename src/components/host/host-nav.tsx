@@ -14,6 +14,7 @@ const LINKS = [
   { href: '/proveedores', label: 'Proveedores' },
   { href: '/presupuesto', label: 'Presupuesto' },
   { href: '/tareas', label: 'Tareas' },
+  { href: '/mesas', label: 'Mesas' },
   { href: '/configuracion', label: 'Configuración' },
 ] as const
 

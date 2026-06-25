@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { count } from 'drizzle-orm'
+import { and, count, eq, isNull } from 'drizzle-orm'
 
 import { db } from '@/lib/db'
 import { budgetCategories, guests, payments, tasks } from '@/lib/db/schema'
@@ -44,7 +44,7 @@ function StatCard({
 }
 
 export default async function DashboardPage() {
-  const [guestCountRows, categoryRows, paymentRows, taskRows] =
+  const [guestCountRows, categoryRows, paymentRows, taskRows, unseatedRows] =
     await Promise.all([
       db
         .select({ status: guests.rsvpStatus, n: count() })
@@ -53,7 +53,13 @@ export default async function DashboardPage() {
       db.select({ planned: budgetCategories.plannedCents }).from(budgetCategories),
       db.select().from(payments),
       db.select().from(tasks),
+      // Confirmed guests with no table → the actionable "sin sentar" count.
+      db
+        .select({ n: count() })
+        .from(guests)
+        .where(and(eq(guests.rsvpStatus, 'confirmed'), isNull(guests.tableId))),
     ])
+  const sinSentar = unseatedRows[0]?.n ?? 0
 
   const today = isoDateDR()
   const soon = plusDaysDR(14)
@@ -136,6 +142,15 @@ export default async function DashboardPage() {
         upcomingTasks.length > 0
           ? `próxima: ${formatDateEs(upcomingTasks[0].dueDate as string)}`
           : 'sin fechas próximas',
+    },
+    {
+      href: '/mesas',
+      label: 'Sin sentar',
+      value: String(sinSentar),
+      sub:
+        sinSentar === 0
+          ? 'todos los confirmados tienen mesa'
+          : 'confirmados sin mesa',
     },
   ]
 

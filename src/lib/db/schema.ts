@@ -89,6 +89,9 @@ export const guests = sqliteTable(
     plusOneName: text('plus_one_name'),
     /** Host-only private notes. */
     notes: text('notes'),
+    /** Seating (Fase 3): soft ref to a logical `tables` row; nulled in app code
+     * when that table is deleted (never CASCADE — a deleted table = "sin sentar"). */
+    tableId: text('table_id'),
     lastModifiedSource: text('last_modified_source', {
       enum: ['host', 'guest'],
     })
@@ -353,3 +356,31 @@ export const rateLimits = sqliteTable('rate_limits', {
 })
 
 export type RateLimit = typeof rateLimits.$inferSelect
+
+/**
+ * Seating tables (U3.1) — the LOGICAL table (label + capacity, the assignable
+ * thing), separate from floor-plan geometry (U3.2). Guests link via the soft
+ * `guests.table_id` ref; capacity is a SOFT constraint (recomputed on read,
+ * over-capacity warns, never blocks).
+ */
+export const tables = sqliteTable(
+  'tables',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    label: text('label').notNull(),
+    capacity: integer('capacity').notNull().default(8),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .default(sql`(unixepoch())`)
+      .$onUpdate(() => sql`(unixepoch())`),
+  },
+  (t) => [check('tables_capacity_check', sql`${t.capacity} >= 1`)],
+)
+
+export type Table = typeof tables.$inferSelect
+export type NewTable = typeof tables.$inferInsert

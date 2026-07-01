@@ -5,53 +5,54 @@ PWA para gestionar una sola boda. **App abierta, sin autenticación.** Dos super
 - **Back-office** (`(host)`, raíz `/`) — gestión de invitados, presupuesto, proveedores, tareas, mesas y plano. Instalable como PWA. `robots: noindex`. El control de acceso, si lo hay, es a nivel de despliegue (URL privada, hosting con contraseña, uso local), no en la app.
 - **Cara al invitado** (`(public)`) — sin login, por link: invitación digital + RSVP (`/i/[token]`), web informativa y mesa de regalos (`/info`), fallback offline (`/~offline`).
 
-Stack: **Next.js 16** (App Router, React 19) · **Drizzle ORM + libSQL** (SQLite local en dev, Turso/libSQL remoto en prod) · **Tailwind v4** (CSS-first) · **Zod 4** · **Playwright** · **pnpm**.
+Stack: **Next.js 16** (App Router, React 19) · **Drizzle ORM + Supabase Postgres** (acceso server-side vía `postgres.js`) · **Tailwind v4** (CSS-first) · **Zod 4** · **Vitest + pglite** · **Playwright** · **pnpm**.
 
 ## Estado
 
-**Las 3 fases completas.** Cimientos (scaffold, datos Drizzle/libSQL, PWA offline, cabeceras), núcleo privado (invitados, proveedores, presupuesto, tareas, dashboard), cara al invitado (invitaciones por token, RSVP público seguro, recordatorios, web informativa, regalos, privacidad) y distribución (mesas, plano 2D arrastrable, vista día-B offline). Hoja de ruta en [`docs/plans/`](docs/plans/).
+**Las 3 fases completas.** Cimientos (scaffold, datos con Drizzle, PWA offline, cabeceras), núcleo privado (invitados, proveedores, presupuesto, tareas, dashboard), cara al invitado (invitaciones por token, RSVP público seguro, recordatorios, web informativa, regalos, privacidad) y distribución (mesas, plano 2D arrastrable, vista día-B offline). Hoja de ruta en [`docs/plans/`](docs/plans/).
 
-> Nota: la hoja de ruta original asumía Supabase + auth de cuenta única (RLS, frontera público/privado). El proyecto se replanteó como **app abierta sobre Drizzle/libSQL**; ese documento queda como histórico y será revisado por fase.
+> Nota: la hoja de ruta original asumía Supabase + auth de cuenta única (RLS, frontera público/privado). El proyecto es una **app abierta sobre Supabase Postgres** (sin auth): acceso solo server-side, Data API pública apagada, RLS deny-by-default como defensa en profundidad. Aquel documento queda como histórico. Detalle del despliegue en [`docs/deploy-netlify.md`](docs/deploy-netlify.md).
 
 | Fase | Alcance |
 |------|---------|
-| **0 — Cimientos** ✅ | Scaffold · datos (Drizzle/libSQL) · PWA · cabeceras/CSP |
+| **0 — Cimientos** ✅ | Scaffold · datos (Drizzle + Postgres) · PWA · cabeceras/CSP |
 | **1 — Núcleo privado** ✅ | Invitados · proveedores · presupuesto · tareas · dashboard |
 | **2 — Cara al invitado** ✅ | Tokens + RSVP seguro · invitación · pendientes · web/regalos · privacidad |
 | **3 — Distribución** ✅ | Mesas · plano 2D (SVG) · vista día-B offline |
 
 ## Arquitectura (claves)
 
-- **Un solo cliente de datos:** `src/lib/db/index.ts` (`server-only`) exporta `db` (Drizzle + libSQL). El mismo código sirve dev y prod; solo cambia `DATABASE_URL` (`file:local.db` → `libsql://…turso.io`).
-- **Schema y migraciones** en `src/lib/db/`. Columnas restringidas con `text({ enum })` + `check()` (type-safe en TS y forzado en SQLite). Migraciones generadas por `drizzle-kit` y commiteadas.
+- **Un solo cliente de datos:** `src/lib/db/index.ts` (`server-only`) exporta `db` (Drizzle + `postgres.js` sobre Supabase Postgres). **El navegador nunca toca la DB.** El mismo código sirve dev y prod; solo cambia `DATABASE_URL` (cadena del pooler de Supabase; `prepare: false` para el transaction pooler serverless).
+- **Schema y migraciones** en `src/lib/db/`. Columnas restringidas con `text({ enum })` + `check()` (type-safe en TS y forzado en Postgres); **FKs reales** (`on delete cascade`/`set null`) mantienen la integridad. Migraciones generadas por `drizzle-kit` y commiteadas; la inicial habilita RLS deny-by-default.
 - **PWA artesanal** (`public/sw.js`, prod-only): offline de solo lectura sin acoplar el bundler (Turbopack). Nunca cachea respuestas RSC ni Server Actions.
 - **Cabeceras de seguridad + CSP** en `next.config.ts` aplicadas a toda respuesta.
 
 ## Puesta en marcha
 
-Requisitos: Node 20+, pnpm.
+Requisitos: Node 22 (ver `.nvmrc`), pnpm, y un Postgres (un proyecto Supabase, o cualquier Postgres para dev).
 
 ```bash
 pnpm install
 
-cp .env.local.example .env.local   # DATABASE_URL=file:local.db ya por defecto
+cp .env.local.example .env.local   # edita DATABASE_URL → tu cadena de Postgres
 
-pnpm db:generate                   # genera la migración desde schema.ts
-pnpm db:migrate                    # crea local.db y aplica migraciones
+pnpm db:migrate                    # aplica migraciones (incl. RLS) a esa DB
 
 pnpm dev                           # http://localhost:3000
 ```
 
-Producción (serverless): apuntar `DATABASE_URL` a una base libSQL/Turso remota y definir `DATABASE_AUTH_TOKEN`.
+Producción (Netlify serverless + Supabase): ver el runbook [`docs/deploy-netlify.md`](docs/deploy-netlify.md).
 
 ## Tests
 
 ```bash
+pnpm test                    # Vitest: unidad + seguridad RSVP contra pglite (Postgres WASM, sin Docker)
+
 pnpm test:e2e:install        # una vez por máquina
-pnpm test:e2e                # Playwright: cabeceras de seguridad
+pnpm test:e2e                # Playwright (requiere un Postgres en DATABASE_URL)
 ```
 
-Suite **serial** (`workers: 1`). Detalle en [`tests/e2e/README.md`](tests/e2e/README.md).
+Los tests de unidad son **herméticos** (pglite en memoria, sin servicios); solo money/dates son puros. La suite e2e es **serial** (`workers: 1`). Detalle en [`tests/e2e/README.md`](tests/e2e/README.md).
 
 ## Scripts
 
@@ -60,6 +61,7 @@ Suite **serial** (`workers: 1`). Detalle en [`tests/e2e/README.md`](tests/e2e/RE
 | `pnpm dev` | Servidor de desarrollo |
 | `pnpm build` | Build de producción |
 | `pnpm typecheck` | `tsc --noEmit` |
+| `pnpm test` | Vitest (unidad + seguridad, pglite) |
 | `pnpm db:generate` | Genera una migración desde `schema.ts` |
 | `pnpm db:migrate` | Aplica migraciones a la base de datos |
 | `pnpm db:studio` | Drizzle Studio |
@@ -74,7 +76,7 @@ src/
     (public)/~offline/     # fallback offline
     manifest.ts  layout.tsx  globals.css
   components/ui/  host/     # primitives hand-rolled + UI del host
-  lib/db/                  # cliente Drizzle + schema + migraciones (libSQL)
+  lib/db/                  # cliente Drizzle (postgres.js) + schema + migraciones (Postgres)
   lib/                     # site, utils
 drizzle.config.ts          # config de drizzle-kit
 docs/                      # plans · brainstorms · solutions

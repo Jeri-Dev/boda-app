@@ -82,4 +82,21 @@ describe('invitation lifecycle', () => {
     const res = await createInvitation({ guestIds: [] }, db)
     expect(res.ok).toBe(false)
   })
+
+  it('drops a concurrently-deleted guest and still creates for the rest', async () => {
+    // 'gX' never existed — simulates a guest deleted after the picker loaded.
+    // The real FK would abort the whole insert; we filter to survivors instead.
+    const res = await createInvitation({ guestIds: ['g1', 'gX'] }, db)
+    expect(res.ok).toBe(true)
+    if (!res.ok) return
+    const view = await getRsvpView(res.token, db)
+    if (view.state !== 'valid') throw new Error('expected valid')
+    expect(view.members.map((m) => m.name)).toEqual(['Ana'])
+    expect(view.partySize).toBe(1)
+  })
+
+  it('fails cleanly when every selected guest no longer exists', async () => {
+    const res = await createInvitation({ guestIds: ['gX', 'gY'] }, db)
+    expect(res.ok).toBe(false)
+  })
 })

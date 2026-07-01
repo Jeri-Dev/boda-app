@@ -29,12 +29,28 @@ const PUBLIC_EXACT = new Set([
   '/robots.txt',
 ])
 
-function isPublic(pathname: string): boolean {
-  if (PUBLIC_EXACT.has(pathname)) return true
+function isPublic(rawPathname: string): boolean {
+  // `new URL().pathname` collapses LITERAL `..` but leaves percent-encoded
+  // traversal (`%2e%2e`, `%2f`) intact — so `/i/..%2finvitados` would otherwise
+  // pass `startsWith('/i/')` yet the origin may decode+route it to the gated
+  // `/invitados`. Decide on the SAME canonical path the origin will route on:
+  // decode once, and refuse to classify anything with traversal or an encoded
+  // slash as public (fail safe → the gate challenges it).
+  let path: string
+  try {
+    path = decodeURIComponent(rawPathname)
+  } catch {
+    return false // malformed encoding → require auth
+  }
+  if (path.includes('..') || /%2f/i.test(rawPathname) || /%2f/i.test(path)) {
+    return false
+  }
+
+  if (PUBLIC_EXACT.has(path)) return true
   return (
-    pathname.startsWith('/i/') ||
-    pathname.startsWith('/info/') ||
-    pathname.startsWith('/_next/')
+    path.startsWith('/i/') ||
+    path.startsWith('/info/') ||
+    path.startsWith('/_next/')
   )
 }
 

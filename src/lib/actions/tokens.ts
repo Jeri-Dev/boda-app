@@ -4,6 +4,7 @@ import 'server-only'
 
 import { revalidatePath } from 'next/cache'
 
+import { requireBackofficeAuth } from '@/lib/auth/backoffice'
 import {
   createInvitation as createInvitationCore,
   regenerateInvitation as regenerateInvitationCore,
@@ -22,6 +23,7 @@ export async function createInvitation(args: {
   label?: string
   expiresAt?: Date | null
 }): Promise<CreateInvitationResult> {
+  await requireBackofficeAuth()
   const res = await createInvitationCore(args)
   if (res.ok) revalidatePath('/invitaciones')
   return res
@@ -30,6 +32,7 @@ export async function createInvitation(args: {
 export async function revokeInvitation(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireBackofficeAuth()
   const res = await revokeInvitationCore(id)
   if (res.ok) revalidatePath('/invitaciones')
   return res
@@ -38,6 +41,7 @@ export async function revokeInvitation(
 export async function regenerateInvitation(
   id: string,
 ): Promise<CreateInvitationResult> {
+  await requireBackofficeAuth()
   const res = await regenerateInvitationCore(id)
   if (res.ok) revalidatePath('/invitaciones')
   return res

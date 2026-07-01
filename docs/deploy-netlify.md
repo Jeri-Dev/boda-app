@@ -63,6 +63,16 @@ la PII) es el gate Basic-Auth en el edge (`netlify/edge-functions/basic-auth.ts`
    El **secret-scanning** de Netlify bloquea el build si `DATABASE_URL` acaba en
    el bundle del cliente — es la red de seguridad de que la key no se filtró.
 
+   > **Protección en dos capas.** El gate del edge protege por *ruta*, pero los
+   > Server Actions de Next se despachan por ID (no por ruta), así que un POST a
+   > `/i/x` podría invocar una acción del back-office saltándose el gate. Por eso
+   > cada acción del back-office llama además a `requireBackofficeAuth()`
+   > (`src/lib/auth/backoffice.ts`), que valida server-side el header
+   > `Authorization: Basic` que el navegador reenvía tras el challenge. Por eso
+   > `BASIC_AUTH_USER`/`BASIC_AUTH_PASSWORD` deben estar en el scope **Functions**
+   > (no solo Builds): sin ellos en Functions, las acciones permitirían todo. El
+   > RSVP público (`submitRsvp`) está exento.
+
 3. **Deploy de prueba (draft) y luego producción:**
 
    ```bash
@@ -82,6 +92,9 @@ Contra el deploy (draft o prod):
       `curl -u user:pass https://<sitio>/invitados` → 200.
 - [ ] El RSVP público **sin credenciales** responde 200 (no challenge):
       `https://<sitio>/i/<token>`, `…/info` → 200.
+- [ ] Un **Server Action del back-office** POSTeado a una ruta pública sin
+      credenciales es rechazado (no ejecuta) — la defensa server-side de
+      `requireBackofficeAuth()`. El RSVP (`submitRsvp`) sí funciona sin ellas.
 - [ ] Crear/editar/borrar un invitado persiste (Server Action contra Postgres).
 - [ ] Inspección del bundle cliente: `DATABASE_URL` **no** aparece.
 

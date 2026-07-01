@@ -15,6 +15,7 @@ import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
+import { requireBackofficeAuth } from '@/lib/auth/backoffice'
 import { db } from '@/lib/db'
 import { vendors, VENDOR_STATUSES } from '@/lib/db/schema'
 import { parseMoneyToCents } from '@/lib/utils/money'
@@ -112,6 +113,7 @@ export async function createVendor(
   _prev: VendorActionState,
   formData: FormData,
 ): Promise<VendorActionState> {
+  await requireBackofficeAuth()
   const parsed = VendorSchema.safeParse(readForm(formData))
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors }
@@ -132,6 +134,7 @@ export async function updateVendor(
   _prev: VendorActionState,
   formData: FormData,
 ): Promise<VendorActionState> {
+  await requireBackofficeAuth()
   const parsed = VendorSchema.safeParse(readForm(formData))
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors }
@@ -157,6 +160,7 @@ export async function updateVendor(
 export async function deleteVendor(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireBackofficeAuth()
   try {
     // payments.vendor_id has an `on delete set null` FK, so deleting the vendor
     // detaches its payments automatically (kept, ref nulled).

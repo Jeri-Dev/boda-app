@@ -12,6 +12,7 @@ import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
+import { requireBackofficeAuth } from '@/lib/auth/backoffice'
 import { db } from '@/lib/db'
 import { tasks } from '@/lib/db/schema'
 
@@ -71,6 +72,7 @@ export async function createTask(
   _prev: TaskActionState,
   formData: FormData,
 ): Promise<TaskActionState> {
+  await requireBackofficeAuth()
   const parsed = TaskSchema.safeParse(readForm(formData))
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors }
 
@@ -89,6 +91,7 @@ export async function updateTask(
   _prev: TaskActionState,
   formData: FormData,
 ): Promise<TaskActionState> {
+  await requireBackofficeAuth()
   const parsed = TaskSchema.safeParse(readForm(formData))
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors }
 
@@ -111,6 +114,7 @@ export async function toggleTask(
   id: string,
   done: boolean,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireBackofficeAuth()
   try {
     const updated = await db
       .update(tasks)
@@ -129,6 +133,7 @@ export async function toggleTask(
 export async function deleteTask(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireBackofficeAuth()
   try {
     const deleted = await db
       .delete(tasks)

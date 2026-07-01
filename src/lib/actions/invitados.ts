@@ -18,6 +18,7 @@ import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
+import { requireBackofficeAuth } from '@/lib/auth/backoffice'
 import { db } from '@/lib/db'
 import { guests, RSVP_STATUSES } from '@/lib/db/schema'
 
@@ -97,6 +98,7 @@ export async function createGuest(
   _prev: GuestActionState,
   formData: FormData,
 ): Promise<GuestActionState> {
+  await requireBackofficeAuth()
   const parsed = GuestSchema.safeParse(readForm(formData))
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors }
@@ -117,6 +119,7 @@ export async function updateGuest(
   _prev: GuestActionState,
   formData: FormData,
 ): Promise<GuestActionState> {
+  await requireBackofficeAuth()
   const parsed = GuestSchema.safeParse(readForm(formData))
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors }
@@ -142,6 +145,7 @@ export async function updateGuest(
 export async function deleteGuest(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireBackofficeAuth()
   try {
     // token_guests.guest_id has an `on delete cascade` FK, so deleting the guest
     // detaches it from any invitation links automatically.

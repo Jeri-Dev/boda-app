@@ -16,8 +16,16 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/unit/**/*.test.ts'],
-    // The db singleton (@/lib/db) reads DATABASE_URL at import time. Tests pass
-    // an explicit in-memory db, so this just lets the import succeed.
-    env: { DATABASE_URL: 'file:local.db' },
+    // pglite boots a real (WASM) Postgres per `makeTestDb()`; the first boot in
+    // each worker pays the one-time WASM compile (~2-4s), and some security
+    // tests spin up several isolated DBs in one case. The default 5s timeout is
+    // too tight for a real engine — pure money/dates tests stay instant.
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
+    // The db singleton (@/lib/db) reads DATABASE_URL at import time and hands it
+    // to postgres.js. Tests inject an explicit pglite db and never query the
+    // singleton, so this dummy connection string just lets the import succeed
+    // (postgres.js is lazy — it never actually connects).
+    env: { DATABASE_URL: 'postgresql://user:pass@127.0.0.1:5432/boda_test' },
   },
 })

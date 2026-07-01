@@ -41,17 +41,20 @@ const PayloadSchema = z
   .strict()
 
 /**
- * Client IP for rate-limiting, hashed (SHA-256) for data minimization. Reads
- * the platform's TRUSTED hop (`x-real-ip` / `x-vercel-forwarded-for`), NEVER
+ * Client IP for rate-limiting, hashed (SHA-256) for data minimization. Reads the
+ * platform's TRUSTED hop — on Netlify that is `x-nf-client-connection-ip` (set by
+ * the edge, not client-controllable); `x-real-ip` is a secondary fallback. NEVER
  * the leftmost `x-forwarded-for` (client-injected → spoofable, would let an
- * attacker rotate the value and empty the per-IP bucket). The per-token bucket
- * is the non-spoofable limit.
+ * attacker rotate the value and empty the per-IP bucket). If no trusted header is
+ * present (local dev / outside the Netlify edge), everything shares the `unknown`
+ * bucket — acceptable there; in production the Netlify header is always set. The
+ * per-token bucket is the other, always-available limit.
  */
 async function clientIpHash(): Promise<string> {
   try {
     const h = await headers()
     const ip =
-      h.get('x-real-ip') ?? h.get('x-vercel-forwarded-for') ?? 'unknown'
+      h.get('x-nf-client-connection-ip') ?? h.get('x-real-ip') ?? 'unknown'
     return createHash('sha256').update(ip).digest('hex')
   } catch {
     return 'unknown'

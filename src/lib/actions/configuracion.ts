@@ -6,6 +6,7 @@ import { sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
+import { requireBackofficeAuth } from '@/lib/auth/backoffice'
 import { db } from '@/lib/db'
 import { wedding } from '@/lib/db/schema'
 
@@ -63,6 +64,7 @@ export async function saveConfig(
   _prev: ConfigActionState,
   formData: FormData,
 ): Promise<ConfigActionState> {
+  await requireBackofficeAuth()
   const str = (k: string) => {
     const v = formData.get(k)
     return typeof v === 'string' ? v.trim() : ''

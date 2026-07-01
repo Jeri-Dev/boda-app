@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
+import { requireBackofficeAuth } from '@/lib/auth/backoffice'
 import { db } from '@/lib/db'
 import { tables, TABLE_SHAPES } from '@/lib/db/schema'
 import {
@@ -63,6 +64,7 @@ export async function createTable(
   _prev: TableActionState,
   formData: FormData,
 ): Promise<TableActionState> {
+  await requireBackofficeAuth()
   const parsed = TableSchema.safeParse(readTable(formData))
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors }
 
@@ -85,6 +87,7 @@ export async function updateTable(
   _prev: TableActionState,
   formData: FormData,
 ): Promise<TableActionState> {
+  await requireBackofficeAuth()
   const parsed = TableSchema.safeParse(readTable(formData))
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors }
 
@@ -110,6 +113,7 @@ export async function updateTable(
 export async function deleteTable(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireBackofficeAuth()
   const res = await deleteTableCore(id)
   if (res.ok) revalidatePath('/mesas')
   return res
@@ -119,6 +123,7 @@ export async function assignGuest(
   guestId: string,
   tableId: string | null,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireBackofficeAuth()
   const res = await assignGuestCore(guestId, tableId)
   if (res.ok) revalidatePath('/mesas')
   return res
@@ -129,6 +134,7 @@ export async function setTablePosition(
   x: number,
   y: number,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireBackofficeAuth()
   const res = await setTablePositionCore(id, x, y)
   if (res.ok) revalidatePath('/mesas')
   return res

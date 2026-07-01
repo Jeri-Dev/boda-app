@@ -6,9 +6,9 @@ import { db } from '@/lib/db'
 import { rateLimits } from '@/lib/db/schema'
 
 /**
- * Fixed-window rate limit backed by the libSQL `rate_limits` table (libSQL is
+ * Fixed-window rate limit backed by the Postgres `rate_limits` table (the DB is
  * the shared store across serverless invocations — an in-memory Map would be
- * fail-open useless on Vercel).
+ * fail-open useless on serverless).
  *
  * Atomic via a single UPSERT with `RETURNING`: the count is incremented (or
  * reset, if the window expired) in one statement, so concurrent invocations
@@ -32,19 +32,22 @@ export async function checkRateLimit(
   windowSecs: number,
   database = db,
 ): Promise<{ ok: boolean }> {
+  // Second-granularity, kept from the SQLite version; `window_start` is now a
+  // `timestamptz`, so we compare against Date values (not unix ints).
   const nowSec = Math.floor(Date.now() / 1000)
-  const thresholdSec = nowSec - windowSecs
+  const now = new Date(nowSec * 1000)
+  const threshold = new Date((nowSec - windowSecs) * 1000)
 
   try {
     const rows = await database
       .insert(rateLimits)
-      .values({ key, count: 1, windowStart: new Date(nowSec * 1000) })
+      .values({ key, count: 1, windowStart: now })
       .onConflictDoUpdate({
         target: rateLimits.key,
         set: {
           // Window expired → reset to 1; otherwise increment.
-          count: sql`case when ${rateLimits.windowStart} <= ${thresholdSec} then 1 else ${rateLimits.count} + 1 end`,
-          windowStart: sql`case when ${rateLimits.windowStart} <= ${thresholdSec} then ${nowSec} else ${rateLimits.windowStart} end`,
+          count: sql`case when ${rateLimits.windowStart} <= ${threshold} then 1 else ${rateLimits.count} + 1 end`,
+          windowStart: sql`case when ${rateLimits.windowStart} <= ${threshold} then ${now} else ${rateLimits.windowStart} end`,
         },
       })
       .returning({ count: rateLimits.count })

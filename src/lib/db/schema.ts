@@ -2,32 +2,55 @@ import { randomUUID } from 'node:crypto'
 
 import { sql } from 'drizzle-orm'
 import {
+  boolean,
   check,
   index,
   integer,
-  sqliteTable,
+  pgTable,
   text,
+  timestamp,
   uniqueIndex,
-} from 'drizzle-orm/sqlite-core'
+} from 'drizzle-orm/pg-core'
 
 /**
- * boda-app schema (Drizzle + SQLite/libSQL).
+ * boda-app schema (Drizzle + Supabase Postgres).
  *
  * Conventions:
- *   - text-PK with a generated UUID default for stable IDs;
+ *   - text-PK with a Node-generated UUID default for stable IDs (entropy stays
+ *     in the app, matching `lib/tokens`; never a DB-side default);
  *   - `text({ enum: [...] })` + a SQL `check()` = type-safe in TS *and* enforced
  *     in the database (the roadmap's `text + CHECK`);
- *   - `created_at` / `updated_at` as unixepoch integers; `$onUpdate` refreshes
- *     `updated_at` on every Drizzle UPDATE.
+ *   - `created_at` / `updated_at` as `timestamptz`; `$onUpdate` refreshes
+ *     `updated_at` on every Drizzle UPDATE (no DB trigger needed — the server is
+ *     the only writer);
+ *   - REAL foreign keys (Postgres enforces them, unlike libSQL over HTTP):
+ *     `on delete set null` for soft ownership ("parent gone = orphaned but kept")
+ *     and `on delete cascade` for the token↔guest bridge. The app no longer
+ *     cleans these refs by hand.
+ *
+ * Security note: the browser never touches the DB — the Next server is the only
+ * client (open app, no auth). RLS is enabled deny-by-default in the migration as
+ * defense-in-depth; the primary control is that only the server holds the
+ * connection string and Supabase's public Data API is disabled.
  */
 
+const timestamps = {
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+}
+
 /** Singleton event-config row (id fixed to 1). */
-export const wedding = sqliteTable(
+export const wedding = pgTable(
   'wedding',
   {
     id: integer('id').primaryKey().default(1),
     coupleNames: text('couple_names').notNull().default(''),
-    eventDate: integer('event_date', { mode: 'timestamp' }),
+    eventDate: timestamp('event_date', { withTimezone: true, mode: 'date' }),
     /** Free-text time of day, e.g. "5:00 PM". */
     eventTime: text('event_time'),
     venue: text('venue'),
@@ -44,13 +67,7 @@ export const wedding = sqliteTable(
     giftDetails: text('gift_details'),
     /** Contact for exercising data rights (RGPD notice, U2.6). */
     privacyContact: text('privacy_contact'),
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`)
-      .$onUpdate(() => sql`(unixepoch())`),
+    ...timestamps,
   },
   (t) => [check('wedding_singleton', sql`${t.id} = 1`)],
 )
@@ -64,12 +81,11 @@ export type NewWedding = typeof wedding.$inferInsert
  * `last_modified_source` + `updated_at` exist from day one (the roadmap calls
  * for them): Fase 2's public RSVP writes `'guest'`, the back-office writes
  * `'host'`, so the UI can show "updated by guest X ago" before overwriting.
- * `table_id` (seating, Fase 3) is intentionally NOT here yet.
  */
 export const RSVP_STATUSES = ['pending', 'confirmed', 'declined'] as const
 export type RsvpStatus = (typeof RSVP_STATUSES)[number]
 
-export const guests = sqliteTable(
+export const guests = pgTable(
   'guests',
   {
     id: text('id')
@@ -85,25 +101,21 @@ export const guests = sqliteTable(
       .default('pending'),
     menu: text('menu'),
     /** Whether this guest may bring a +1. */
-    plusOne: integer('plus_one', { mode: 'boolean' }).notNull().default(false),
+    plusOne: boolean('plus_one').notNull().default(false),
     plusOneName: text('plus_one_name'),
     /** Host-only private notes. */
     notes: text('notes'),
-    /** Seating (Fase 3): soft ref to a logical `tables` row; nulled in app code
-     * when that table is deleted (never CASCADE — a deleted table = "sin sentar"). */
-    tableId: text('table_id'),
+    /** Seating (Fase 3): FK to a logical `tables` row; `set null` on table
+     * delete (a deleted table = "sin sentar", never a deleted guest). */
+    tableId: text('table_id').references(() => tables.id, {
+      onDelete: 'set null',
+    }),
     lastModifiedSource: text('last_modified_source', {
       enum: ['host', 'guest'],
     })
       .notNull()
       .default('host'),
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`)
-      .$onUpdate(() => sql`(unixepoch())`),
+    ...timestamps,
   },
   (t) => [
     check(
@@ -133,7 +145,7 @@ export const VENDOR_STATUSES = [
 ] as const
 export type VendorStatus = (typeof VENDOR_STATUSES)[number]
 
-export const vendors = sqliteTable(
+export const vendors = pgTable(
   'vendors',
   {
     id: text('id')
@@ -152,13 +164,7 @@ export const vendors = sqliteTable(
     /** External link to the contract / quote document. */
     contractUrl: text('contract_url'),
     notes: text('notes'),
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`)
-      .$onUpdate(() => sql`(unixepoch())`),
+    ...timestamps,
   },
   (t) => [
     check(
@@ -179,11 +185,10 @@ export type NewVendor = typeof vendors.$inferInsert
  * Budget + payments (U1.3). A budget `category` holds the PLANNED amount
  * (previsto); `payments` track the real spend. "Real" = sum of paid payments
  * (globally and per category). Payments link to a category and (optionally) a
- * vendor by **soft reference** (plain id columns, no enforced FK — libSQL/Turso
- * doesn't enforce FKs reliably over HTTP). Delete actions null these refs in
- * application code; reads LEFT JOIN and tolerate orphans.
+ * vendor by REAL FK with `on delete set null` — deleting a parent orphans the
+ * payment (ref nulled) but never deletes it; reads LEFT JOIN and tolerate nulls.
  */
-export const budgetCategories = sqliteTable(
+export const budgetCategories = pgTable(
   'budget_categories',
   {
     id: text('id')
@@ -192,13 +197,7 @@ export const budgetCategories = sqliteTable(
     name: text('name').notNull(),
     /** Planned amount (previsto), in DOP cents. */
     plannedCents: integer('planned_cents').notNull().default(0),
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`)
-      .$onUpdate(() => sql`(unixepoch())`),
+    ...timestamps,
   },
   (t) => [
     check('budget_categories_planned_check', sql`${t.plannedCents} >= 0`),
@@ -211,7 +210,7 @@ export type NewBudgetCategory = typeof budgetCategories.$inferInsert
 export const PAYMENT_STATUSES = ['pendiente', 'pagado'] as const
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number]
 
-export const payments = sqliteTable(
+export const payments = pgTable(
   'payments',
   {
     id: text('id')
@@ -225,17 +224,15 @@ export const payments = sqliteTable(
       .default('pendiente'),
     /** Due / expected date as a calendar date `YYYY-MM-DD` (timezone-free). */
     dueDate: text('due_date'),
-    /** Soft references (no enforced FK) — nulled by app code on parent delete. */
-    vendorId: text('vendor_id'),
-    categoryId: text('category_id'),
+    /** Real FKs, nulled by the DB on parent delete (`on delete set null`). */
+    vendorId: text('vendor_id').references(() => vendors.id, {
+      onDelete: 'set null',
+    }),
+    categoryId: text('category_id').references(() => budgetCategories.id, {
+      onDelete: 'set null',
+    }),
     notes: text('notes'),
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`)
-      .$onUpdate(() => sql`(unixepoch())`),
+    ...timestamps,
   },
   (t) => [
     check('payments_amount_check', sql`${t.amountCents} >= 0`),
@@ -250,21 +247,15 @@ export type NewPayment = typeof payments.$inferInsert
  * Task checklist (U1.4). In-app only (no proactive notifications). Ordered by
  * urgency in the read; `dueDate` is a timezone-free `YYYY-MM-DD`.
  */
-export const tasks = sqliteTable('tasks', {
+export const tasks = pgTable('tasks', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => randomUUID()),
   title: text('title').notNull(),
   dueDate: text('due_date'),
-  done: integer('done', { mode: 'boolean' }).notNull().default(false),
+  done: boolean('done').notNull().default(false),
   notes: text('notes'),
-  createdAt: integer('created_at', { mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer('updated_at', { mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`)
-    .$onUpdate(() => sql`(unixepoch())`),
+  ...timestamps,
 })
 
 export type Task = typeof tasks.$inferSelect
@@ -273,16 +264,17 @@ export type NewTask = typeof tasks.$inferInsert
 /**
  * Invitation tokens + RSVP infrastructure (U2.1).
  *
- * Security model (no RLS — the browser never touches the DB; the Next server is
- * the only DB client). The token is a 256-bit URL-safe SECRET (see lib/tokens),
- * never `randomUUID`. Validity is COMPUTED on every read (`status='valido'` AND
- * not past `expires_at`) — there is no persisted "expired" state to drift.
- * `party_size` is how many people the invitation covers (1 = individual).
+ * Security model (no RLS gating — the browser never touches the DB; the Next
+ * server is the only DB client). The token is a 256-bit URL-safe SECRET (see
+ * lib/tokens), never `randomUUID`. Validity is COMPUTED on every read
+ * (`status='valido'` AND not past `expires_at`) — there is no persisted
+ * "expired" state to drift. `party_size` is how many people the invitation
+ * covers (1 = individual).
  */
 export const INVITE_STATUSES = ['valido', 'revocado'] as const
 export type InviteStatus = (typeof INVITE_STATUSES)[number]
 
-export const inviteTokens = sqliteTable(
+export const inviteTokens = pgTable(
   'invite_tokens',
   {
     id: text('id')
@@ -296,21 +288,18 @@ export const inviteTokens = sqliteTable(
       .notNull()
       .default('valido'),
     /** Computed-validity cutoff; NULL = never expires. */
-    expiresAt: integer('expires_at', { mode: 'timestamp' }),
+    expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }),
     /** Back-office label, e.g. "Familia Pérez". */
     label: text('label'),
     /** The guest's free-text RSVP message (one per invitation). */
     message: text('message'),
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`)
-      .$onUpdate(() => sql`(unixepoch())`),
+    ...timestamps,
   },
   (t) => [
-    check('invite_tokens_status_check', sql`${t.status} in ('valido', 'revocado')`),
+    check(
+      'invite_tokens_status_check',
+      sql`${t.status} in ('valido', 'revocado')`,
+    ),
     check('invite_tokens_party_size_check', sql`${t.partySize} >= 1`),
   ],
 )
@@ -319,21 +308,25 @@ export type InviteToken = typeof inviteTokens.$inferSelect
 export type NewInviteToken = typeof inviteTokens.$inferInsert
 
 /**
- * Bridge token↔guests (soft refs, no enforced FK — cleaned in app code on
- * delete). A token covers `party_size` guest rows; an INNER JOIN discards
- * orphaned links naturally.
+ * Bridge token↔guests. REAL FKs with `on delete cascade` on BOTH sides: a
+ * deleted guest or a deleted token takes its bridge rows with it (the app no
+ * longer deletes these by hand). An INNER JOIN discards nothing extra.
  */
-export const tokenGuests = sqliteTable(
+export const tokenGuests = pgTable(
   'token_guests',
   {
     id: text('id')
       .primaryKey()
       .$defaultFn(() => randomUUID()),
-    tokenId: text('token_id').notNull(),
-    guestId: text('guest_id').notNull(),
-    createdAt: integer('created_at', { mode: 'timestamp' })
+    tokenId: text('token_id')
       .notNull()
-      .default(sql`(unixepoch())`),
+      .references(() => inviteTokens.id, { onDelete: 'cascade' }),
+    guestId: text('guest_id')
+      .notNull()
+      .references(() => guests.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     uniqueIndex('token_guests_token_guest_uq').on(t.tokenId, t.guestId),
@@ -345,28 +338,31 @@ export const tokenGuests = sqliteTable(
 export type TokenGuest = typeof tokenGuests.$inferSelect
 
 /**
- * Persistent rate-limit store (libSQL is the shared store across serverless
- * invocations; an in-memory Map would be fail-open useless on Vercel). Fixed
- * window via atomic UPSERT.
+ * Persistent rate-limit store (the DB is the shared store across serverless
+ * invocations; an in-memory Map would be fail-open useless). Fixed window via
+ * atomic UPSERT.
  */
-export const rateLimits = sqliteTable('rate_limits', {
+export const rateLimits = pgTable('rate_limits', {
   key: text('key').primaryKey(),
   count: integer('count').notNull().default(0),
-  windowStart: integer('window_start', { mode: 'timestamp' }).notNull(),
+  windowStart: timestamp('window_start', {
+    withTimezone: true,
+    mode: 'date',
+  }).notNull(),
 })
 
 export type RateLimit = typeof rateLimits.$inferSelect
 
 /**
  * Seating tables (U3.1) — the LOGICAL table (label + capacity, the assignable
- * thing), separate from floor-plan geometry (U3.2). Guests link via the soft
- * `guests.table_id` ref; capacity is a SOFT constraint (recomputed on read,
+ * thing), separate from floor-plan geometry (U3.2). Guests link via the
+ * `guests.table_id` FK; capacity is a SOFT constraint (recomputed on read,
  * over-capacity warns, never blocks).
  */
 export const TABLE_SHAPES = ['round', 'rect'] as const
 export type TableShape = (typeof TABLE_SHAPES)[number]
 
-export const tables = sqliteTable(
+export const tables = pgTable(
   'tables',
   {
     id: text('id')
@@ -378,13 +374,7 @@ export const tables = sqliteTable(
     posX: integer('pos_x'),
     posY: integer('pos_y'),
     shape: text('shape', { enum: TABLE_SHAPES }).notNull().default('round'),
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
-      .notNull()
-      .default(sql`(unixepoch())`)
-      .$onUpdate(() => sql`(unixepoch())`),
+    ...timestamps,
   },
   (t) => [
     check('tables_capacity_check', sql`${t.capacity} >= 1`),

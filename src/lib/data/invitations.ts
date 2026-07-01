@@ -2,7 +2,7 @@ import 'server-only'
 
 import { randomUUID } from 'node:crypto'
 
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 
 import { db } from '@/lib/db'
 import {
@@ -92,33 +92,55 @@ export async function createInvitation(
   },
   database = db,
 ): Promise<CreateInvitationResult> {
-  const guestIds = [...new Set(args.guestIds)].filter(Boolean)
-  if (guestIds.length === 0) {
+  const requestedIds = [...new Set(args.guestIds)].filter(Boolean)
+  if (requestedIds.length === 0) {
     return { ok: false, error: 'Selecciona al menos un invitado' }
   }
-  // party_size is the headcount the invitation covers; never fewer than linked.
-  const partySize = Math.max(args.partySize ?? guestIds.length, guestIds.length)
 
   const id = randomUUID()
   const token = newInviteToken()
 
-  const ops = [
-    database.insert(inviteTokens).values({
-      id,
-      token,
-      partySize,
-      label: args.label?.trim() || null,
-      expiresAt: args.expiresAt ?? null,
-    }),
-    ...guestIds.map((guestId) =>
-      database.insert(tokenGuests).values({ tokenId: id, guestId }),
-    ),
-  ]
-
+  // Filter to guests that still exist so a stale selection (e.g. a guest deleted
+  // in another tab) degrades gracefully — otherwise the real `token_guests` FK
+  // aborts the whole insert. Done inside the transaction to also close the
+  // check→insert race.
+  let noneValid = false
   try {
-    await database.batch(ops as [(typeof ops)[number], ...typeof ops])
+    await database.transaction(async (tx) => {
+      const existing = await tx
+        .select({ id: guests.id })
+        .from(guests)
+        .where(inArray(guests.id, requestedIds))
+      const validIds = existing.map((g) => g.id)
+      if (validIds.length === 0) {
+        noneValid = true
+        return
+      }
+      // party_size is the headcount the invitation covers; keep the host's
+      // intended size as a floor, never fewer than the linked guests.
+      const partySize = Math.max(
+        args.partySize ?? validIds.length,
+        validIds.length,
+      )
+      // Token first so the bridge FK (token_guests.token_id → invite_tokens) is
+      // satisfied when the links are inserted.
+      await tx.insert(inviteTokens).values({
+        id,
+        token,
+        partySize,
+        label: args.label?.trim() || null,
+        expiresAt: args.expiresAt ?? null,
+      })
+      for (const guestId of validIds) {
+        await tx.insert(tokenGuests).values({ tokenId: id, guestId })
+      }
+    })
   } catch {
     return { ok: false, error: 'No se pudo crear la invitación' }
+  }
+
+  if (noneValid) {
+    return { ok: false, error: 'Los invitados seleccionados ya no existen' }
   }
 
   return { ok: true, id, token }
@@ -165,23 +187,25 @@ export async function regenerateInvitation(
   const token = newInviteToken()
 
   try {
-    await database.batch([
-      database.insert(inviteTokens).values({
+    await database.transaction(async (tx) => {
+      // New token first, then re-point the bridge to it, then revoke the old —
+      // order keeps the token_id FK satisfied at every step.
+      await tx.insert(inviteTokens).values({
         id: newId,
         token,
         partySize: old.partySize,
         label: old.label,
         expiresAt: old.expiresAt,
-      }),
-      database
+      })
+      await tx
         .update(tokenGuests)
         .set({ tokenId: newId })
-        .where(eq(tokenGuests.tokenId, id)),
-      database
+        .where(eq(tokenGuests.tokenId, id))
+      await tx
         .update(inviteTokens)
         .set({ status: 'revocado' })
-        .where(eq(inviteTokens.id, id)),
-    ])
+        .where(eq(inviteTokens.id, id))
+    })
   } catch {
     return { ok: false, error: 'No se pudo regenerar la invitación' }
   }

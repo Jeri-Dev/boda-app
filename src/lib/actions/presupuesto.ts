@@ -13,6 +13,7 @@ import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
+import { requireBackofficeAuth } from '@/lib/auth/backoffice'
 import { db } from '@/lib/db'
 import { budgetCategories, payments, PAYMENT_STATUSES } from '@/lib/db/schema'
 import { parseMoneyToCents } from '@/lib/utils/money'
@@ -68,6 +69,7 @@ export async function createCategory(
   _prev: CategoryActionState,
   formData: FormData,
 ): Promise<CategoryActionState> {
+  await requireBackofficeAuth()
   const parsed = CategorySchema.safeParse(readCategory(formData))
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors }
 
@@ -89,6 +91,7 @@ export async function updateCategory(
   _prev: CategoryActionState,
   formData: FormData,
 ): Promise<CategoryActionState> {
+  await requireBackofficeAuth()
   const parsed = CategorySchema.safeParse(readCategory(formData))
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors }
 
@@ -110,19 +113,14 @@ export async function updateCategory(
 export async function deleteCategory(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireBackofficeAuth()
   try {
-    // Soft-ref cleanup + delete in one atomic batch: detach payments from the
-    // category, then remove it.
-    const [, deleted] = await db.batch([
-      db
-        .update(payments)
-        .set({ categoryId: null })
-        .where(eq(payments.categoryId, id)),
-      db
-        .delete(budgetCategories)
-        .where(eq(budgetCategories.id, id))
-        .returning({ id: budgetCategories.id }),
-    ])
+    // payments.category_id has an `on delete set null` FK, so deleting the
+    // category detaches its payments automatically (kept, ref nulled).
+    const deleted = await db
+      .delete(budgetCategories)
+      .where(eq(budgetCategories.id, id))
+      .returning({ id: budgetCategories.id })
     if (deleted.length === 0) {
       return { ok: false, error: 'Categoría no encontrada' }
     }
@@ -197,6 +195,7 @@ export async function createPayment(
   _prev: PaymentActionState,
   formData: FormData,
 ): Promise<PaymentActionState> {
+  await requireBackofficeAuth()
   const parsed = PaymentSchema.safeParse(readPayment(formData))
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors }
 
@@ -215,6 +214,7 @@ export async function updatePayment(
   _prev: PaymentActionState,
   formData: FormData,
 ): Promise<PaymentActionState> {
+  await requireBackofficeAuth()
   const parsed = PaymentSchema.safeParse(readPayment(formData))
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors }
 
@@ -236,6 +236,7 @@ export async function updatePayment(
 export async function deletePayment(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireBackofficeAuth()
   try {
     const deleted = await db
       .delete(payments)

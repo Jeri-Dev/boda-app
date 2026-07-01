@@ -18,8 +18,9 @@ import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
+import { requireBackofficeAuth } from '@/lib/auth/backoffice'
 import { db } from '@/lib/db'
-import { guests, RSVP_STATUSES, tokenGuests } from '@/lib/db/schema'
+import { guests, RSVP_STATUSES } from '@/lib/db/schema'
 
 const GuestSchema = z.object({
   name: z
@@ -97,6 +98,7 @@ export async function createGuest(
   _prev: GuestActionState,
   formData: FormData,
 ): Promise<GuestActionState> {
+  await requireBackofficeAuth()
   const parsed = GuestSchema.safeParse(readForm(formData))
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors }
@@ -117,6 +119,7 @@ export async function updateGuest(
   _prev: GuestActionState,
   formData: FormData,
 ): Promise<GuestActionState> {
+  await requireBackofficeAuth()
   const parsed = GuestSchema.safeParse(readForm(formData))
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors }
@@ -142,13 +145,14 @@ export async function updateGuest(
 export async function deleteGuest(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireBackofficeAuth()
   try {
-    // Soft-ref cleanup + delete in one atomic batch: detach the guest from any
-    // invitation links, then remove the row.
-    const [, deleted] = await db.batch([
-      db.delete(tokenGuests).where(eq(tokenGuests.guestId, id)),
-      db.delete(guests).where(eq(guests.id, id)).returning({ id: guests.id }),
-    ])
+    // token_guests.guest_id has an `on delete cascade` FK, so deleting the guest
+    // detaches it from any invitation links automatically.
+    const deleted = await db
+      .delete(guests)
+      .where(eq(guests.id, id))
+      .returning({ id: guests.id })
     if (deleted.length === 0) {
       return { ok: false, error: 'Invitado no encontrado' }
     }

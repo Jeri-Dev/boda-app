@@ -46,7 +46,10 @@ next-env.d.ts
 /playwright-report
 /test-results
 
-# Local SQLite database (Drizzle + libSQL dev)
+# Legacy local SQLite database (pre-Supabase dev; safe to delete)
 /local.db
 /local.db-shm
 /local.db-wal
+
+# Supabase CLI version cache (not used — Postgres is reached directly via Drizzle)
+/supabase/.temp/

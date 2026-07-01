@@ -15,8 +15,9 @@ import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
+import { requireBackofficeAuth } from '@/lib/auth/backoffice'
 import { db } from '@/lib/db'
-import { payments, vendors, VENDOR_STATUSES } from '@/lib/db/schema'
+import { vendors, VENDOR_STATUSES } from '@/lib/db/schema'
 import { parseMoneyToCents } from '@/lib/utils/money'
 
 const VendorSchema = z.object({
@@ -112,6 +113,7 @@ export async function createVendor(
   _prev: VendorActionState,
   formData: FormData,
 ): Promise<VendorActionState> {
+  await requireBackofficeAuth()
   const parsed = VendorSchema.safeParse(readForm(formData))
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors }
@@ -132,6 +134,7 @@ export async function updateVendor(
   _prev: VendorActionState,
   formData: FormData,
 ): Promise<VendorActionState> {
+  await requireBackofficeAuth()
   const parsed = VendorSchema.safeParse(readForm(formData))
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors }
@@ -157,13 +160,14 @@ export async function updateVendor(
 export async function deleteVendor(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireBackofficeAuth()
   try {
-    // Soft-ref cleanup + delete in one atomic batch: detach payments from the
-    // vendor, then remove it.
-    const [, deleted] = await db.batch([
-      db.update(payments).set({ vendorId: null }).where(eq(payments.vendorId, id)),
-      db.delete(vendors).where(eq(vendors.id, id)).returning({ id: vendors.id }),
-    ])
+    // payments.vendor_id has an `on delete set null` FK, so deleting the vendor
+    // detaches its payments automatically (kept, ref nulled).
+    const deleted = await db
+      .delete(vendors)
+      .where(eq(vendors.id, id))
+      .returning({ id: vendors.id })
     if (deleted.length === 0) {
       return { ok: false, error: 'Proveedor no encontrado' }
     }

@@ -1,0 +1,18 @@
+# Netlify config for boda-app (Next.js 16 on the OpenNext runtime).
+#
+# The @netlify/plugin-nextjs plugin runs `next build` and wires the App Router
+# (Server Components + Server Actions) onto Netlify Node Functions — the Drizzle
+# + postgres.js client runs there, NEVER in an edge function. Netlify installs
+# the plugin automatically from this declaration; pin a version in package.json
+# if you need reproducibility.
+
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[build.environment]
+  # Match .nvmrc. Next 16 needs Node >= 20; we pin 22 (LTS).
+  NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

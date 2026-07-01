@@ -75,9 +75,8 @@ const nextConfig: NextConfig = {
   // Already the default for `next start`; set explicitly so this file answers
   // the "are responses compressed?" checklist question without a doc dive.
   compress: true,
-  // @libsql/client ships native bindings — keep it out of the server bundle so
-  // it resolves at runtime (avoids "module not found" for the platform binary).
-  serverExternalPackages: ["@libsql/client", "libsql"],
+  // The data layer is `postgres.js` (pure JS, no native bindings) reached
+  // server-side via Drizzle — nothing to externalize from the server bundle.
   turbopack: {
     // Pin the workspace root to this project. A stray lockfile in $HOME
     // otherwise makes Next infer the wrong root (see build warning).

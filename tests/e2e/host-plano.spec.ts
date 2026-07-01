@@ -1,4 +1,4 @@
-import { createClient } from '@libsql/client'
+import postgres from 'postgres'
 import { test, expect } from '@playwright/test'
 
 /**
@@ -9,10 +9,10 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Plano (U3.2)', () => {
   test.beforeEach(async () => {
-    const c = createClient({ url: process.env.DATABASE_URL ?? 'file:local.db' })
-    await c.execute('delete from tables')
-    await c.execute('update guests set table_id = null')
-    c.close()
+    const sql = postgres(process.env.DATABASE_URL!, { prepare: false })
+    await sql`delete from tables`
+    await sql`update guests set table_id = null`
+    await sql.end()
   })
 
   test('dragging a table persists its position', async ({ page }) => {

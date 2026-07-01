@@ -49,10 +49,12 @@ export async function deleteTableCore(
   database = db,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
-    const [, deleted] = await database.batch([
-      database.update(guests).set({ tableId: null }).where(eq(guests.tableId, id)),
-      database.delete(tables).where(eq(tables.id, id)).returning({ id: tables.id }),
-    ])
+    // `guests.table_id` has an `on delete set null` FK, so deleting the table
+    // unseats its guests automatically — no manual cleanup needed.
+    const deleted = await database
+      .delete(tables)
+      .where(eq(tables.id, id))
+      .returning({ id: tables.id })
     if (deleted.length === 0) return { ok: false, error: 'Mesa no encontrada' }
   } catch {
     return { ok: false, error: 'No se pudo eliminar la mesa' }

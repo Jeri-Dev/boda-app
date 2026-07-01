@@ -111,18 +111,12 @@ export async function deleteCategory(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
-    // Soft-ref cleanup + delete in one atomic batch: detach payments from the
-    // category, then remove it.
-    const [, deleted] = await db.batch([
-      db
-        .update(payments)
-        .set({ categoryId: null })
-        .where(eq(payments.categoryId, id)),
-      db
-        .delete(budgetCategories)
-        .where(eq(budgetCategories.id, id))
-        .returning({ id: budgetCategories.id }),
-    ])
+    // payments.category_id has an `on delete set null` FK, so deleting the
+    // category detaches its payments automatically (kept, ref nulled).
+    const deleted = await db
+      .delete(budgetCategories)
+      .where(eq(budgetCategories.id, id))
+      .returning({ id: budgetCategories.id })
     if (deleted.length === 0) {
       return { ok: false, error: 'Categoría no encontrada' }
     }

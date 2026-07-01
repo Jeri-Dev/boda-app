@@ -16,7 +16,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { db } from '@/lib/db'
-import { payments, vendors, VENDOR_STATUSES } from '@/lib/db/schema'
+import { vendors, VENDOR_STATUSES } from '@/lib/db/schema'
 import { parseMoneyToCents } from '@/lib/utils/money'
 
 const VendorSchema = z.object({
@@ -158,12 +158,12 @@ export async function deleteVendor(
   id: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
-    // Soft-ref cleanup + delete in one atomic batch: detach payments from the
-    // vendor, then remove it.
-    const [, deleted] = await db.batch([
-      db.update(payments).set({ vendorId: null }).where(eq(payments.vendorId, id)),
-      db.delete(vendors).where(eq(vendors.id, id)).returning({ id: vendors.id }),
-    ])
+    // payments.vendor_id has an `on delete set null` FK, so deleting the vendor
+    // detaches its payments automatically (kept, ref nulled).
+    const deleted = await db
+      .delete(vendors)
+      .where(eq(vendors.id, id))
+      .returning({ id: vendors.id })
     if (deleted.length === 0) {
       return { ok: false, error: 'Proveedor no encontrado' }
     }

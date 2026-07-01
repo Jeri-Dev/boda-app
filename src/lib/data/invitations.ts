@@ -102,21 +102,21 @@ export async function createInvitation(
   const id = randomUUID()
   const token = newInviteToken()
 
-  const ops = [
-    database.insert(inviteTokens).values({
-      id,
-      token,
-      partySize,
-      label: args.label?.trim() || null,
-      expiresAt: args.expiresAt ?? null,
-    }),
-    ...guestIds.map((guestId) =>
-      database.insert(tokenGuests).values({ tokenId: id, guestId }),
-    ),
-  ]
-
   try {
-    await database.batch(ops as [(typeof ops)[number], ...typeof ops])
+    await database.transaction(async (tx) => {
+      // Token first so the bridge FK (token_guests.token_id → invite_tokens)
+      // is satisfied when the links are inserted.
+      await tx.insert(inviteTokens).values({
+        id,
+        token,
+        partySize,
+        label: args.label?.trim() || null,
+        expiresAt: args.expiresAt ?? null,
+      })
+      for (const guestId of guestIds) {
+        await tx.insert(tokenGuests).values({ tokenId: id, guestId })
+      }
+    })
   } catch {
     return { ok: false, error: 'No se pudo crear la invitación' }
   }
@@ -165,23 +165,25 @@ export async function regenerateInvitation(
   const token = newInviteToken()
 
   try {
-    await database.batch([
-      database.insert(inviteTokens).values({
+    await database.transaction(async (tx) => {
+      // New token first, then re-point the bridge to it, then revoke the old —
+      // order keeps the token_id FK satisfied at every step.
+      await tx.insert(inviteTokens).values({
         id: newId,
         token,
         partySize: old.partySize,
         label: old.label,
         expiresAt: old.expiresAt,
-      }),
-      database
+      })
+      await tx
         .update(tokenGuests)
         .set({ tokenId: newId })
-        .where(eq(tokenGuests.tokenId, id)),
-      database
+        .where(eq(tokenGuests.tokenId, id))
+      await tx
         .update(inviteTokens)
         .set({ status: 'revocado' })
-        .where(eq(inviteTokens.id, id)),
-    ])
+        .where(eq(inviteTokens.id, id))
+    })
   } catch {
     return { ok: false, error: 'No se pudo regenerar la invitación' }
   }

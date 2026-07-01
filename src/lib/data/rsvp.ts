@@ -118,8 +118,8 @@ export type ApplyRsvpResult = { ok: true } | { ok: false; error: string }
  *    written — a guest can't grant themselves a +1; `plus_one_name` is dropped
  *    if the row isn't +1-capable;
  *  - every write stamps `last_modified_source = 'guest'`;
- *  - all member updates + the message run in ONE `db.batch` (atomic: a CHECK
- *    violation reverts the whole batch).
+ *  - all member updates + the message run in ONE `db.transaction` (atomic: a
+ *    CHECK violation rolls the whole transaction back).
  */
 export async function applyRsvp(
   input: ApplyRsvpInput,
@@ -160,31 +160,28 @@ export async function applyRsvp(
     }
   }
 
-  const memberUpdates = input.members.map((m) =>
-    database
-      .update(guests)
-      .set({
-        rsvpStatus: m.rsvpStatus,
-        menu: m.menu?.trim() ? m.menu.trim() : null,
-        // plus_one is host-granted: only keep a +1 name if the row is capable.
-        plusOneName: capable.get(m.guestId)
-          ? (m.plusOneName?.trim() ? m.plusOneName.trim() : null)
-          : null,
-        lastModifiedSource: 'guest',
-      })
-      .where(eq(guests.id, m.guestId)),
-  )
-
-  const ops = [
-    ...memberUpdates,
-    database
-      .update(inviteTokens)
-      .set({ message: input.message?.trim() ? input.message.trim() : null })
-      .where(eq(inviteTokens.id, tk.id)),
-  ]
-
   try {
-    await database.batch(ops as [(typeof ops)[number], ...typeof ops])
+    await database.transaction(async (tx) => {
+      for (const m of input.members) {
+        await tx
+          .update(guests)
+          .set({
+            rsvpStatus: m.rsvpStatus,
+            menu: m.menu?.trim() ? m.menu.trim() : null,
+            // plus_one is host-granted: only keep a +1 name if the row is capable.
+            plusOneName: capable.get(m.guestId)
+              ? (m.plusOneName?.trim() ? m.plusOneName.trim() : null)
+              : null,
+            lastModifiedSource: 'guest',
+          })
+          .where(eq(guests.id, m.guestId))
+      }
+      // Always (re)write the group message — even with no members submitted.
+      await tx
+        .update(inviteTokens)
+        .set({ message: input.message?.trim() ? input.message.trim() : null })
+        .where(eq(inviteTokens.id, tk.id))
+    })
   } catch {
     return { ok: false, error: 'No se pudo guardar la confirmación' }
   }

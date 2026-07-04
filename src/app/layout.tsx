@@ -39,7 +39,10 @@ export const metadata: Metadata = {
   description: "Gestión de nuestra boda: invitación, confirmaciones e información.",
   applicationName: site.name,
   icons: {
-    icon: "/icon-192.png",
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
     apple: "/apple-touch-icon.png",
   },
   // The back-office is private; the guest surface opts back in per-route.

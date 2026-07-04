@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { Logo } from "@/components/ui/logo";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/utils/cn";
 import { InstallPwa } from "./install-pwa";
@@ -61,8 +62,9 @@ export function SidebarPanel({ onNavigate }: { onNavigate?: () => void }) {
         <Link
           href="/"
           onClick={onNavigate}
-          className="font-display text-lg tracking-tight text-[var(--color-foreground)]"
+          className="flex items-center gap-2 font-display text-lg tracking-tight text-[var(--color-foreground)]"
         >
+          <Logo className="h-6 w-auto text-[var(--color-accent)]" />
           {site.name}
         </Link>
       </div>

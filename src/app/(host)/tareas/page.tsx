@@ -23,7 +23,7 @@ export default async function TareasPage() {
   const soon = plusDaysDR(14)
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6">
+    <main className="w-full px-6 py-8 sm:px-8 lg:px-10">
       <header className="mb-8">
         <h1 className="font-display text-3xl tracking-tight text-[var(--color-foreground)]">
           Tareas

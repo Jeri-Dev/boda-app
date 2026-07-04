@@ -142,7 +142,7 @@ export default async function DashboardPage() {
   ]
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6">
+    <main className="w-full px-6 py-8 sm:px-8 lg:px-10">
       <header className="mb-10">
         <p className="text-[0.7rem] uppercase tracking-[0.25em] text-[var(--color-muted-foreground)]">
           Nuestra Boda

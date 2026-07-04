@@ -77,7 +77,7 @@ export default async function DiaBPage() {
   const couple = weddingRow[0]?.coupleNames?.trim() || 'Nuestra Boda'
 
   return (
-    <main className="mx-auto w-full max-w-xl px-4 py-10 sm:px-6">
+    <main className="w-full px-6 py-8 sm:px-8 lg:px-10">
       <header className="mb-8">
         <p className="text-[0.7rem] uppercase tracking-[0.25em] text-[var(--color-muted-foreground)]">
           Día B

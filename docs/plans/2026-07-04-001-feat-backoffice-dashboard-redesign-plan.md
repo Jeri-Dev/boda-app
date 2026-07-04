@@ -192,7 +192,7 @@ Delivered as one continuous effort in phase order. Phases 1→2 are foundational
 
 ### Phase 1 — Foundation (design system + shell)
 
-- [ ] **U1: Design tokens, dashboard primitives, and `@dnd-kit` (with runtime smoke test)**
+- [x] **U1: Design tokens, dashboard primitives, and `@dnd-kit` (with runtime smoke test)**
 
 **Goal:** Establish the modern-dashboard visual layer and prove `@dnd-kit` works at runtime before later units depend on it.
 
@@ -222,7 +222,7 @@ Delivered as one continuous effort in phase order. Phases 1→2 are foundational
 
 **Verification:** `pnpm typecheck` passes; `@dnd-kit` hydrates cleanly (smoke test green); no new external network requests (CSP intact).
 
-- [ ] **U2: Left sidebar app shell**
+- [x] **U2: Left sidebar app shell**
 
 **Goal:** Replace the wrapping top nav with a fixed left sidebar (≥lg) + mobile drawer (<lg) + slim topbar; nav items no-wrap (R1).
 
@@ -252,7 +252,7 @@ Delivered as one continuous effort in phase order. Phases 1→2 are foundational
 
 ### Phase 2 — Invitados unification
 
-- [ ] **U3: Unify Invitados + Invitaciones + Pendientes into one tabbed module**
+- [x] **U3: Unify Invitados + Invitaciones + Pendientes into one tabbed module**
 
 **Goal:** One module home with sub-tabs Lista / Invitaciones / Pendientes (R3), one sidebar entry.
 
@@ -283,7 +283,7 @@ Delivered as one continuous effort in phase order. Phases 1→2 are foundational
 
 ### Phase 3 — Invitados fields (remove menú, add address)
 
-- [ ] **U4: Remove the menú feature end-to-end; add guest Address**
+- [x] **U4: Remove the menú feature end-to-end; add guest Address**
 
 **Goal:** Remove meal selection from the back-office AND the public RSVP, drop `guests.menu` safely (R2), and add optional `address` (R8).
 
@@ -316,7 +316,7 @@ Delivered as one continuous effort in phase order. Phases 1→2 are foundational
 
 ### Phase 4 — Presupuesto general budget (shares the wedding migration with U9)
 
-- [ ] **U5: General/overall budget + label alignment**
+- [x] **U5: General/overall budget + label alignment**
 
 **Goal:** Manage a general budget envelope alongside per-category planned amounts; align the summary to the reference (R4, R8).
 
@@ -344,7 +344,7 @@ Delivered as one continuous effort in phase order. Phases 1→2 are foundational
 
 ### Phase 5 — Tareas Kanban
 
-- [ ] **U6a: Tasks schema + actions for Kanban (status as single source of truth)**
+- [x] **U6a: Tasks schema + actions for Kanban (status as single source of truth)**
 
 **Goal:** Add board state and make `status` authoritative (drop `done`), with move/reorder actions.
 
@@ -373,7 +373,7 @@ Delivered as one continuous effort in phase order. Phases 1→2 are foundational
 
 **Verification:** `status` drives every consumer; no `done` references remain after the drop; unit suite green.
 
-- [ ] **U6b: Kanban board UI (`@dnd-kit`)**
+- [x] **U6b: Kanban board UI (`@dnd-kit`)**
 
 **Goal:** Replace the flat list with a 3-column Kanban: drag between columns + reorder, optimistic, accessible fallback (R5).
 
@@ -404,7 +404,7 @@ Delivered as one continuous effort in phase order. Phases 1→2 are foundational
 
 ### Phase 6 — Mesas drag-and-drop
 
-- [ ] **U7: Seating board — guests→tables drag-and-drop**
+- [x] **U7: Seating board — guests→tables drag-and-drop**
 
 **Goal:** Two-pane DnD: unseated guests (left) dragged onto table drop-zones (right) that show who sits around each table (R6).
 
@@ -436,7 +436,7 @@ Delivered as one continuous effort in phase order. Phases 1→2 are foundational
 
 ### Phase 7 — Proveedores, Config, Día B, public merge, restyle
 
-- [ ] **U8: Proveedores alignment (Vendor Type / Contact Person / Paid)**
+- [x] **U8: Proveedores alignment (Vendor Type / Contact Person / Paid)**
 
 **Goal:** Align vendor fields with the reference Vendor-Contact form (R8).
 
@@ -458,7 +458,7 @@ Delivered as one continuous effort in phase order. Phases 1→2 are foundational
 
 **Verification:** vendor CRUD covers new fields; migration applies; Día B contacts unaffected.
 
-- [ ] **U9: Configuración — venue/ceremony/reception details (host-only)**
+- [x] **U9: Configuración — venue/ceremony/reception details (host-only)**
 
 **Goal:** Extend the wedding config with the high-value venue/ceremony/reception subset (R8).
 
@@ -480,7 +480,7 @@ Delivered as one continuous effort in phase order. Phases 1→2 are foundational
 
 **Verification:** config saves new fields; no public leakage of host-only venue PII.
 
-- [ ] **U10: Día B — editable Wedding Day Timeline (time-sorted)**
+- [x] **U10: Día B — editable Wedding Day Timeline (time-sorted)**
 
 **Goal:** Add a simple editable timeline (Hora/Evento/Notas), ordered by time (R8).
 
@@ -504,7 +504,7 @@ Delivered as one continuous effort in phase order. Phases 1→2 are foundational
 
 **Verification:** timeline CRUD works, time-sorted; Día B renders it; offline snapshot unaffected.
 
-- [ ] **U11: Merge public invitation + info onto one page**
+- [x] **U11: Merge public invitation + info onto one page**
 
 **Goal:** Render info sections below the invitation on `/i/[token]` without duplicated landmarks (R7).
 
@@ -530,7 +530,7 @@ Delivered as one continuous effort in phase order. Phases 1→2 are foundational
 
 **Verification:** one clean merged page (no duplicated landmarks); host-only PII not leaked; RSVP + invalid-token intact.
 
-- [ ] **U12: Global restyle pass + Panel donut + verification**
+- [x] **U12: Global restyle pass + Panel donut + verification**
 
 **Goal:** Apply the dashboard look consistently, add a donut to the Panel, verify guardrails (R9).
 

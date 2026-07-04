@@ -1,9 +1,9 @@
 'use server'
 
 /**
- * Task checklist Server Actions (U1.4). Open app (no auth gate). In-app only —
- * no proactive notifications. `toggleTask` is a lightweight done/undone flip
- * driven by the row checkbox, separate from the full edit dialog.
+ * Task checklist Server Actions (U1.4 → Kanban U6a). Open app (no auth gate).
+ * `status` is the single source of truth for completion; `moveTask` changes a
+ * task's column + intra-column position, separate from the full edit dialog.
  */
 
 import 'server-only'
@@ -13,8 +13,9 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { requireBackofficeAuth } from '@/lib/auth/backoffice'
+import { moveTaskCore, nextPositionCore } from '@/lib/data/tasks'
 import { db } from '@/lib/db'
-import { tasks } from '@/lib/db/schema'
+import { tasks, type TaskStatus } from '@/lib/db/schema'
 
 const TaskSchema = z.object({
   title: z
@@ -77,7 +78,10 @@ export async function createTask(
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors }
 
   try {
-    await db.insert(tasks).values(toRow(parsed.data))
+    const position = await nextPositionCore('todo')
+    await db
+      .insert(tasks)
+      .values({ ...toRow(parsed.data), status: 'todo', position })
   } catch {
     return { error: 'No se pudo crear la tarea' }
   }
@@ -110,24 +114,18 @@ export async function updateTask(
   return { ok: true }
 }
 
-export async function toggleTask(
+export async function moveTask(
   id: string,
-  done: boolean,
+  status: TaskStatus,
+  position: number,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   await requireBackofficeAuth()
-  try {
-    const updated = await db
-      .update(tasks)
-      .set({ done })
-      .where(eq(tasks.id, id))
-      .returning({ id: tasks.id })
-    if (updated.length === 0) return { ok: false, error: 'Tarea no encontrada' }
-  } catch {
-    return { ok: false, error: 'No se pudo actualizar la tarea' }
+  const res = await moveTaskCore(id, status, position)
+  if (res.ok) {
+    revalidatePath('/tareas')
+    revalidatePath('/')
   }
-
-  revalidatePath('/tareas')
-  return { ok: true }
+  return res
 }
 
 export async function deleteTask(

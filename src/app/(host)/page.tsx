@@ -100,8 +100,8 @@ export default async function DashboardPage() {
   const budgetBase = generalCents > 0 ? generalCents : previsto
   const restante = budgetBase - pagado
 
-  // Tasks.
-  const pendingTasks = taskRows.filter((t) => !t.done)
+  // Tasks (status is the single source of truth; no `done` column).
+  const pendingTasks = taskRows.filter((t) => t.status !== 'done')
 
   const byDate = (a: { dueDate: string | null }, b: { dueDate: string | null }) =>
     (a.dueDate ?? '') < (b.dueDate ?? '')

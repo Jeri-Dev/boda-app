@@ -29,6 +29,20 @@
       "when": 1783181434673,
       "tag": "0003_wedding_budget_and_venue",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783182921723,
+      "tag": "0004_tasks_status_position",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1783182956149,
+      "tag": "0005_drop_task_done",
+      "breakpoints": true
     }
   ]
 }

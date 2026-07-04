@@ -261,16 +261,28 @@ export type NewPayment = typeof payments.$inferInsert
  * Task checklist (U1.4). In-app only (no proactive notifications). Ordered by
  * urgency in the read; `dueDate` is a timezone-free `YYYY-MM-DD`.
  */
-export const tasks = pgTable('tasks', {
-  id: text('id')
-    .primaryKey()
-    .$defaultFn(() => randomUUID()),
-  title: text('title').notNull(),
-  dueDate: text('due_date'),
-  done: boolean('done').notNull().default(false),
-  notes: text('notes'),
-  ...timestamps,
-})
+export const TASK_STATUSES = ['todo', 'doing', 'done'] as const
+export type TaskStatus = (typeof TASK_STATUSES)[number]
+
+export const tasks = pgTable(
+  'tasks',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    title: text('title').notNull(),
+    dueDate: text('due_date'),
+    /** Kanban column (U6a) — the single source of truth for completion. */
+    status: text('status', { enum: TASK_STATUSES }).notNull().default('todo'),
+    /** Intra-column order (0-based). */
+    position: integer('position').notNull().default(0),
+    notes: text('notes'),
+    ...timestamps,
+  },
+  (t) => [
+    check('tasks_status_check', sql`${t.status} in ('todo', 'doing', 'done')`),
+  ],
+)
 
 export type Task = typeof tasks.$inferSelect
 export type NewTask = typeof tasks.$inferInsert

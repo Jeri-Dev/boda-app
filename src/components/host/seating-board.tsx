@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  type CSSProperties,
   useActionState,
   useEffect,
   useMemo,
@@ -58,12 +59,19 @@ export type GuestLite = {
 
 const UNSEATED = 'unseated'
 
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  const a = parts[0]?.[0] ?? '?'
+  const b = parts.length > 1 ? parts[parts.length - 1][0] : ''
+  return (a + b).toUpperCase()
+}
+
 function rsvpMark(status: RsvpStatus): string | null {
   if (status === 'confirmed') return null
   return status === 'declined' ? '(no asiste)' : '(sin confirmar)'
 }
 
-/* ── Draggable guest chip (with an accessible <select> fallback) ──────────── */
+/* ── Left list: draggable guest chip + accessible <select> fallback ───────── */
 
 function GuestChip({
   guest,
@@ -131,8 +139,6 @@ function GuestChip({
   )
 }
 
-/* ── Droppable panes ──────────────────────────────────────────────────────── */
-
 function UnseatedPane({
   guests,
   tables,
@@ -153,7 +159,7 @@ function UnseatedPane({
       className="flex flex-col rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] p-4 shadow-[var(--shadow-soft)]"
     >
       <h2 className="mb-3 flex items-center justify-between font-display text-lg tracking-tight text-[var(--color-foreground)]">
-        Sin sentar
+        Invitados
         <span className="text-sm tabular-nums text-[var(--color-muted-foreground)]">
           {guests.length}
         </span>
@@ -182,43 +188,97 @@ function UnseatedPane({
   )
 }
 
+/* ── A seat around a table ────────────────────────────────────────────────── */
+
+function SeatOccupant({
+  guest,
+  style,
+  over,
+}: {
+  guest: GuestLite
+  style: CSSProperties
+  over: boolean
+}) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: guest.id,
+  })
+  const declined = guest.rsvpStatus === 'declined'
+  return (
+    <button
+      ref={setNodeRef}
+      type="button"
+      style={style}
+      title={`${guest.name}${declined ? ' (no asiste)' : ''}`}
+      aria-label={`${guest.name}${declined ? ', no asiste' : ', sentado'} — arrastrar para mover`}
+      className={[
+        'grid h-9 w-9 cursor-grab touch-none place-items-center rounded-full border text-[0.65rem] font-semibold shadow-[var(--shadow-soft)] active:cursor-grabbing',
+        isDragging ? 'opacity-40' : '',
+        over
+          ? 'border-[var(--color-destructive)] bg-[var(--color-destructive)]/15 text-[var(--color-destructive)]'
+          : declined
+            ? 'border-[var(--color-border)] bg-[var(--color-muted)] text-[var(--color-muted-foreground)] line-through'
+            : 'border-[var(--color-sage)] bg-[var(--color-sage)]/20 text-[var(--color-foreground)]',
+      ].join(' ')}
+      {...attributes}
+      {...listeners}
+    >
+      {initials(guest.name)}
+    </button>
+  )
+}
+
+function Seat({
+  guest,
+  index,
+  capacity,
+  style,
+}: {
+  guest: GuestLite | undefined
+  index: number
+  capacity: number
+  style: CSSProperties
+}) {
+  if (!guest) {
+    return (
+      <div
+        style={style}
+        aria-hidden
+        className="h-8 w-8 rounded-full border-2 border-dashed border-[var(--color-border)]"
+      />
+    )
+  }
+  return <SeatOccupant guest={guest} style={style} over={index >= capacity} />
+}
+
 function TableCard({
   table,
   seated,
-  allTables,
-  onAssign,
   onEdit,
   onDelete,
-  busy,
   deleting,
   draggingWouldOverflow,
 }: {
   table: TableLite
   seated: GuestLite[]
-  allTables: TableLite[]
-  onAssign: (guestId: string, tableId: string | null) => void
   onEdit: () => void
   onDelete: () => void
-  busy: boolean
   deleting: boolean
   draggingWouldOverflow: boolean
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `table-${table.id}` })
   const used = seated.filter((g) => g.rsvpStatus !== 'declined').length
   const over = used > table.capacity
-  const roundish = table.shape === 'round'
+  const round = table.shape === 'round'
+  const seatCount = Math.max(table.capacity, seated.length, 1)
 
   return (
     <section
-      aria-labelledby={`table-${table.id}`}
+      aria-label={table.label}
       className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] p-4 shadow-[var(--shadow-soft)]"
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="mb-2 flex items-start justify-between gap-3">
         <div>
-          <h2
-            id={`table-${table.id}`}
-            className="font-display text-lg text-[var(--color-foreground)]"
-          >
+          <h2 className="font-display text-lg text-[var(--color-foreground)]">
             {table.label}
           </h2>
           <p
@@ -244,34 +304,49 @@ function TableCard({
         </div>
       </div>
 
-      {/* Drop zone — the "around the table" cluster. */}
+      {/* The table as its shape, with seats around the perimeter. Drop a guest
+          anywhere on it to seat them. */}
       <div
         ref={setNodeRef}
-        className={[
-          'mt-3 flex min-h-20 flex-wrap content-start gap-2 border-2 p-3 transition-colors',
-          roundish ? 'rounded-[var(--radius-xl)]' : 'rounded-[var(--radius)]',
+        className={`relative mx-auto aspect-square w-full max-w-[240px] rounded-full transition-shadow ${
           isOver
             ? draggingWouldOverflow
-              ? 'border-[var(--color-destructive)] bg-[var(--color-destructive)]/5'
-              : 'border-[var(--color-sage)] bg-[var(--color-sage)]/8'
-            : 'border-dashed border-[var(--color-border)]',
-        ].join(' ')}
+              ? 'ring-2 ring-[var(--color-destructive)]'
+              : 'ring-2 ring-[var(--color-sage)]'
+            : ''
+        }`}
       >
-        {seated.length === 0 ? (
-          <p className="w-full py-2 text-center text-xs text-[var(--color-muted-foreground)]">
-            Arrastra invitados aquí
-          </p>
-        ) : (
-          seated.map((g) => (
-            <GuestChip
-              key={g.id}
-              guest={g}
-              tables={allTables}
-              onAssign={onAssign}
-              busy={busy}
+        {/* Table body */}
+        <div
+          className={`absolute left-1/2 top-1/2 grid -translate-x-1/2 -translate-y-1/2 place-items-center border-2 border-dashed border-[var(--color-border)] bg-[var(--color-muted)]/50 ${round ? 'rounded-full' : 'rounded-[var(--radius)]'}`}
+          style={{ width: '54%', height: round ? '54%' : '42%' }}
+        >
+          <span className="px-2 text-center font-display text-sm text-[var(--color-muted-foreground)]">
+            {table.label}
+          </span>
+        </div>
+
+        {/* Seats */}
+        {Array.from({ length: seatCount }, (_, i) => {
+          const angle = (i / seatCount) * 2 * Math.PI - Math.PI / 2
+          const left = `${50 + 44 * Math.cos(angle)}%`
+          const top = `${50 + 44 * Math.sin(angle)}%`
+          const guest = seated[i]
+          return (
+            <Seat
+              key={guest?.id ?? `empty-${i}`}
+              guest={guest}
+              index={i}
+              capacity={table.capacity}
+              style={{
+                position: 'absolute',
+                left,
+                top,
+                transform: 'translate(-50%, -50%)',
+              }}
             />
-          ))
-        )}
+          )
+        })}
       </div>
     </section>
   )
@@ -419,7 +494,6 @@ export function SeatingBoard({
     ? optimisticGuests.find((g) => g.id === activeId)
     : undefined
 
-  // Which table (if any) would overflow if the dragged guest landed there.
   function wouldOverflow(t: TableLite): boolean {
     if (!activeGuest || activeGuest.rsvpStatus === 'declined') return false
     if (activeGuest.tableId === t.id) return false
@@ -465,17 +539,14 @@ export function SeatingBoard({
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {tables.map((t) => (
                   <TableCard
                     key={t.id}
                     table={t}
                     seated={seatedByTable.get(t.id) ?? []}
-                    allTables={tables}
-                    onAssign={assign}
                     onEdit={() => setEditing(t)}
                     onDelete={() => handleDelete(t)}
-                    busy={false}
                     deleting={deletingId === t.id}
                     draggingWouldOverflow={wouldOverflow(t)}
                   />

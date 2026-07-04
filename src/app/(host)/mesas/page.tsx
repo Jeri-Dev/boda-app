@@ -54,23 +54,26 @@ export default async function MesasPage() {
   }))
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6">
+    <main className="w-full px-6 py-8 sm:px-8 lg:px-10">
       <header className="mb-8">
         <h1 className="font-display text-3xl tracking-tight text-[var(--color-foreground)]">
           Mesas
         </h1>
         <p className="mt-2 max-w-prose text-sm text-[var(--color-muted-foreground)]">
-          Crea mesas, colócalas en el plano y asigna invitados.
+          Arrastra cada invitado a su mesa. Más abajo puedes colocar las mesas
+          en el plano del salón.
         </p>
       </header>
 
+      <SeatingBoard tables={tableRows} guests={guestRows} />
+
       {planTables.length > 0 ? (
-        <section className="mb-10" aria-labelledby="plano-heading">
+        <section className="mt-12" aria-labelledby="plano-heading">
           <h2
             id="plano-heading"
             className="mb-3 font-display text-xl tracking-tight text-[var(--color-foreground)]"
           >
-            Plano
+            Plano del salón
           </h2>
           <p className="mb-3 text-sm text-[var(--color-muted-foreground)]">
             Arrastra cada mesa para colocarla como en el salón.
@@ -78,8 +81,6 @@ export default async function MesasPage() {
           <FloorPlan tables={planTables} />
         </section>
       ) : null}
-
-      <SeatingBoard tables={tableRows} guests={guestRows} />
     </main>
   )
 }

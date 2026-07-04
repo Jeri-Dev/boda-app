@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 
 import { site } from "@/lib/site";
 import { cn } from "@/lib/utils/cn";
+import { InstallPwa } from "./install-pwa";
 import {
   BudgetIcon,
   ConfigIcon,
@@ -96,6 +97,8 @@ export function SidebarPanel({ onNavigate }: { onNavigate?: () => void }) {
           );
         })}
       </nav>
+
+      <InstallPwa />
     </div>
   );
 }

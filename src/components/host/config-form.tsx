@@ -70,6 +70,73 @@ export function ConfigForm({ wedding }: { wedding: Wedding | null }) {
 
       <fieldset className="grid gap-5 border-t border-[var(--color-border)] pt-6">
         <legend className="font-display text-lg text-[var(--color-foreground)]">
+          Lugar y ceremonia
+        </legend>
+        <p className="text-sm text-[var(--color-muted-foreground)]">
+          Datos internos del lugar y los horarios. No se muestran a los
+          invitados.
+        </p>
+
+        <Field label="Dirección del lugar" error={errs?.venueAddress?.[0]}>
+          <Input
+            name="venueAddress"
+            defaultValue={wedding?.venueAddress ?? ''}
+          />
+        </Field>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <Field label="Teléfono del lugar" error={errs?.venuePhone?.[0]}>
+            <Input name="venuePhone" defaultValue={wedding?.venuePhone ?? ''} />
+          </Field>
+          <Field
+            label="Coordinador/a del lugar"
+            error={errs?.venueCoordinator?.[0]}
+          >
+            <Input
+              name="venueCoordinator"
+              defaultValue={wedding?.venueCoordinator ?? ''}
+            />
+          </Field>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <Field
+            label="Ceremonia — inicio"
+            hint="p.ej. 5:00 PM"
+            error={errs?.ceremonyStart?.[0]}
+          >
+            <Input
+              name="ceremonyStart"
+              placeholder="5:00 PM"
+              defaultValue={wedding?.ceremonyStart ?? ''}
+            />
+          </Field>
+          <Field label="Ceremonia — fin" error={errs?.ceremonyEnd?.[0]}>
+            <Input
+              name="ceremonyEnd"
+              defaultValue={wedding?.ceremonyEnd ?? ''}
+            />
+          </Field>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <Field label="Recepción — inicio" error={errs?.receptionStart?.[0]}>
+            <Input
+              name="receptionStart"
+              defaultValue={wedding?.receptionStart ?? ''}
+            />
+          </Field>
+          <Field label="Recepción — fin" error={errs?.receptionEnd?.[0]}>
+            <Input
+              name="receptionEnd"
+              defaultValue={wedding?.receptionEnd ?? ''}
+            />
+          </Field>
+        </div>
+      </fieldset>
+
+      <fieldset className="grid gap-5 border-t border-[var(--color-border)] pt-6">
+        <legend className="font-display text-lg text-[var(--color-foreground)]">
           Información para invitados
         </legend>
         <p className="text-sm text-[var(--color-muted-foreground)]">

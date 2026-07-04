@@ -2,8 +2,10 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { and, count, eq, isNull } from 'drizzle-orm'
 
+import { Donut } from '@/components/ui/donut'
+import { StatCard } from '@/components/ui/stat-card'
 import { db } from '@/lib/db'
-import { budgetCategories, guests, payments, tasks } from '@/lib/db/schema'
+import { budgetCategories, guests, payments, tasks, wedding } from '@/lib/db/schema'
 import { isoDateDR, plusDaysDR, formatDateEs } from '@/lib/utils/dates'
 import { formatCents } from '@/lib/utils/money'
 
@@ -14,52 +16,35 @@ export const metadata: Metadata = {
 // Aggregated read of live data + current date — always render per request.
 export const dynamic = 'force-dynamic'
 
-function StatCard({
-  href,
-  label,
-  value,
-  sub,
-}: {
-  href: string
-  label: string
-  value: string
-  sub: string
-}) {
-  return (
-    <Link
-      href={href}
-      className="block rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-5 py-4 shadow-[var(--shadow-soft)] transition-colors hover:bg-[var(--color-muted)]"
-    >
-      <span className="text-[0.7rem] uppercase tracking-wide text-[var(--color-muted-foreground)]">
-        {label}
-      </span>
-      <span className="mt-1 block font-display text-2xl tabular-nums text-[var(--color-foreground)]">
-        {value}
-      </span>
-      <span className="mt-1 block text-xs text-[var(--color-muted-foreground)]">
-        {sub}
-      </span>
-    </Link>
-  )
-}
-
 export default async function DashboardPage() {
-  const [guestCountRows, categoryRows, paymentRows, taskRows, unseatedRows] =
-    await Promise.all([
-      db
-        .select({ status: guests.rsvpStatus, n: count() })
-        .from(guests)
-        .groupBy(guests.rsvpStatus),
-      db.select({ planned: budgetCategories.plannedCents }).from(budgetCategories),
-      db.select().from(payments),
-      db.select().from(tasks),
-      // Confirmed guests with no table → the actionable "sin sentar" count.
-      db
-        .select({ n: count() })
-        .from(guests)
-        .where(and(eq(guests.rsvpStatus, 'confirmed'), isNull(guests.tableId))),
-    ])
+  const [
+    guestCountRows,
+    categoryRows,
+    paymentRows,
+    taskRows,
+    unseatedRows,
+    weddingRows,
+  ] = await Promise.all([
+    db
+      .select({ status: guests.rsvpStatus, n: count() })
+      .from(guests)
+      .groupBy(guests.rsvpStatus),
+    db.select({ planned: budgetCategories.plannedCents }).from(budgetCategories),
+    db.select().from(payments),
+    db.select().from(tasks),
+    // Confirmed guests with no table → the actionable "sin sentar" count.
+    db
+      .select({ n: count() })
+      .from(guests)
+      .where(and(eq(guests.rsvpStatus, 'confirmed'), isNull(guests.tableId))),
+    db
+      .select({ totalBudgetCents: wedding.totalBudgetCents })
+      .from(wedding)
+      .where(eq(wedding.id, 1))
+      .limit(1),
+  ])
   const sinSentar = unseatedRows[0]?.n ?? 0
+  const generalCents = weddingRows[0]?.totalBudgetCents ?? 0
 
   const today = isoDateDR()
   const soon = plusDaysDR(14)
@@ -84,10 +69,12 @@ export default async function DashboardPage() {
       pendientePagos += 1
     }
   }
-  const restante = previsto - pagado
+  // Measure remaining budget against the general envelope when set, else previsto.
+  const budgetBase = generalCents > 0 ? generalCents : previsto
+  const restante = budgetBase - pagado
 
-  // Tasks.
-  const pendingTasks = taskRows.filter((t) => !t.done)
+  // Tasks (status is the single source of truth; no `done` column).
+  const pendingTasks = taskRows.filter((t) => t.status !== 'done')
 
   const byDate = (a: { dueDate: string | null }, b: { dueDate: string | null }) =>
     (a.dueDate ?? '') < (b.dueDate ?? '')
@@ -126,7 +113,7 @@ export default async function DashboardPage() {
       href: '/presupuesto',
       label: 'Presupuesto restante',
       value: formatCents(restante),
-      sub: `${formatCents(pagado)} pagado de ${formatCents(previsto)}`,
+      sub: `${formatCents(pagado)} pagado de ${formatCents(budgetBase)}`,
     },
     {
       href: '/presupuesto',
@@ -155,7 +142,7 @@ export default async function DashboardPage() {
   ]
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6">
+    <main className="w-full px-6 py-8 sm:px-8 lg:px-10">
       <header className="mb-10">
         <p className="text-[0.7rem] uppercase tracking-[0.25em] text-[var(--color-muted-foreground)]">
           Nuestra Boda
@@ -167,6 +154,23 @@ export default async function DashboardPage() {
           Lo esencial de un vistazo. Toca una tarjeta para entrar al módulo.
         </p>
       </header>
+
+      <section className="mb-8 flex flex-col items-center gap-6 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-[var(--shadow-soft)] sm:flex-row sm:gap-8">
+        <Donut
+          value={g.confirmed}
+          max={g.total}
+          label="Invitados confirmados"
+          caption="confirmados"
+        />
+        <div>
+          <p className="font-display text-xl tracking-tight text-[var(--color-foreground)]">
+            {g.confirmed} de {g.total} invitados confirmados
+          </p>
+          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+            {g.pending} sin responder · {g.declined} no asisten
+          </p>
+        </div>
+      </section>
 
       <section className="mb-12 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((s) => (

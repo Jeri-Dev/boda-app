@@ -23,7 +23,6 @@ export type RsvpMember = {
   id: string
   name: string
   rsvpStatus: RsvpStatus
-  menu: string | null
   plusOne: boolean
   plusOneName: string | null
 }
@@ -72,7 +71,6 @@ export async function getRsvpView(
       id: guests.id,
       name: guests.name,
       rsvpStatus: guests.rsvpStatus,
-      menu: guests.menu,
       plusOne: guests.plusOne,
       plusOneName: guests.plusOneName,
     })
@@ -91,7 +89,6 @@ export async function getRsvpView(
 export type RsvpMemberInput = {
   guestId: string
   rsvpStatus: RsvpStatus
-  menu?: string | null
   plusOneName?: string | null
 }
 
@@ -111,7 +108,7 @@ export type ApplyRsvpResult = { ok: true } | { ok: false; error: string }
  *  - token re-validated here (closes the read→write TOCTOU);
  *  - every submitted `guestId` must belong to this token, else the WHOLE op is
  *    rejected and nothing is written (no cross-group writes);
- *  - only `rsvp_status` / `menu` / `plus_one_name` are written, each as a
+ *  - only `rsvp_status` / `plus_one_name` are written, each as a
  *    LITERAL key in `.set()` (the guest can't write `notes`/`household`/`name`/
  *    contact columns even by injecting keys);
  *  - `plus_one` is a host-granted capability, RE-READ from the DB and never
@@ -167,7 +164,6 @@ export async function applyRsvp(
           .update(guests)
           .set({
             rsvpStatus: m.rsvpStatus,
-            menu: m.menu?.trim() ? m.menu.trim() : null,
             // plus_one is host-granted: only keep a +1 name if the row is capable.
             plusOneName: capable.get(m.guestId)
               ? (m.plusOneName?.trim() ? m.plusOneName.trim() : null)

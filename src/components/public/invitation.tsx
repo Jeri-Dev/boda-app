@@ -1,8 +1,7 @@
-import Link from 'next/link'
-
 import type { RsvpView } from '@/lib/data/rsvp'
 import type { Wedding } from '@/lib/db/schema'
 
+import { InfoContent, hasPublicInfo } from './info-sections'
 import { PrivacyNotice } from './privacy-notice'
 import { RsvpForm } from './rsvp-form'
 
@@ -97,13 +96,25 @@ export function Invitation({
         </div>
       </section>
 
+      {/* Info below the invitation (U11) — same page, no duplicate landmarks. */}
+      {hasPublicInfo(wedding) ? (
+        <section id="info" className="mt-14">
+          <h2 className="mb-6 text-center font-display text-2xl tracking-tight text-[var(--color-foreground)]">
+            Información
+          </h2>
+          <InfoContent wedding={wedding} />
+        </section>
+      ) : null}
+
       <footer className="mt-auto pt-12 text-center text-xs text-[var(--color-muted-foreground)]">
-        <Link
-          href="/info"
-          className="text-[var(--color-accent)] underline-offset-4 hover:underline"
-        >
-          Más información sobre la boda →
-        </Link>
+        {hasPublicInfo(wedding) ? (
+          <a
+            href="#info"
+            className="text-[var(--color-accent)] underline-offset-4 hover:underline"
+          >
+            Más información sobre la boda →
+          </a>
+        ) : null}
         <p className="mt-3">Con cariño, {couple}.</p>
       </footer>
     </main>

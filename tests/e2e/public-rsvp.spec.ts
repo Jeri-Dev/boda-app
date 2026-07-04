@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test'
 
 /**
- * U2.3 — public RSVP. A guest confirms from their link (attendance + menu +
- * message), and it flows into the host's guest list, tagged "por el invitado"
+ * U2.3 — public RSVP. A guest confirms from their link (attendance + message),
+ * and it flows into the host's guest list, tagged "por el invitado"
  * (last_modified_source). Self-cleaning.
  */
 
@@ -21,7 +21,7 @@ test.describe('RSVP público (U2.3)', () => {
     await page.getByRole('button', { name: 'Añadir invitado' }).click()
     await expect(page.getByRole('row').filter({ hasText: guestName })).toBeVisible()
 
-    await page.goto('/invitaciones')
+    await page.goto('/invitados/invitaciones')
     await page.getByRole('button', { name: 'Nueva invitación' }).click()
     await page.getByRole('checkbox', { name: guestName }).check()
     await page.getByRole('button', { name: 'Crear invitación' }).click()
@@ -37,9 +37,6 @@ test.describe('RSVP público (U2.3)', () => {
     ).toBeVisible()
 
     await guest.getByRole('button', { name: 'Sí, asistiré' }).click()
-    await guest
-      .getByPlaceholder('Carne, pescado, vegetariano…')
-      .fill('Vegetariano')
     await guest
       .getByPlaceholder('¡Felicidades! Allí estaremos…')
       .fill('¡Con mucho gusto!')

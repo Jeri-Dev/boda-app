@@ -26,7 +26,7 @@ async function seedGroup(opts?: {
       phone: '809-555-0001',
       notes: 'VIP, sienta cerca de la pista',
       household: 'Pérez',
-      menu: 'carne',
+      address: 'Calle Falsa 123',
       plusOne: true,
     },
     {
@@ -65,11 +65,11 @@ describe('getRsvpView (projected public read)', () => {
     expect(view.partySize).toBe(2)
     expect(view.members).toHaveLength(2)
 
-    const allowed = ['id', 'name', 'rsvpStatus', 'menu', 'plusOne', 'plusOneName']
+    const allowed = ['id', 'name', 'rsvpStatus', 'plusOne', 'plusOneName']
     for (const m of view.members) {
       // The query projection must not have grown a prohibited column.
       expect(Object.keys(m).sort()).toEqual([...allowed].sort())
-      for (const banned of ['email', 'phone', 'notes', 'household', 'lastModifiedSource']) {
+      for (const banned of ['email', 'phone', 'notes', 'household', 'address', 'lastModifiedSource']) {
         expect(banned in m).toBe(false)
       }
     }
@@ -94,16 +94,16 @@ describe('applyRsvp (scoped atomic write)', () => {
   it('writes only guest-writable columns and stamps source=guest', async () => {
     const { token, a } = await seedGroup()
     const res = await applyRsvp(
-      { token, members: [{ guestId: a, rsvpStatus: 'confirmed', menu: 'pescado' }], message: '¡Allí estaremos!' },
+      { token, members: [{ guestId: a, rsvpStatus: 'confirmed' }], message: '¡Allí estaremos!' },
       db,
     )
     expect(res).toEqual({ ok: true })
 
     const ana = (await db.select().from(guests)).find((g) => g.id === a)!
     expect(ana.rsvpStatus).toBe('confirmed')
-    expect(ana.menu).toBe('pescado')
     expect(ana.lastModifiedSource).toBe('guest')
-    // Host-managed columns untouched.
+    // Host-managed columns untouched (incl. the host-only address).
+    expect(ana.address).toBe('Calle Falsa 123')
     expect(ana.notes).toBe('VIP, sienta cerca de la pista')
     expect(ana.name).toBe('Ana')
     expect(ana.email).toBe('ana@example.com')
@@ -155,15 +155,15 @@ describe('applyRsvp (scoped atomic write)', () => {
 
   it('does not clobber an untouched member (partial-group submit)', async () => {
     const { token, a, b } = await seedGroup()
-    // Host pre-sets B's menu while B is still pending (simulate host edit).
+    // Host pre-sets B's address while B is still pending (simulate host edit).
     await db
       .update(guests)
-      .set({ menu: 'carne', lastModifiedSource: 'host' })
+      .set({ address: 'Host Addr 1', lastModifiedSource: 'host' })
       .where(eq(guests.id, b))
 
     // Guest confirms only A; B is NOT submitted.
     const res = await applyRsvp(
-      { token, members: [{ guestId: a, rsvpStatus: 'confirmed', menu: 'pescado' }] },
+      { token, members: [{ guestId: a, rsvpStatus: 'confirmed' }] },
       db,
     )
     expect(res).toEqual({ ok: true })
@@ -176,7 +176,7 @@ describe('applyRsvp (scoped atomic write)', () => {
     expect(aRow.lastModifiedSource).toBe('guest')
     // B untouched: host data preserved, NOT flipped to guest.
     expect(bRow.rsvpStatus).toBe('pending')
-    expect(bRow.menu).toBe('carne')
+    expect(bRow.address).toBe('Host Addr 1')
     expect(bRow.lastModifiedSource).toBe('host')
   })
 
@@ -225,7 +225,7 @@ describe('applyRsvp (scoped atomic write)', () => {
     const res = await applyRsvp(
       {
         token,
-        members: [{ guestId: a, rsvpStatus: 'confirmed', menu: payload }],
+        members: [{ guestId: a, rsvpStatus: 'confirmed' }],
         message: payload,
       },
       db,
@@ -233,8 +233,6 @@ describe('applyRsvp (scoped atomic write)', () => {
     expect(res).toEqual({ ok: true })
     // The data layer stores raw text (no HTML execution/mangling); React escapes
     // it on output. Storing it un-mangled is correct.
-    const ana = (await db.select().from(guests)).find((g) => g.id === a)!
-    expect(ana.menu).toBe(payload)
     const tk = (await db.select().from(inviteTokens)).find((t) => t.token === token)!
     expect(tk.message).toBe(payload)
   })

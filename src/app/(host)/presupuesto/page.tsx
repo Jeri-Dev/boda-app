@@ -2,9 +2,10 @@ import type { Metadata } from 'next'
 import { asc, desc, eq } from 'drizzle-orm'
 
 import { BudgetCategories } from '@/components/host/budget-categories'
+import { GeneralBudget } from '@/components/host/general-budget'
 import { PaymentList } from '@/components/host/payment-list'
 import { db } from '@/lib/db'
-import { budgetCategories, payments, vendors } from '@/lib/db/schema'
+import { budgetCategories, payments, vendors, wedding } from '@/lib/db/schema'
 import { isoDateDR, plusDaysDR } from '@/lib/utils/dates'
 import { formatCents } from '@/lib/utils/money'
 
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function PresupuestoPage() {
-  const [categories, paymentRows, vendorRows] = await Promise.all([
+  const [categories, paymentRows, vendorRows, weddingRow] = await Promise.all([
     db.select().from(budgetCategories).orderBy(asc(budgetCategories.name)),
     db
       .select({
@@ -34,7 +35,16 @@ export default async function PresupuestoPage() {
       .select({ id: vendors.id, name: vendors.name })
       .from(vendors)
       .orderBy(asc(vendors.name)),
+    db
+      .select({ totalBudgetCents: wedding.totalBudgetCents })
+      .from(wedding)
+      .where(eq(wedding.id, 1))
+      .limit(1),
   ])
+
+  // General/overall budget envelope (0 = not set). When set, "Restante" is
+  // measured against it; otherwise it falls back to the planned (previsto) total.
+  const generalCents = weddingRow[0]?.totalBudgetCents ?? 0
 
   // "Real" = sum of paid payments (globally + per category).
   const paidByCategory = new Map<string, number>()
@@ -55,7 +65,9 @@ export default async function PresupuestoPage() {
   }
 
   const previstoTotal = categories.reduce((s, c) => s + c.plannedCents, 0)
-  const restante = previstoTotal - pagadoTotal
+  // When a general budget is set, "Restante" is measured against it; otherwise
+  // it falls back to the planned (previsto) total.
+  const restante = (generalCents > 0 ? generalCents : previstoTotal) - pagadoTotal
 
   const categoryRows = categories.map((c) => ({
     id: c.id,
@@ -76,18 +88,19 @@ export default async function PresupuestoPage() {
   ]
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6">
+    <main className="w-full px-6 py-8 sm:px-8 lg:px-10">
       <header className="mb-8">
-        <p className="text-[0.7rem] uppercase tracking-[0.25em] text-[var(--color-muted-foreground)]">
-          Fase 1
-        </p>
-        <h1 className="mt-1 font-display text-3xl tracking-tight text-[var(--color-foreground)]">
+        <h1 className="font-display text-3xl tracking-tight text-[var(--color-foreground)]">
           Presupuesto
         </h1>
         <p className="mt-2 max-w-prose text-sm text-[var(--color-muted-foreground)]">
           Previsto por categoría frente a lo realmente pagado.
         </p>
       </header>
+
+      <div className="mb-6 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-5 py-4 shadow-[var(--shadow-soft)]">
+        <GeneralBudget currentCents={generalCents} />
+      </div>
 
       <section className="mb-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((s) => (

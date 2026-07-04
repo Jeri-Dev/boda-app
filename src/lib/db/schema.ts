@@ -67,9 +67,22 @@ export const wedding = pgTable(
     giftDetails: text('gift_details'),
     /** Contact for exercising data rights (RGPD notice, U2.6). */
     privacyContact: text('privacy_contact'),
+    /** Overall/general budget envelope (U5), in DOP cents. */
+    totalBudgetCents: integer('total_budget_cents').notNull().default(0),
+    /* ── Venue / ceremony / reception details (U9) — host-only, never public ── */
+    venueAddress: text('venue_address'),
+    venuePhone: text('venue_phone'),
+    venueCoordinator: text('venue_coordinator'),
+    ceremonyStart: text('ceremony_start'),
+    ceremonyEnd: text('ceremony_end'),
+    receptionStart: text('reception_start'),
+    receptionEnd: text('reception_end'),
     ...timestamps,
   },
-  (t) => [check('wedding_singleton', sql`${t.id} = 1`)],
+  (t) => [
+    check('wedding_singleton', sql`${t.id} = 1`),
+    check('wedding_total_budget_check', sql`${t.totalBudgetCents} >= 0`),
+  ],
 )
 
 export type Wedding = typeof wedding.$inferSelect
@@ -99,7 +112,8 @@ export const guests = pgTable(
     rsvpStatus: text('rsvp_status', { enum: RSVP_STATUSES })
       .notNull()
       .default('pending'),
-    menu: text('menu'),
+    /** Host-only postal address (optional; never shown on public pages). */
+    address: text('address'),
     /** Whether this guest may bring a +1. */
     plusOne: boolean('plus_one').notNull().default(false),
     plusOneName: text('plus_one_name'),
@@ -157,6 +171,10 @@ export const vendors = pgTable(
     status: text('status', { enum: VENDOR_STATUSES })
       .notNull()
       .default('contactado'),
+    /** Vendor Contact form (U8): named contact + a manual at-a-glance paid flag
+     * (independent of the payments ledger, which remains the source of truth). */
+    contactPerson: text('contact_person'),
+    paid: boolean('paid').notNull().default(false),
     email: text('email'),
     phone: text('phone'),
     /** Agreed/quoted total, in DOP cents (nullable). */
@@ -247,19 +265,49 @@ export type NewPayment = typeof payments.$inferInsert
  * Task checklist (U1.4). In-app only (no proactive notifications). Ordered by
  * urgency in the read; `dueDate` is a timezone-free `YYYY-MM-DD`.
  */
-export const tasks = pgTable('tasks', {
+export const TASK_STATUSES = ['todo', 'doing', 'done'] as const
+export type TaskStatus = (typeof TASK_STATUSES)[number]
+
+export const tasks = pgTable(
+  'tasks',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    title: text('title').notNull(),
+    dueDate: text('due_date'),
+    /** Kanban column (U6a) — the single source of truth for completion. */
+    status: text('status', { enum: TASK_STATUSES }).notNull().default('todo'),
+    /** Intra-column order (0-based). */
+    position: integer('position').notNull().default(0),
+    notes: text('notes'),
+    ...timestamps,
+  },
+  (t) => [
+    check('tasks_status_check', sql`${t.status} in ('todo', 'doing', 'done')`),
+  ],
+)
+
+export type Task = typeof tasks.$inferSelect
+export type NewTask = typeof tasks.$inferInsert
+
+/**
+ * Wedding-day timeline (U10) — the "Wedding Day Timeline" planner form
+ * (Hora/Evento/Notas). Time-sorted (no manual reorder). `time` is free-form but
+ * an `HH:MM` (24h) input sorts lexically; NULL/empty sorts last on read.
+ */
+export const timelineEvents = pgTable('timeline_events', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => randomUUID()),
-  title: text('title').notNull(),
-  dueDate: text('due_date'),
-  done: boolean('done').notNull().default(false),
+  time: text('time'),
+  event: text('event').notNull(),
   notes: text('notes'),
   ...timestamps,
 })
 
-export type Task = typeof tasks.$inferSelect
-export type NewTask = typeof tasks.$inferInsert
+export type TimelineEvent = typeof timelineEvents.$inferSelect
+export type NewTimelineEvent = typeof timelineEvents.$inferInsert
 
 /**
  * Invitation tokens + RSVP infrastructure (U2.1).

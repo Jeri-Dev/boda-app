@@ -115,6 +115,11 @@ export function VendorList({ vendors }: { vendors: Vendor[] }) {
                         {v.category}
                       </span>
                     ) : null}
+                    {v.contactPerson ? (
+                      <span className="block text-xs text-[var(--color-muted-foreground)]">
+                        {v.contactPerson}
+                      </span>
+                    ) : null}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={v.status} />
@@ -125,6 +130,11 @@ export function VendorList({ vendors }: { vendors: Vendor[] }) {
                     ) : (
                       <span className="text-[var(--color-stone-400)]">—</span>
                     )}
+                    {v.paid ? (
+                      <span className="mt-0.5 block text-[0.65rem] font-medium uppercase tracking-wide text-[var(--color-success)]">
+                        Pagado
+                      </span>
+                    ) : null}
                   </td>
                   <td className="px-4 py-3">
                     {v.contractUrl ? (

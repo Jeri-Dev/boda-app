@@ -47,6 +47,21 @@ export function VendorForm({
   return (
     <form action={formAction} noValidate>
       <DialogBody className="grid gap-4">
+        <datalist id="vendor-types">
+          {[
+            'Local',
+            'Catering',
+            'Fotografía',
+            'Floristería',
+            'Peluquería y maquillaje',
+            'Transporte',
+            'Oficiante',
+            'Pastel',
+          ].map((c) => (
+            <option key={c} value={c} />
+          ))}
+        </datalist>
+
         <Field label="Nombre" error={errs?.name?.[0]} required>
           <Input name="name" defaultValue={vendor?.name ?? ''} autoFocus />
         </Field>
@@ -55,6 +70,7 @@ export function VendorForm({
           <Field label="Categoría" error={errs?.category?.[0]}>
             <Input
               name="category"
+              list="vendor-types"
               placeholder="Catering, Fotografía…"
               defaultValue={vendor?.category ?? ''}
             />
@@ -69,6 +85,13 @@ export function VendorForm({
             </Select>
           </Field>
         </div>
+
+        <Field label="Persona de contacto" error={errs?.contactPerson?.[0]}>
+          <Input
+            name="contactPerson"
+            defaultValue={vendor?.contactPerson ?? ''}
+          />
+        </Field>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Email" error={errs?.email?.[0]}>
@@ -109,6 +132,16 @@ export function VendorForm({
             />
           </Field>
         </div>
+
+        <label className="flex items-center gap-2.5 text-[0.9375rem] text-[var(--color-foreground)]">
+          <input
+            type="checkbox"
+            name="paid"
+            defaultChecked={vendor?.paid ?? false}
+            className="h-4 w-4 rounded border-[var(--color-input)] accent-[var(--color-success)]"
+          />
+          Pagado
+        </label>
 
         <Field label="Notas" error={errs?.notes?.[0]}>
           <Textarea name="notes" rows={3} defaultValue={vendor?.notes ?? ''} />

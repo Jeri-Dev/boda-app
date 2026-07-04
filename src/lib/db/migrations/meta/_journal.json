@@ -8,6 +8,55 @@
       "when": 1782917952273,
       "tag": "0000_unique_luminals",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1783181250769,
+      "tag": "0001_add_guest_address",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783181267592,
+      "tag": "0002_drop_guest_menu",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783181434673,
+      "tag": "0003_wedding_budget_and_venue",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783182921723,
+      "tag": "0004_tasks_status_position",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1783182956149,
+      "tag": "0005_drop_task_done",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1783183679042,
+      "tag": "0006_vendor_contact_paid",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1783183903800,
+      "tag": "0007_timeline_events",
+      "breakpoints": true
     }
   ]
 }

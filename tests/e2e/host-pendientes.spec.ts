@@ -24,7 +24,7 @@ test.describe('Pendientes (U2.4)', () => {
       await expect(page.getByRole('row').filter({ hasText: name })).toBeVisible()
     }
 
-    await page.goto('/invitaciones')
+    await page.goto('/invitados/invitaciones')
     await page.getByRole('button', { name: 'Nueva invitación' }).click()
     await page.getByRole('checkbox', { name: invited }).check()
     await page.getByRole('button', { name: 'Crear invitación' }).click()
@@ -33,7 +33,7 @@ test.describe('Pendientes (U2.4)', () => {
     const token = url.split('/i/')[1]
 
     // ── Pendientes shows the resend card + the uninvited guest ───────────
-    await page.goto('/pendientes')
+    await page.goto('/invitados/pendientes')
     const reminder = page.getByRole('listitem').filter({ hasText: invited })
     await expect(reminder).toBeVisible()
     await expect(reminder).toContainText('Sin responder')
@@ -53,7 +53,7 @@ test.describe('Pendientes (U2.4)', () => {
     await expect(guest.getByText(/Recibimos tu confirmación/)).toBeVisible()
     await guest.close()
 
-    await page.goto('/pendientes')
+    await page.goto('/invitados/pendientes')
     await expect(
       page.getByRole('listitem').filter({ hasText: invited }),
     ).toHaveCount(0)

@@ -110,5 +110,7 @@ export async function submitRsvp(
   if (!result.ok) return { error: result.error }
 
   revalidatePath('/invitados')
+  // A confirmation changes who is pending — refresh that tab too.
+  revalidatePath('/invitados/pendientes')
   return { ok: true }
 }

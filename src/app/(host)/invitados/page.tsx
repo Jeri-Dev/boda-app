@@ -89,19 +89,7 @@ export default async function InvitadosPage({
   const filtering = Boolean(q || status)
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6">
-      <header className="mb-8">
-        <p className="text-[0.7rem] uppercase tracking-[0.25em] text-[var(--color-muted-foreground)]">
-          Fase 1
-        </p>
-        <h1 className="mt-1 font-display text-3xl tracking-tight text-[var(--color-foreground)]">
-          Invitados
-        </h1>
-        <p className="mt-2 max-w-prose text-sm text-[var(--color-muted-foreground)]">
-          La lista de la que cuelga todo: confirmaciones, menús, mesas.
-        </p>
-      </header>
-
+    <>
       {/* Search (GET form) — `status` rides along as a hidden field. */}
       <form method="get" className="mb-4 flex flex-wrap items-center gap-2">
         {status ? <input type="hidden" name="status" value={status} /> : null}
@@ -157,6 +145,6 @@ export default async function InvitadosPage({
       </nav>
 
       <GuestList guests={rows} />
-    </main>
+    </>
   )
 }

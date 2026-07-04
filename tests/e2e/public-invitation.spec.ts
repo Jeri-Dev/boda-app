@@ -32,7 +32,7 @@ test.describe('Invitación pública (U2.2)', () => {
     await expect(page.getByRole('row').filter({ hasText: guestName })).toBeVisible()
 
     // ── Create an invitation for that guest ──────────────────────────────
-    await page.goto('/invitaciones')
+    await page.goto('/invitados/invitaciones')
     await page.getByRole('button', { name: 'Nueva invitación' }).click()
     // The checkbox sits inside a <label> → its accessible name is the guest's.
     await page.getByRole('checkbox', { name: guestName }).check()

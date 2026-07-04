@@ -21,7 +21,7 @@ test.describe('RSVP público (U2.3)', () => {
     await page.getByRole('button', { name: 'Añadir invitado' }).click()
     await expect(page.getByRole('row').filter({ hasText: guestName })).toBeVisible()
 
-    await page.goto('/invitaciones')
+    await page.goto('/invitados/invitaciones')
     await page.getByRole('button', { name: 'Nueva invitación' }).click()
     await page.getByRole('checkbox', { name: guestName }).check()
     await page.getByRole('button', { name: 'Crear invitación' }).click()

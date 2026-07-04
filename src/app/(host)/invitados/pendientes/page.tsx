@@ -53,20 +53,12 @@ export default async function PendientesPage() {
   const totalPending = pendingGuests.length
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6">
-      <header className="mb-8">
-        <p className="text-[0.7rem] uppercase tracking-[0.25em] text-[var(--color-muted-foreground)]">
-          Fase 2
-        </p>
-        <h1 className="mt-1 font-display text-3xl tracking-tight text-[var(--color-foreground)]">
-          Pendientes de confirmar
-        </h1>
-        <p className="mt-2 max-w-prose text-sm text-[var(--color-muted-foreground)]">
-          {totalPending === 0
-            ? 'Nadie está pendiente de responder.'
-            : `${totalPending} ${totalPending === 1 ? 'invitado' : 'invitados'} sin responder. Reenvía su enlace para recordarles.`}
-        </p>
-      </header>
+    <>
+      <p className="mb-6 max-w-prose text-sm text-[var(--color-muted-foreground)]">
+        {totalPending === 0
+          ? 'Nadie está pendiente de responder.'
+          : `${totalPending} ${totalPending === 1 ? 'invitado' : 'invitados'} sin responder. Reenvía su enlace para recordarles.`}
+      </p>
 
       <section className="mb-10">
         <h2 className="mb-4 font-display text-xl tracking-tight text-[var(--color-foreground)]">
@@ -83,7 +75,7 @@ export default async function PendientesPage() {
           <p className="mb-4 max-w-prose text-sm text-[var(--color-muted-foreground)]">
             Estos invitados aún no tienen un enlace.{' '}
             <Link
-              href="/invitaciones"
+              href="/invitados/invitaciones"
               className="text-[var(--color-accent)] underline-offset-4 hover:underline"
             >
               Crea una invitación
@@ -107,6 +99,6 @@ export default async function PendientesPage() {
           </ul>
         </section>
       ) : null}
-    </main>
+    </>
   )
 }

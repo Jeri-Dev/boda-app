@@ -25,7 +25,7 @@ export async function createInvitation(args: {
 }): Promise<CreateInvitationResult> {
   await requireBackofficeAuth()
   const res = await createInvitationCore(args)
-  if (res.ok) revalidatePath('/invitaciones')
+  if (res.ok) revalidatePath('/invitados/invitaciones')
   return res
 }
 
@@ -34,7 +34,7 @@ export async function revokeInvitation(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   await requireBackofficeAuth()
   const res = await revokeInvitationCore(id)
-  if (res.ok) revalidatePath('/invitaciones')
+  if (res.ok) revalidatePath('/invitados/invitaciones')
   return res
 }
 
@@ -43,6 +43,6 @@ export async function regenerateInvitation(
 ): Promise<CreateInvitationResult> {
   await requireBackofficeAuth()
   const res = await regenerateInvitationCore(id)
-  if (res.ok) revalidatePath('/invitaciones')
+  if (res.ok) revalidatePath('/invitados/invitaciones')
   return res
 }

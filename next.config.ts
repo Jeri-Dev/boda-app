@@ -86,6 +86,22 @@ const nextConfig: NextConfig = {
     // Fase 1 adds the asset host here if images come from an external provider.
     remotePatterns: [],
   },
+  async redirects() {
+    // Invitaciones + Pendientes were unified under the Invitados module. Keep
+    // old bookmarks/links working with permanent (308) redirects.
+    return [
+      {
+        source: "/invitaciones",
+        destination: "/invitados/invitaciones",
+        permanent: true,
+      },
+      {
+        source: "/pendientes",
+        destination: "/invitados/pendientes",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       // Service worker: correct MIME + never cache, so updates ship immediately

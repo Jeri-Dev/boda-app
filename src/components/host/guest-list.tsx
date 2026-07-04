@@ -107,11 +107,14 @@ export function GuestList({ guests }: { guests: Guest[] }) {
                     ) : null}
                   </td>
                   <td className="px-4 py-3 text-[var(--color-muted-foreground)]">
-                    {g.email || g.phone ? (
+                    {g.email || g.phone || g.address ? (
                       <div className="flex flex-col">
                         {g.email ? <span>{g.email}</span> : null}
                         {g.phone ? (
                           <span className="text-xs">{g.phone}</span>
+                        ) : null}
+                        {g.address ? (
+                          <span className="text-xs">{g.address}</span>
                         ) : null}
                       </div>
                     ) : (

@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test'
 
 /**
- * U2.3 — public RSVP. A guest confirms from their link (attendance + menu +
- * message), and it flows into the host's guest list, tagged "por el invitado"
+ * U2.3 — public RSVP. A guest confirms from their link (attendance + message),
+ * and it flows into the host's guest list, tagged "por el invitado"
  * (last_modified_source). Self-cleaning.
  */
 
@@ -37,9 +37,6 @@ test.describe('RSVP público (U2.3)', () => {
     ).toBeVisible()
 
     await guest.getByRole('button', { name: 'Sí, asistiré' }).click()
-    await guest
-      .getByPlaceholder('Carne, pescado, vegetariano…')
-      .fill('Vegetariano')
     await guest
       .getByPlaceholder('¡Felicidades! Allí estaremos…')
       .fill('¡Con mucho gusto!')

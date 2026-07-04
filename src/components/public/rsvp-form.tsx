@@ -13,7 +13,6 @@ type MemberState = {
   name: string
   plusOne: boolean
   rsvpStatus: 'pending' | 'confirmed' | 'declined'
-  menu: string
   plusOneName: string
 }
 
@@ -23,7 +22,6 @@ function initState(members: RsvpMember[]): MemberState[] {
     name: m.name,
     plusOne: m.plusOne,
     rsvpStatus: m.rsvpStatus,
-    menu: m.menu ?? '',
     plusOneName: m.plusOneName ?? '',
   }))
 }
@@ -59,14 +57,13 @@ export function RsvpForm({
     setTouched((prev) => (prev.has(guestId) ? prev : new Set(prev).add(guestId)))
   }
 
-  // Only touched members + only guest-writable fields go to the server (menu/+1
+  // Only touched members + only guest-writable fields go to the server (+1 name
   // dropped when not attending). The server enforces the same allowlist again.
   const payload = people
     .filter((p) => touched.has(p.guestId))
     .map((p) => ({
       guestId: p.guestId,
       rsvpStatus: p.rsvpStatus,
-      menu: p.rsvpStatus === 'confirmed' ? p.menu : '',
       plusOneName:
         p.rsvpStatus === 'confirmed' && p.plusOne ? p.plusOneName : '',
     }))
@@ -113,32 +110,20 @@ export function RsvpForm({
               </Button>
             </div>
 
-            {p.rsvpStatus === 'confirmed' ? (
+            {p.rsvpStatus === 'confirmed' && p.plusOne ? (
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 <label className="grid gap-1.5">
                   <span className="text-sm text-[var(--color-muted-foreground)]">
-                    Menú / preferencia
+                    Nombre de tu acompañante
                   </span>
                   <Input
-                    value={p.menu}
-                    onChange={(e) => update(p.guestId, { menu: e.target.value })}
-                    placeholder="Carne, pescado, vegetariano…"
+                    value={p.plusOneName}
+                    onChange={(e) =>
+                      update(p.guestId, { plusOneName: e.target.value })
+                    }
+                    placeholder="Opcional"
                   />
                 </label>
-                {p.plusOne ? (
-                  <label className="grid gap-1.5">
-                    <span className="text-sm text-[var(--color-muted-foreground)]">
-                      Nombre de tu acompañante
-                    </span>
-                    <Input
-                      value={p.plusOneName}
-                      onChange={(e) =>
-                        update(p.guestId, { plusOneName: e.target.value })
-                      }
-                      placeholder="Opcional"
-                    />
-                  </label>
-                ) : null}
               </div>
             ) : null}
           </li>

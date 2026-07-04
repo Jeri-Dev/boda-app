@@ -26,7 +26,6 @@ const MemberSchema = z
   .object({
     guestId: z.string().min(1).max(64),
     rsvpStatus: z.enum(RSVP_STATUSES),
-    menu: z.string().trim().max(120, 'Máximo 120 caracteres').optional(),
     plusOneName: z.string().trim().max(160, 'Máximo 160 caracteres').optional(),
   })
   .strict() // unknown keys (notes/household/name/…) are rejected outright

@@ -77,23 +77,26 @@ export function GuestForm({
           </Field>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Estado RSVP">
-            <Select
-              name="rsvpStatus"
-              defaultValue={guest?.rsvpStatus ?? 'pending'}
-            >
-              {STATUS_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field label="Menú" error={errs?.menu?.[0]}>
-            <Input name="menu" defaultValue={guest?.menu ?? ''} />
-          </Field>
-        </div>
+        <Field
+          label="Dirección"
+          hint="Opcional (p.ej. para envíos)"
+          error={errs?.address?.[0]}
+        >
+          <Input name="address" defaultValue={guest?.address ?? ''} />
+        </Field>
+
+        <Field label="Estado RSVP">
+          <Select
+            name="rsvpStatus"
+            defaultValue={guest?.rsvpStatus ?? 'pending'}
+          >
+            {STATUS_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </Select>
+        </Field>
 
         <label className="flex items-center gap-2.5 text-[0.9375rem] text-[var(--color-foreground)]">
           <input

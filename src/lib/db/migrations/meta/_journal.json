@@ -8,6 +8,20 @@
       "when": 1782917952273,
       "tag": "0000_unique_luminals",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1783181250769,
+      "tag": "0001_add_guest_address",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783181267592,
+      "tag": "0002_drop_guest_menu",
+      "breakpoints": true
     }
   ]
 }

@@ -99,7 +99,8 @@ export const guests = pgTable(
     rsvpStatus: text('rsvp_status', { enum: RSVP_STATUSES })
       .notNull()
       .default('pending'),
-    menu: text('menu'),
+    /** Host-only postal address (optional; never shown on public pages). */
+    address: text('address'),
     /** Whether this guest may bring a +1. */
     plusOne: boolean('plus_one').notNull().default(false),
     plusOneName: text('plus_one_name'),

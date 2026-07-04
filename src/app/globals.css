@@ -51,6 +51,11 @@
   --color-card: oklch(0.995 0.004 75);
   --color-card-foreground: var(--color-foreground);
 
+  /* Dashboard shell — a crisp panel for the sidebar, a hair off the paper. */
+  --color-sidebar: oklch(0.992 0.005 78);
+  --color-sidebar-foreground: var(--color-foreground);
+  --color-sidebar-accent: oklch(0.955 0.010 75);
+
   --color-border: oklch(0.900 0.012 65);
   --color-input: oklch(0.900 0.012 65);
   --color-ring: oklch(0.55 0.125 10); /* matches accent for focus */

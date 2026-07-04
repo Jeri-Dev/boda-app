@@ -38,7 +38,7 @@ export function Shell({
   }, [open]);
 
   return (
-    <div className="min-h-dvh bg-[var(--color-background)]">
+    <div className="host-theme min-h-dvh bg-[var(--color-background)]">
       {/* Desktop fixed sidebar */}
       <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:w-60 lg:flex-col lg:border-r lg:border-[var(--color-border)]">
         <SidebarPanel />

@@ -50,6 +50,13 @@
       "when": 1783183679042,
       "tag": "0006_vendor_contact_paid",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1783183903800,
+      "tag": "0007_timeline_events",
+      "breakpoints": true
     }
   ]
 }

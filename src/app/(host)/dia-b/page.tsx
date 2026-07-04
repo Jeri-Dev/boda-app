@@ -1,8 +1,15 @@
 import type { Metadata } from 'next'
-import { asc, eq, isNotNull } from 'drizzle-orm'
+import { asc, eq, isNotNull, sql } from 'drizzle-orm'
 
+import { TimelineManager } from '@/components/host/timeline-manager'
 import { db } from '@/lib/db'
-import { guests, tables, vendors, wedding } from '@/lib/db/schema'
+import {
+  guests,
+  tables,
+  timelineEvents,
+  vendors,
+  wedding,
+} from '@/lib/db/schema'
 
 /**
  * Day-of view (U3.3) — read-only, mobile-first: who sits where + key vendor
@@ -22,7 +29,8 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function DiaBPage() {
-  const [tableRows, guestRows, vendorRows, weddingRow] = await Promise.all([
+  const [tableRows, guestRows, vendorRows, weddingRow, timelineRows] =
+    await Promise.all([
     db
       .select({ id: tables.id, label: tables.label })
       .from(tables)
@@ -42,6 +50,14 @@ export default async function DiaBPage() {
       .where(isNotNull(vendors.phone))
       .orderBy(asc(vendors.name)),
     db.select().from(wedding).where(eq(wedding.id, 1)).limit(1),
+    db
+      .select()
+      .from(timelineEvents)
+      .orderBy(
+        sql`${timelineEvents.time} is null`,
+        asc(timelineEvents.time),
+        asc(timelineEvents.createdAt),
+      ),
   ])
 
   // Attending guests only (declined don't occupy a seat).
@@ -73,6 +89,10 @@ export default async function DiaBPage() {
           Vista rápida de solo lectura. Disponible sin conexión una vez abierta.
         </p>
       </header>
+
+      <section className="mb-10" aria-label="Cronograma del día">
+        <TimelineManager events={timelineRows} />
+      </section>
 
       <section className="mb-10" aria-labelledby="diab-mesas">
         <h2

@@ -292,6 +292,24 @@ export type Task = typeof tasks.$inferSelect
 export type NewTask = typeof tasks.$inferInsert
 
 /**
+ * Wedding-day timeline (U10) — the "Wedding Day Timeline" planner form
+ * (Hora/Evento/Notas). Time-sorted (no manual reorder). `time` is free-form but
+ * an `HH:MM` (24h) input sorts lexically; NULL/empty sorts last on read.
+ */
+export const timelineEvents = pgTable('timeline_events', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => randomUUID()),
+  time: text('time'),
+  event: text('event').notNull(),
+  notes: text('notes'),
+  ...timestamps,
+})
+
+export type TimelineEvent = typeof timelineEvents.$inferSelect
+export type NewTimelineEvent = typeof timelineEvents.$inferInsert
+
+/**
  * Invitation tokens + RSVP infrastructure (U2.1).
  *
  * Security model (no RLS gating — the browser never touches the DB; the Next

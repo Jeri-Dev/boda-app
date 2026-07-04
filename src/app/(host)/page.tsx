@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { and, count, eq, isNull } from 'drizzle-orm'
 
+import { Donut } from '@/components/ui/donut'
+import { StatCard } from '@/components/ui/stat-card'
 import { db } from '@/lib/db'
 import { budgetCategories, guests, payments, tasks, wedding } from '@/lib/db/schema'
 import { isoDateDR, plusDaysDR, formatDateEs } from '@/lib/utils/dates'
@@ -13,35 +15,6 @@ export const metadata: Metadata = {
 
 // Aggregated read of live data + current date — always render per request.
 export const dynamic = 'force-dynamic'
-
-function StatCard({
-  href,
-  label,
-  value,
-  sub,
-}: {
-  href: string
-  label: string
-  value: string
-  sub: string
-}) {
-  return (
-    <Link
-      href={href}
-      className="block rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-5 py-4 shadow-[var(--shadow-soft)] transition-colors hover:bg-[var(--color-muted)]"
-    >
-      <span className="text-[0.7rem] uppercase tracking-wide text-[var(--color-muted-foreground)]">
-        {label}
-      </span>
-      <span className="mt-1 block font-display text-2xl tabular-nums text-[var(--color-foreground)]">
-        {value}
-      </span>
-      <span className="mt-1 block text-xs text-[var(--color-muted-foreground)]">
-        {sub}
-      </span>
-    </Link>
-  )
-}
 
 export default async function DashboardPage() {
   const [
@@ -181,6 +154,23 @@ export default async function DashboardPage() {
           Lo esencial de un vistazo. Toca una tarjeta para entrar al módulo.
         </p>
       </header>
+
+      <section className="mb-8 flex flex-col items-center gap-6 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-[var(--shadow-soft)] sm:flex-row sm:gap-8">
+        <Donut
+          value={g.confirmed}
+          max={g.total}
+          label="Invitados confirmados"
+          caption="confirmados"
+        />
+        <div>
+          <p className="font-display text-xl tracking-tight text-[var(--color-foreground)]">
+            {g.confirmed} de {g.total} invitados confirmados
+          </p>
+          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+            {g.pending} sin responder · {g.declined} no asisten
+          </p>
+        </div>
+      </section>
 
       <section className="mb-12 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((s) => (

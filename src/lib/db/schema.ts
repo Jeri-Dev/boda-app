@@ -171,6 +171,10 @@ export const vendors = pgTable(
     status: text('status', { enum: VENDOR_STATUSES })
       .notNull()
       .default('contactado'),
+    /** Vendor Contact form (U8): named contact + a manual at-a-glance paid flag
+     * (independent of the payments ledger, which remains the source of truth). */
+    contactPerson: text('contact_person'),
+    paid: boolean('paid').notNull().default(false),
     email: text('email'),
     phone: text('phone'),
     /** Agreed/quoted total, in DOP cents (nullable). */

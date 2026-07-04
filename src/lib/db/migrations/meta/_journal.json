@@ -43,6 +43,13 @@
       "when": 1783182956149,
       "tag": "0005_drop_task_done",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1783183679042,
+      "tag": "0006_vendor_contact_paid",
+      "breakpoints": true
     }
   ]
 }

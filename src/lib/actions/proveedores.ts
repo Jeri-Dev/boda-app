@@ -27,7 +27,9 @@ const VendorSchema = z.object({
     .min(1, 'Nombre requerido')
     .max(160, 'Máximo 160 caracteres'),
   category: z.string().trim().max(80, 'Máximo 80 caracteres').optional(),
+  contactPerson: z.string().trim().max(160, 'Máximo 160 caracteres').optional(),
   status: z.enum(VENDOR_STATUSES),
+  paid: z.boolean(),
   email: z
     .string()
     .trim()
@@ -87,7 +89,9 @@ function readForm(formData: FormData) {
   return {
     name: str('name'),
     category: opt('category'),
+    contactPerson: opt('contactPerson'),
     status: str('status') || 'contactado',
+    paid: formData.get('paid') != null,
     email: opt('email'),
     phone: opt('phone'),
     amount: str('amount'),
@@ -100,7 +104,9 @@ function toRow(data: z.infer<typeof VendorSchema>) {
   return {
     name: data.name,
     category: data.category ?? null,
+    contactPerson: data.contactPerson ?? null,
     status: data.status,
+    paid: data.paid,
     email: data.email ?? null,
     phone: data.phone ?? null,
     amountCents: data.amount,

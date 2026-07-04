@@ -50,6 +50,14 @@ const ConfigSchema = z.object({
   giftMessage: z.string().trim().max(2000, 'Máximo 2000 caracteres').optional(),
   giftDetails: z.string().trim().max(2000, 'Máximo 2000 caracteres').optional(),
   privacyContact: z.string().trim().max(200, 'Máximo 200 caracteres').optional(),
+  // Venue / ceremony / reception details (U9) — host-only, never shown publicly.
+  venueAddress: z.string().trim().max(300, 'Máximo 300 caracteres').optional(),
+  venuePhone: z.string().trim().max(40, 'Máximo 40 caracteres').optional(),
+  venueCoordinator: z.string().trim().max(160, 'Máximo 160 caracteres').optional(),
+  ceremonyStart: z.string().trim().max(40, 'Máximo 40 caracteres').optional(),
+  ceremonyEnd: z.string().trim().max(40, 'Máximo 40 caracteres').optional(),
+  receptionStart: z.string().trim().max(40, 'Máximo 40 caracteres').optional(),
+  receptionEnd: z.string().trim().max(40, 'Máximo 40 caracteres').optional(),
 })
 
 export type ConfigActionState =
@@ -88,6 +96,13 @@ export async function saveConfig(
     giftMessage: opt('giftMessage'),
     giftDetails: opt('giftDetails'),
     privacyContact: opt('privacyContact'),
+    venueAddress: opt('venueAddress'),
+    venuePhone: opt('venuePhone'),
+    venueCoordinator: opt('venueCoordinator'),
+    ceremonyStart: opt('ceremonyStart'),
+    ceremonyEnd: opt('ceremonyEnd'),
+    receptionStart: opt('receptionStart'),
+    receptionEnd: opt('receptionEnd'),
   })
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors }
@@ -108,6 +123,13 @@ export async function saveConfig(
     giftMessage: d.giftMessage ?? null,
     giftDetails: d.giftDetails ?? null,
     privacyContact: d.privacyContact ?? null,
+    venueAddress: d.venueAddress ?? null,
+    venuePhone: d.venuePhone ?? null,
+    venueCoordinator: d.venueCoordinator ?? null,
+    ceremonyStart: d.ceremonyStart ?? null,
+    ceremonyEnd: d.ceremonyEnd ?? null,
+    receptionStart: d.receptionStart ?? null,
+    receptionEnd: d.receptionEnd ?? null,
   }
 
   try {

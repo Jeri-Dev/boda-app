@@ -67,9 +67,22 @@ export const wedding = pgTable(
     giftDetails: text('gift_details'),
     /** Contact for exercising data rights (RGPD notice, U2.6). */
     privacyContact: text('privacy_contact'),
+    /** Overall/general budget envelope (U5), in DOP cents. */
+    totalBudgetCents: integer('total_budget_cents').notNull().default(0),
+    /* ── Venue / ceremony / reception details (U9) — host-only, never public ── */
+    venueAddress: text('venue_address'),
+    venuePhone: text('venue_phone'),
+    venueCoordinator: text('venue_coordinator'),
+    ceremonyStart: text('ceremony_start'),
+    ceremonyEnd: text('ceremony_end'),
+    receptionStart: text('reception_start'),
+    receptionEnd: text('reception_end'),
     ...timestamps,
   },
-  (t) => [check('wedding_singleton', sql`${t.id} = 1`)],
+  (t) => [
+    check('wedding_singleton', sql`${t.id} = 1`),
+    check('wedding_total_budget_check', sql`${t.totalBudgetCents} >= 0`),
+  ],
 )
 
 export type Wedding = typeof wedding.$inferSelect

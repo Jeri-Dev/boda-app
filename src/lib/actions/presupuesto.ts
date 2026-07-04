@@ -15,7 +15,12 @@ import { z } from 'zod'
 
 import { requireBackofficeAuth } from '@/lib/auth/backoffice'
 import { db } from '@/lib/db'
-import { budgetCategories, payments, PAYMENT_STATUSES } from '@/lib/db/schema'
+import {
+  budgetCategories,
+  payments,
+  PAYMENT_STATUSES,
+  wedding,
+} from '@/lib/db/schema'
 import { parseMoneyToCents } from '@/lib/utils/money'
 
 function readStr(formData: FormData, key: string) {
@@ -39,6 +44,47 @@ const moneyField = z.preprocess(
     .max(99_999_999_99, 'Importe demasiado alto')
     .nullable(),
 )
+
+/* ── General budget (U5) ────────────────────────────────────────────────── */
+
+const GeneralBudgetSchema = z.object({ total: moneyField })
+
+export type GeneralBudgetActionState =
+  | { ok?: true; error?: string; fieldErrors?: { total?: string[] } }
+  | undefined
+
+/**
+ * Set the overall/general budget envelope (stored on the `wedding` singleton).
+ * A cleared value resets it to 0 ("no envelope set"). Upserts the singleton so
+ * it works before the couple has saved any config.
+ */
+export async function setGeneralBudget(
+  _prev: GeneralBudgetActionState,
+  formData: FormData,
+): Promise<GeneralBudgetActionState> {
+  await requireBackofficeAuth()
+  const parsed = GeneralBudgetSchema.safeParse({
+    total: readStr(formData, 'total'),
+  })
+  if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors }
+
+  const cents = parsed.data.total ?? 0
+  try {
+    await db
+      .insert(wedding)
+      .values({ id: 1, totalBudgetCents: cents })
+      .onConflictDoUpdate({
+        target: wedding.id,
+        set: { totalBudgetCents: cents },
+      })
+  } catch {
+    return { error: 'No se pudo guardar el presupuesto general' }
+  }
+
+  revalidatePath('/presupuesto')
+  revalidatePath('/')
+  return { ok: true }
+}
 
 /* ── Categories ─────────────────────────────────────────────────────────── */
 

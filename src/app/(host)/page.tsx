@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { and, count, eq, isNull } from 'drizzle-orm'
 
 import { db } from '@/lib/db'
-import { budgetCategories, guests, payments, tasks } from '@/lib/db/schema'
+import { budgetCategories, guests, payments, tasks, wedding } from '@/lib/db/schema'
 import { isoDateDR, plusDaysDR, formatDateEs } from '@/lib/utils/dates'
 import { formatCents } from '@/lib/utils/money'
 
@@ -44,22 +44,34 @@ function StatCard({
 }
 
 export default async function DashboardPage() {
-  const [guestCountRows, categoryRows, paymentRows, taskRows, unseatedRows] =
-    await Promise.all([
-      db
-        .select({ status: guests.rsvpStatus, n: count() })
-        .from(guests)
-        .groupBy(guests.rsvpStatus),
-      db.select({ planned: budgetCategories.plannedCents }).from(budgetCategories),
-      db.select().from(payments),
-      db.select().from(tasks),
-      // Confirmed guests with no table → the actionable "sin sentar" count.
-      db
-        .select({ n: count() })
-        .from(guests)
-        .where(and(eq(guests.rsvpStatus, 'confirmed'), isNull(guests.tableId))),
-    ])
+  const [
+    guestCountRows,
+    categoryRows,
+    paymentRows,
+    taskRows,
+    unseatedRows,
+    weddingRows,
+  ] = await Promise.all([
+    db
+      .select({ status: guests.rsvpStatus, n: count() })
+      .from(guests)
+      .groupBy(guests.rsvpStatus),
+    db.select({ planned: budgetCategories.plannedCents }).from(budgetCategories),
+    db.select().from(payments),
+    db.select().from(tasks),
+    // Confirmed guests with no table → the actionable "sin sentar" count.
+    db
+      .select({ n: count() })
+      .from(guests)
+      .where(and(eq(guests.rsvpStatus, 'confirmed'), isNull(guests.tableId))),
+    db
+      .select({ totalBudgetCents: wedding.totalBudgetCents })
+      .from(wedding)
+      .where(eq(wedding.id, 1))
+      .limit(1),
+  ])
   const sinSentar = unseatedRows[0]?.n ?? 0
+  const generalCents = weddingRows[0]?.totalBudgetCents ?? 0
 
   const today = isoDateDR()
   const soon = plusDaysDR(14)
@@ -84,7 +96,9 @@ export default async function DashboardPage() {
       pendientePagos += 1
     }
   }
-  const restante = previsto - pagado
+  // Measure remaining budget against the general envelope when set, else previsto.
+  const budgetBase = generalCents > 0 ? generalCents : previsto
+  const restante = budgetBase - pagado
 
   // Tasks.
   const pendingTasks = taskRows.filter((t) => !t.done)
@@ -126,7 +140,7 @@ export default async function DashboardPage() {
       href: '/presupuesto',
       label: 'Presupuesto restante',
       value: formatCents(restante),
-      sub: `${formatCents(pagado)} pagado de ${formatCents(previsto)}`,
+      sub: `${formatCents(pagado)} pagado de ${formatCents(budgetBase)}`,
     },
     {
       href: '/presupuesto',

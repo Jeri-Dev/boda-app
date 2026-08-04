@@ -1,0 +1,101 @@
+/*
+ * Animation vocabulary for the /nuestra-boda landing. Scoped by `landing-`
+ * prefix; imported only from that page. Transform/opacity only (no reflow),
+ * and everything is switched off under prefers-reduced-motion.
+ */
+
+/* Entrance: hero elements fade-and-rise on load (pure CSS — works pre-JS). */
+@keyframes landing-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.landing-enter-1,
+.landing-enter-2,
+.landing-enter-3,
+.landing-enter-4,
+.landing-enter-5,
+.landing-enter-6 {
+  animation: landing-fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.landing-enter-1 { animation-delay: 0.05s; }
+.landing-enter-2 { animation-delay: 0.16s; }
+.landing-enter-3 { animation-delay: 0.28s; }
+.landing-enter-4 { animation-delay: 0.4s; }
+.landing-enter-5 { animation-delay: 0.52s; }
+.landing-enter-6 { animation-delay: 0.66s; }
+
+/* Slow Ken Burns on the couple photo. */
+@keyframes landing-kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.07); }
+}
+.landing-kenburns {
+  animation: landing-kenburns 18s ease-in-out infinite alternate;
+}
+
+/* Branches swaying in a light breeze (origin at the stem). */
+@keyframes landing-sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2.4deg); }
+}
+.landing-sway {
+  animation: landing-sway 8s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+.landing-sway-slow {
+  animation: landing-sway 13s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+
+/* Petals drifting — three phase-shifted variants. */
+@keyframes landing-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  33% { transform: translate3d(10px, 16px, 0) rotate(14deg); }
+  66% { transform: translate3d(-8px, 6px, 0) rotate(-8deg); }
+}
+.landing-drift-a { animation: landing-drift 11s ease-in-out infinite; }
+.landing-drift-b { animation: landing-drift 14s ease-in-out -4s infinite; }
+.landing-drift-c { animation: landing-drift 17s ease-in-out -8s infinite; }
+
+/* Rose→gold shimmer for the ampersand (background-clip: text). */
+@keyframes landing-shimmer {
+  to { background-position: 200% center; }
+}
+.landing-shimmer {
+  background: linear-gradient(
+    110deg,
+    var(--color-accent) 20%,
+    var(--color-gold) 45%,
+    var(--color-accent) 70%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: landing-shimmer 7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-enter-1,
+  .landing-enter-2,
+  .landing-enter-3,
+  .landing-enter-4,
+  .landing-enter-5,
+  .landing-enter-6,
+  .landing-kenburns,
+  .landing-sway,
+  .landing-sway-slow,
+  .landing-drift-a,
+  .landing-drift-b,
+  .landing-drift-c,
+  .landing-shimmer {
+    animation: none;
+  }
+}

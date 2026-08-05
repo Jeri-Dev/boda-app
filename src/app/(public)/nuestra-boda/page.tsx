@@ -1,19 +1,18 @@
 import type { Metadata } from 'next'
 
 import { CountdownBand } from '@/components/public/landing/countdown-band'
-import { DetailsSection } from '@/components/public/landing/details-section'
 import { Grain } from '@/components/public/landing/florals'
 import { Footer } from '@/components/public/landing/footer'
 import { formatLongDateEs } from '@/components/public/landing/format'
 import { GiftsSection } from '@/components/public/landing/gifts-section'
 import { Hero } from '@/components/public/landing/hero'
-import { QuoteBand } from '@/components/public/landing/quote-band'
+import { InfoSection } from '@/components/public/landing/info-section'
 import { RsvpSection } from '@/components/public/landing/rsvp-section'
 import { SiteHeader } from '@/components/public/landing/site-header'
-import { StorySection } from '@/components/public/landing/story-section'
+import { VenueSection } from '@/components/public/landing/venue-section'
 
 import { wedding } from './content'
-import { script } from './fonts'
+import { script, serif } from './fonts'
 import './landing.css'
 
 const couple = `${wedding.couple.first} & ${wedding.couple.second}`
@@ -70,9 +69,18 @@ const jsonLd = {
   description,
 }
 
+/**
+ * La invitación se lee como la papelería que imita: el sobre (tinta), la
+ * tarjeta (papel), la placa con la fecha (tinta), el lugar (papel), la mesa de
+ * regalos (tinta), la confirmación (papel) y la contraportada (tinta). Esa
+ * alternancia es toda la estructura — no hace falta más decoración para saber
+ * dónde empieza cada cosa.
+ */
 export default function NuestraBodaPage() {
   return (
-    <div className={`${script.variable} bg-[var(--color-background)]`}>
+    <div
+      className={`landing-root ${script.variable} ${serif.variable} bg-[var(--color-background)]`}
+    >
       <script
         type="application/ld+json"
         // JSON serializado por nosotros (sin datos de usuario) → seguro.
@@ -83,12 +91,11 @@ export default function NuestraBodaPage() {
 
       <main>
         <Hero data={wedding} />
+        <InfoSection data={wedding} />
         <CountdownBand dateISO={wedding.dateISO} />
-        <RsvpSection />
-        <StorySection data={wedding} />
-        <QuoteBand data={wedding} />
-        <DetailsSection data={wedding} />
+        <VenueSection data={wedding} />
         <GiftsSection data={wedding} />
+        <RsvpSection />
       </main>
 
       <Footer data={wedding} />

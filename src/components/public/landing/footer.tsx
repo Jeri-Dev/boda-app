@@ -1,13 +1,15 @@
 import type { WeddingContent } from '@/app/(public)/nuestra-boda/content'
 
-import { BlossomSprig, EucalyptusBranch } from './florals'
+import { BlossomSprig, PalmFrond } from './florals'
 import { formatLongDateEs } from './format'
 import { Heart } from './icons'
 import { Ornament } from './ornament'
+import { Seal } from './seal'
 
 /**
- * Deep-plum closing panel — bookends the ivory page with the same dark note as
- * the quote band. Gold botanicals, script names, hashtag and WhatsApp contact.
+ * Cierre en tinta: la contraportada del sobre. Vuelve el sello y los nombres,
+ * ahora en champán, con la fecha, el hashtag y el WhatsApp por si alguien
+ * necesita preguntar algo que la invitación no responda.
  */
 export function Footer({ data }: { data: WeddingContent }) {
   const { couple } = data
@@ -17,38 +19,43 @@ export function Footer({ data }: { data: WeddingContent }) {
       className="relative overflow-hidden px-5 py-20 text-center sm:px-8"
       style={{
         background:
-          'linear-gradient(180deg, oklch(0.27 0.03 340), oklch(0.22 0.028 345))',
+          'linear-gradient(180deg, var(--color-ink), oklch(0.235 0.055 199))',
       }}
     >
-      {/* Gold botanicals in the corners */}
       <div aria-hidden className="pointer-events-none absolute inset-0 text-[var(--color-gold)]">
-        <div className="absolute -left-12 -top-8 w-40 rotate-[150deg] opacity-20 sm:w-52">
-          <EucalyptusBranch className="w-full" />
+        <div className="absolute -left-16 -top-10 w-40 rotate-[152deg] opacity-[0.12] sm:w-56">
+          <PalmFrond className="w-full" />
         </div>
-        <div className="absolute -right-6 bottom-0 w-24 -rotate-[20deg] opacity-25 sm:w-28">
+        <div className="absolute -right-5 bottom-2 w-20 -rotate-[18deg] opacity-25 sm:w-24">
           <BlossomSprig className="w-full" />
         </div>
       </div>
 
       <div className="relative mx-auto max-w-xl">
+        <Seal
+          monogram={couple.monogram}
+          className="h-16 w-16 text-[var(--color-gold)]"
+          monogramClassName="text-xl"
+        />
+
         <p
-          className="text-5xl text-[var(--color-gold)] sm:text-6xl"
+          className="mt-8 text-[3rem] leading-none text-[oklch(0.945_0.028_88)] sm:text-[3.75rem]"
           style={{ fontFamily: 'var(--font-script)' }}
         >
           {couple.first} &amp; {couple.second}
         </p>
 
-        <div className="mx-auto mt-6 w-40 text-[var(--color-gold)]/50">
+        <div className="mx-auto mt-7 w-32 text-[var(--color-gold)]/55">
           <Ornament />
         </div>
 
-        <p className="mt-6 font-display tracking-[0.1em] text-[oklch(0.94_0.01_70)]">
+        <p className="mt-7 text-[0.72rem] uppercase tracking-[0.3em] text-[oklch(0.93_0.02_88)]/85">
           {formatLongDateEs(data.dateISO)}
         </p>
-        <p className="mt-1 text-sm text-[oklch(0.94_0.01_70)]/60">{data.city}</p>
+        <p className="mt-2 text-sm text-[oklch(0.93_0.02_88)]/72">{data.city}</p>
 
         <p
-          className="mt-6 text-lg text-[oklch(0.78_0.09_10)]"
+          className="mt-7 text-2xl text-[var(--color-gold)]"
           style={{ fontFamily: 'var(--font-script)' }}
         >
           {couple.hashtag}
@@ -58,14 +65,14 @@ export function Footer({ data }: { data: WeddingContent }) {
           href={`https://wa.me/${data.contact.whatsapp}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-6 inline-block text-sm text-[var(--color-gold)] underline-offset-4 hover:underline"
+          className="mt-7 inline-block border border-[var(--color-gold)]/40 px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--color-gold)] transition-colors hover:bg-[var(--color-gold)] hover:text-[var(--color-ink)]"
         >
           {data.contact.label}
         </a>
 
-        <p className="mt-12 flex items-center justify-center gap-1.5 text-xs text-[oklch(0.94_0.01_70)]/45">
+        <p className="mt-14 flex items-center justify-center gap-1.5 text-xs text-[oklch(0.93_0.02_88)]/58">
           Hecho con
-          <Heart className="h-3.5 w-3.5 fill-[oklch(0.72_0.12_10)] text-[oklch(0.72_0.12_10)]" />
+          <Heart className="h-3.5 w-3.5 fill-[var(--color-gold)]/70 text-[var(--color-gold)]/70" />
           para nuestra boda
         </p>
       </div>

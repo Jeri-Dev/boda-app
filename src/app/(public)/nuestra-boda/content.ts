@@ -15,6 +15,8 @@ export type BankAccount = {
   type: string
   /** Número de cuenta / IBAN. */
   number: string
+  /** Moneda visible junto al número, p. ej. «DOP» o «USD». */
+  currency?: string
   /** Opcional: cédula/RNC o alias para transferencias rápidas. */
   reference?: string
 }
@@ -34,7 +36,7 @@ export type TimelineItem = {
   time: string
   title: string
   detail?: string
-  /** Icono del hito (SVG line-art; ver details-section). */
+  /** Icono del hito (SVG line-art; ver info-section). */
   icon: TimelineIcon
 }
 
@@ -45,6 +47,8 @@ export type WeddingContent = {
     /** Monograma, p. ej. «J & E». */
     monogram: string
     hashtag: string
+    /** Padres de cada uno, si quieres nombrarlos en la invitación. */
+    parents?: { line: string; names: string[] }[]
   }
   /** Fecha y hora del evento en ISO local (sin zona). Usado por la cuenta atrás. */
   dateISO: string
@@ -54,7 +58,7 @@ export type WeddingContent = {
   /** Mensaje de bienvenida bajo los nombres. */
   welcome: string
   story: string[]
-  /** Versículo / cita para la banda oscura entre secciones. */
+  /** Versículo / cita para el pasaje central. */
   quote: {
     text: string
     attribution: string
@@ -66,10 +70,14 @@ export type WeddingContent = {
     title: string
     note: string
   }
+  /** Detalles prácticos: puntualidad, niños, aparcamiento… */
+  notes: { title: string; text: string }[]
   gifts: {
     intro: string
     /** Nota sutil, tono cálido — nunca «pidiendo dinero». */
     note: string
+    /** Alternativa en efectivo el mismo día («lluvia de sobres»). */
+    envelopeNote: string
     accounts: BankAccount[]
   }
   contact: {
@@ -86,6 +94,11 @@ export const wedding: WeddingContent = {
     second: 'Esther',
     monogram: 'J & E',
     hashtag: '#JerielYEsther',
+    // TODO: nombres reales de los padres (o borra este bloque entero).
+    parents: [
+      { line: 'Padres del novio', names: ['—', '—'] },
+      { line: 'Padres de la novia', names: ['—', '—'] },
+    ],
   },
   // TODO: fecha real de la boda (formato ISO local).
   dateISO: '2026-12-05T16:00:00',
@@ -126,21 +139,35 @@ export const wedding: WeddingContent = {
     title: 'Etiqueta formal',
     note: 'Nos encantaría verte elegante. Te pedimos reservar el blanco para la novia.',
   },
+  notes: [
+    {
+      title: 'Puntualidad',
+      text: 'La ceremonia empieza a la hora indicada. Ven con tiempo para acomodarte sin prisa.',
+    },
+    {
+      title: 'Solo adultos',
+      text: 'Queremos que disfrutes la noche entera con nosotros. Esta vez, los niños descansan en casa.',
+    },
+  ],
   gifts: {
-    intro: 'Tu compañía es nuestro regalo',
-    note: 'Lo más importante para nosotros es contar contigo ese día. Si además deseas tener un detalle, aquí te dejamos, con cariño y total libertad, la información por si prefieres una transferencia.',
+    intro: 'Mesa de regalos',
+    note: 'Tu compañía es lo que de verdad queremos ese día. Y si además deseas tener un detalle con nosotros, una transferencia es lo que más nos ayuda a empezar esta nueva etapa.',
+    envelopeNote:
+      'Si prefieres entregarlo en persona, habrá una lluvia de sobres en la recepción.',
     accounts: [
       {
         bank: 'Banco Popular Dominicano', // TODO
         holder: 'Jeriel Gómez', // TODO
         type: 'Cuenta de ahorros',
         number: '000-0000000-0', // TODO
+        currency: 'DOP',
       },
       {
         bank: 'Banreservas', // TODO
         holder: 'Esther —', // TODO
         type: 'Cuenta de ahorros',
         number: '000-0000000-0', // TODO
+        currency: 'USD',
       },
     ],
   },

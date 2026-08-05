@@ -1,10 +1,14 @@
 /**
- * Hand-drawn botanical line art (inline SVG, CSP-safe, zero assets).
+ * Botánica dibujada a mano (SVG en línea, compatible con la CSP, sin assets).
  *
- * All pieces are stroke-only (fill on tiny berries/dots), inherit
- * `currentColor`, and use a consistent 1.4 stroke so they read as one
- * illustration family. Tint + opacity are applied by the caller via classes —
- * keep them ≤ 50% opacity behind text.
+ * Todas las piezas son solo trazo (relleno únicamente en bayas y puntos),
+ * heredan `currentColor` y comparten un grosor de 1.4 para que se lean como una
+ * misma familia de ilustración. El tinte y la opacidad los pone quien las usa —
+ * mantenlas por debajo del 50 % de opacidad cuando haya texto encima.
+ *
+ * La selección es deliberadamente caribeña y sobria: eucalipto, una fronda de
+ * palma y ramitas de gypsophila en champán. Nada de rosas: el turquesa pide
+ * verde de mar, no jardín inglés.
  */
 import type { SVGProps } from 'react'
 
@@ -20,7 +24,7 @@ const strokeProps = {
   focusable: false as const,
 }
 
-/** Silver-dollar eucalyptus branch — round leaves alternating along an S stem. */
+/** Rama de eucalipto silver-dollar — hojas redondas alternas sobre un tallo en S. */
 export function EucalyptusBranch(props: Props) {
   return (
     <svg viewBox="0 0 140 280" {...strokeProps} {...props}>
@@ -41,29 +45,39 @@ export function EucalyptusBranch(props: Props) {
   )
 }
 
-/** Line-art rose: arc-chain spiral heart + broken petal arcs + leaf. */
-export function RoseBloom(props: Props) {
+/**
+ * Fronda de palma — folíolos pareados a lo largo del raquis, más largos en el
+ * centro y afilándose hacia la punta. La curva de cada folíolo se calcula (no
+ * se dibuja a mano) para que la caída sea regular como en una hoja real.
+ */
+export function PalmFrond(props: Props) {
+  const leaflets = Array.from({ length: 15 }, (_, i) => {
+    const t = i / 14
+    const y = 268 - t * 244
+    // Seno recortado: cortos en la base, máximos hacia el tercio superior.
+    const len = 52 * Math.sin(Math.PI * (0.2 + t * 0.7))
+    return { y: Number(y.toFixed(1)), len: Number(len.toFixed(1)) }
+  })
+
   return (
-    <svg viewBox="0 0 120 130" {...strokeProps} {...props}>
-      {/* spiral center */}
-      <path d="M58 60 a2.5 2.5 0 0 1 5 0 a5 5 0 0 1 -10 0 a7.5 7.5 0 0 1 15 0 a10 10 0 0 1 -20 0 a12.5 12.5 0 0 1 25 0" />
-      {/* inner petal arcs (hand-drawn gaps) */}
-      <path d="M62 28 C43 30 32 44 33 62" />
-      <path d="M33 68 C34 84 46 94 60 95" />
-      <path d="M68 94 C84 90 93 78 92 62" />
-      <path d="M90 54 C86 40 76 31 66 28" />
-      {/* outer hints */}
-      <path d="M54 20 C36 24 22 40 24 60" />
-      <path d="M97 66 C95 85 82 97 66 100" />
-      {/* stem + leaves */}
-      <path d="M60 96 C59 106 58 116 58 126" />
-      <path d="M58 112 C48 108 40 110 33 118 C41 124 52 122 58 114" />
-      <path d="M58 118 C66 114 74 115 80 122 C73 128 63 126 58 120" />
+    <svg viewBox="0 0 140 280" {...strokeProps} {...props}>
+      {/* Raquis */}
+      <path d="M70 278 C66 226 74 170 68 118 C64 78 70 44 66 14" />
+      {leaflets.map(({ y, len }, i) => {
+        const x = 70 - (y > 140 ? 2 : -2)
+        return (
+          <g key={i}>
+            <path d={`M${x} ${y} Q${x - len * 0.62} ${y - 5} ${x - len} ${y - 19}`} />
+            <path d={`M${x} ${y} Q${x + len * 0.62} ${y - 5} ${x + len} ${y - 19}`} />
+          </g>
+        )
+      })}
+      <path d="M66 14 C64 10 65 6 68 3" />
     </svg>
   )
 }
 
-/** Gypsophila / berry sprig — thin branches tipped with dots (best in gold). */
+/** Gypsophila / ramita de bayas — ramas finas rematadas en puntos (mejor en champán). */
 export function BlossomSprig(props: Props) {
   return (
     <svg viewBox="0 0 90 140" {...strokeProps} {...props}>
@@ -79,24 +93,8 @@ export function BlossomSprig(props: Props) {
   )
 }
 
-/** Open peony — radiating petals around a dotted heart. */
-export function PeonyBloom(props: Props) {
-  const petal = 'M60 56 C53 43 53 30 60 21 C67 30 67 43 60 56 Z'
-  return (
-    <svg viewBox="0 0 120 120" {...strokeProps} {...props}>
-      {[0, 40, 80, 120, 160, 200, 240, 280, 320].map((deg) => (
-        <path key={deg} d={petal} transform={`rotate(${deg} 60 60)`} />
-      ))}
-      <circle cx="60" cy="60" r="4" />
-      <circle cx="54" cy="57" r="1.3" fill="currentColor" stroke="none" />
-      <circle cx="66" cy="57" r="1.3" fill="currentColor" stroke="none" />
-      <circle cx="60" cy="67" r="1.3" fill="currentColor" stroke="none" />
-    </svg>
-  )
-}
-
-/** Single falling petal (for drift animations). */
-export function Petal(props: Props) {
+/** Hoja suelta a la deriva (para las animaciones de flotación). */
+export function Leaf(props: Props) {
   return (
     <svg viewBox="0 0 24 32" {...strokeProps} {...props}>
       <path d="M12 2 C19 8 20 19 12 30 C4 19 5 8 12 2 Z" />
@@ -106,9 +104,9 @@ export function Petal(props: Props) {
 }
 
 /**
- * Paper-grain overlay: SVG turbulence tile as a data URI (allowed by the CSP's
- * `img-src data:`), fixed and non-interactive. Keep opacity very low — it
- * should read as texture, not noise.
+ * Textura de papel: un mosaico de turbulencia SVG como data URI (lo permite
+ * `img-src data:` de la CSP), fijo y no interactivo. Mantén la opacidad muy
+ * baja — debe leerse como grano de papel, no como ruido.
  */
 const GRAIN_TILE =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E\")"
@@ -117,7 +115,7 @@ export function Grain() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-[60] opacity-[0.045] mix-blend-multiply"
+      className="pointer-events-none fixed inset-0 z-[60] opacity-[0.04] mix-blend-multiply"
       style={{ backgroundImage: GRAIN_TILE, backgroundSize: '160px 160px' }}
     />
   )

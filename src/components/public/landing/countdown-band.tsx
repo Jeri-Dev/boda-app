@@ -1,73 +1,89 @@
+import { CalendarCard } from './calendar-card'
 import { Countdown } from './countdown'
-import { BlossomSprig, Petal } from './florals'
+import { BlossomSprig, PalmFrond } from './florals'
+import { Ornament } from './ornament'
 import { Parallax } from './parallax'
 import { Reveal } from './reveal'
 
 /**
- * Full-width countdown band right under the hero — blush wash, gold sprigs on
- * parallax, and the live countdown. Ends with a soft nudge to the RSVP form.
+ * Placa de tinta con las dos maneras de mirar la misma fecha: cuánto falta y en
+ * qué casilla del mes cae. A partir de `md` van hombro con hombro, separadas
+ * por un filete de champán.
  */
 export function CountdownBand({ dateISO }: { dateISO: string }) {
   return (
     <section
       aria-label="Cuenta atrás para la boda"
-      className="relative isolate overflow-hidden border-y border-[var(--color-border)]/60 py-16 sm:py-20"
+      className="relative isolate overflow-hidden px-5 py-20 sm:px-8 sm:py-24"
     >
-      {/* Blush wash */}
       <div
         aria-hidden
         className="absolute inset-0 -z-20"
         style={{
           background:
-            'linear-gradient(180deg, oklch(0.975 0.012 30), oklch(0.95 0.022 15) 55%, oklch(0.975 0.012 30))',
+            'linear-gradient(160deg, var(--color-ink-2), var(--color-ink) 62%, oklch(0.255 0.060 198))',
         }}
       />
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 bg-[radial-gradient(60%_60%_at_50%_0%,oklch(0.64_0.135_190/0.28),transparent_72%)]"
+      />
 
-      {/* Gold sprigs + petals on parallax */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <Parallax speed={0.16} className="absolute -left-5 top-1/2 w-24 -translate-y-1/2 text-[var(--color-gold)] opacity-60 sm:left-[6%] sm:w-28">
-          <div className="-rotate-[20deg]">
-            <BlossomSprig className="landing-sway-slow w-full" />
+        <Parallax
+          speed={0.12}
+          className="absolute -left-20 top-1/2 w-40 -translate-y-1/2 text-[var(--color-gold)] opacity-[0.13] sm:w-56"
+        >
+          <div className="rotate-[18deg]">
+            <PalmFrond className="landing-sway-slow w-full" />
           </div>
         </Parallax>
-        <Parallax speed={0.1} className="absolute -right-5 top-1/2 w-24 -translate-y-1/2 text-[var(--color-gold)] opacity-60 sm:right-[6%] sm:w-28">
-          <div className="rotate-[24deg] -scale-x-100">
+        <Parallax
+          speed={0.08}
+          className="absolute -right-8 top-10 w-20 text-[var(--color-gold)] opacity-30 sm:w-24"
+        >
+          <div className="rotate-[22deg] -scale-x-100">
             <BlossomSprig className="landing-sway w-full" />
           </div>
         </Parallax>
-        <Parallax speed={0.22} className="absolute inset-0" innerClassName="relative h-full w-full">
-          <Petal className="landing-drift-b absolute left-[22%] top-[14%] w-3 rotate-45 text-[var(--color-accent)] opacity-30" />
-          <Petal className="landing-drift-c absolute bottom-[16%] right-[24%] w-3.5 -rotate-12 text-[var(--color-accent)] opacity-25" />
-        </Parallax>
       </div>
 
-      <div className="mx-auto max-w-3xl px-5 text-center sm:px-8">
-        <Reveal>
-          <p className="text-[0.7rem] uppercase tracking-[0.35em] text-[var(--color-accent)]">
+      <div className="mx-auto grid max-w-4xl items-center gap-14 md:grid-cols-2 md:gap-0">
+        <Reveal className="text-center md:pr-12">
+          <p className="text-[0.68rem] uppercase tracking-[0.38em] text-[var(--color-gold)]">
             El gran día se acerca
           </p>
           <p
-            className="mt-3 text-5xl text-[var(--color-foreground)] sm:text-6xl"
+            className="mt-2 text-[3.25rem] leading-none text-[oklch(0.945_0.028_88)] sm:text-6xl"
             style={{ fontFamily: 'var(--font-script)' }}
           >
             Faltan
           </p>
-        </Reveal>
-
-        <Reveal delay={100} className="mt-8">
-          <Countdown dateISO={dateISO} />
-        </Reveal>
-
-        <Reveal delay={160}>
-          <p className="mt-8 text-sm text-[var(--color-muted-foreground)]">
-            para el «¡Sí, acepto!» —{' '}
+          <div className="mt-7">
+            <Countdown dateISO={dateISO} />
+          </div>
+          <p className="mt-7 text-sm text-[oklch(0.92_0.02_88)]/80">
+            para el «sí, acepto» —{' '}
             <a
               href="#confirmar"
-              className="font-medium text-[var(--color-accent)] underline-offset-4 hover:underline"
+              className="text-[var(--color-gold)] underline-offset-4 hover:underline"
             >
               confirma tu asistencia
             </a>
           </p>
+        </Reveal>
+
+        {/* Filete divisorio: horizontal en móvil, vertical en escritorio. */}
+        <div aria-hidden className="mx-auto w-32 text-[var(--color-gold)]/40 md:hidden">
+          <Ornament />
+        </div>
+
+        <Reveal delay={120} className="relative md:pl-12">
+          <span
+            aria-hidden
+            className="absolute inset-y-2 left-0 hidden w-px bg-gradient-to-b from-transparent via-[var(--color-gold)]/35 to-transparent md:block"
+          />
+          <CalendarCard dateISO={dateISO} />
         </Reveal>
       </div>
     </section>

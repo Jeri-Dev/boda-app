@@ -30,7 +30,7 @@ export function MapCard({
   const place = places[active]
 
   return (
-    <div className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] shadow-[var(--shadow-warm)]">
+    <div className="overflow-hidden border border-[var(--color-border)] bg-[var(--color-card)] shadow-[var(--shadow-warm)]">
       {/* Pestañas */}
       <div
         role="tablist"
@@ -45,10 +45,10 @@ export function MapCard({
             aria-selected={active === i}
             onClick={() => setActive(i)}
             className={cn(
-              'flex-1 px-4 py-4 text-sm font-medium transition-colors',
+              'flex-1 border-b-2 px-4 py-4 text-[0.68rem] uppercase tracking-[0.24em] transition-colors',
               active === i
-                ? 'bg-[var(--color-accent)]/6 text-[var(--color-accent)]'
-                : 'text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]',
+                ? 'border-[var(--color-accent)] text-[var(--color-accent)]'
+                : 'border-transparent text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]',
             )}
           >
             {p.label}
@@ -68,13 +68,13 @@ export function MapCard({
           >
             <rect width="400" height="260" fill="var(--color-muted)" />
             {/* Zona verde / parque */}
-            <path d="M0 180 Q90 150 150 185 T400 175 L400 260 L0 260 Z" fill="var(--color-sage)" opacity="0.18" />
+            <path d="M0 180 Q90 150 150 185 T400 175 L400 260 L0 260 Z" fill="var(--color-sage)" opacity="0.20" />
             {/* Río / agua */}
             <path
               d="M-10 60 C80 90 120 30 210 70 S340 120 410 90"
               fill="none"
-              stroke="var(--color-sage)"
-              strokeOpacity="0.35"
+              stroke="var(--color-accent)"
+              strokeOpacity="0.30"
               strokeWidth="14"
               strokeLinecap="round"
             />
@@ -107,7 +107,7 @@ export function MapCard({
             <MapPin className="relative h-11 w-11 fill-[var(--color-accent)] text-[var(--color-accent-foreground)] drop-shadow-[0_4px_6px_rgba(0,0,0,0.2)]" />
           </div>
 
-          <span className="absolute bottom-2 right-3 rounded-full bg-[var(--color-background)]/80 px-2 py-0.5 text-[0.6rem] text-[var(--color-muted-foreground)] backdrop-blur-sm">
+          <span className="absolute bottom-2 right-3 bg-[var(--color-background)]/85 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.14em] text-[var(--color-muted-foreground)] backdrop-blur-sm">
             Mapa ilustrativo
           </span>
         </div>
@@ -117,10 +117,10 @@ export function MapCard({
           <div className="flex items-start gap-3">
             <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-accent)]" />
             <div>
-              <p className="font-display text-lg text-[var(--color-foreground)]">
+              <p className="font-display text-xl font-light text-[var(--color-foreground)]">
                 {place.place}
               </p>
-              <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+              <p className="mt-1 text-sm leading-relaxed text-[var(--color-muted-foreground)]">
                 {place.address}
               </p>
             </div>
@@ -129,7 +129,7 @@ export function MapCard({
             href={place.mapUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[var(--color-accent)] px-5 text-sm font-medium text-[var(--color-accent-foreground)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-warm)]"
+            className="group inline-flex h-12 items-center justify-center gap-2 bg-[var(--color-accent)] px-5 text-[0.72rem] uppercase tracking-[0.18em] text-[var(--color-accent-foreground)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-warm)]"
           >
             Abrir en Google Maps
             <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />

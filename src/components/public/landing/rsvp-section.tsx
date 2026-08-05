@@ -4,7 +4,7 @@ import { type FormEvent, useId, useState } from 'react'
 
 import { cn } from '@/lib/utils/cn'
 
-import { BlossomSprig, RoseBloom } from './florals'
+import { BlossomSprig, EucalyptusBranch } from './florals'
 import { Check, Heart } from './icons'
 import { CornerAccents, SectionHeading } from './ornament'
 import { Parallax } from './parallax'
@@ -35,14 +35,14 @@ export function RsvpSection() {
 
   return (
     <section id="confirmar" className="relative isolate scroll-mt-24 overflow-hidden px-5 py-20 sm:px-8 sm:py-28">
-      {/* Faint botanicals framing the form */}
+      {/* Botánica tenue enmarcando el formulario */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <Parallax speed={0.12} className="absolute -left-10 top-16 w-28 text-[var(--color-accent)] opacity-20 sm:w-36">
-          <div className="-rotate-12">
-            <RoseBloom className="landing-sway-slow w-full" />
+        <Parallax speed={0.12} className="absolute -left-12 top-10 w-28 text-[var(--color-sage)] opacity-30 sm:w-40">
+          <div className="rotate-[155deg]">
+            <EucalyptusBranch className="landing-sway-slow w-full" />
           </div>
         </Parallax>
-        <Parallax speed={0.08} className="absolute -right-6 bottom-16 w-20 text-[var(--color-gold)] opacity-45 sm:w-24">
+        <Parallax speed={0.08} className="absolute -right-6 bottom-16 w-20 text-[var(--color-gold-deep)] opacity-40 sm:w-24">
           <div className="rotate-[15deg]">
             <BlossomSprig className="landing-sway w-full" />
           </div>
@@ -55,14 +55,14 @@ export function RsvpSection() {
         </Reveal>
 
         <Reveal delay={120} className="mt-12">
-          <div className="relative rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-[var(--shadow-warm)] sm:p-9">
+          <div className="relative border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-[var(--shadow-warm)] sm:p-9">
             <CornerAccents />
             {sent ? (
               <div className="flex flex-col items-center py-6 text-center">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-success)]/12 text-[var(--color-success)]">
                   <Check className="h-7 w-7" />
                 </div>
-                <h3 className="mt-5 font-display text-2xl text-[var(--color-foreground)]">
+                <h3 className="mt-5 font-display text-3xl font-light text-[var(--color-foreground)]">
                   {attendance === 'no' ? 'Te echaremos de menos' : '¡Gracias por confirmar!'}
                 </h3>
                 <p className="mt-2 max-w-sm text-sm leading-relaxed text-[var(--color-muted-foreground)]">
@@ -193,7 +193,7 @@ export function RsvpSection() {
                 <button
                   type="submit"
                   disabled={attendance === null}
-                  className="flex h-12 w-full items-center justify-center rounded-full bg-[var(--color-accent)] px-6 text-[0.95rem] font-medium text-[var(--color-accent-foreground)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-warm)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0"
+                  className="flex h-12 w-full items-center justify-center bg-[var(--color-accent)] px-6 text-[0.95rem] font-medium tracking-wide text-[var(--color-accent-foreground)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-warm)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0"
                 >
                   Enviar confirmación
                 </button>

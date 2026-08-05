@@ -174,3 +174,36 @@ export function Music(props: IconProps) {
     </svg>
   )
 }
+
+/** Etiqueta / código de vestimenta: esmoquin junto a un vestido largo. */
+export function Attire(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M6.5 3.2 4 4.6V21h5V4.6L6.5 3.2Z" />
+      <path d="M5 3.6 6.5 6 8 3.6" />
+      <path d="M17.5 3.2c-1.6 0-2.5 1-2.5 2.6 0 1.6-1.5 3.6-1.5 6.2 0 2.4 1.6 3 1.6 5.2V21h4.8v-3.8c0-2.2 1.6-2.8 1.6-5.2 0-2.6-1.5-4.6-1.5-6.2 0-1.6-.9-2.6-2.5-2.6Z" />
+      <path d="M16 3.6c.4 1 2.6 1 3 0" />
+    </svg>
+  )
+}
+
+/** Sobre cerrado — la marca del hero y de la lluvia de sobres. */
+export function Envelope(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="2.5" y="5" width="19" height="14" rx="2" />
+      <path d="M3 6.5 12 13.5 21 6.5" />
+    </svg>
+  )
+}
+
+/** Transferencia bancaria. */
+export function Bank(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M3 9.5 12 4l9 5.5" />
+      <path d="M4.5 9.5v8M9.5 9.5v8M14.5 9.5v8M19.5 9.5v8" />
+      <path d="M2.5 20.5h19" />
+    </svg>
+  )
+}

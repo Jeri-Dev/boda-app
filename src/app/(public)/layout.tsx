@@ -6,7 +6,7 @@ import type { Viewport } from 'next'
  * info, while the back-office uses the cool minimal theme set at the root.
  */
 export const viewport: Viewport = {
-  themeColor: '#FBF7F1',
+  themeColor: '#FAF8F0',
 }
 
 export default function PublicLayout({

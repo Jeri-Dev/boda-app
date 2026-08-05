@@ -1,14 +1,56 @@
 /*
- * Animation vocabulary for the /nuestra-boda landing. Scoped by `landing-`
- * prefix; imported only from that page. Transform/opacity only (no reflow),
- * and everything is switched off under prefers-reduced-motion.
+ * Vocabulario visual y de movimiento de la landing /nuestra-boda. Todo va con
+ * el prefijo `landing-` y se importa solo desde esa página. Transform/opacity
+ * únicamente (sin reflow) y todo se apaga bajo prefers-reduced-motion.
  */
 
-/* Entrance: hero elements fade-and-rise on load (pure CSS — works pre-JS). */
+/*
+ * Raíz de la landing: dentro de este subárbol la familia «display» es la serif
+ * grabada (Cormorant), no la Fraunces del resto de la app. Como el tema usa
+ * `@theme inline`, redefinir la variable aquí re-tipografía toda la página sin
+ * tocar un solo componente.
+ */
+.landing-root {
+  --font-display: var(--font-serif-stack);
+}
+
+/* ---------------------------------------------------------------------- */
+/* El sobre: la solapa se abre al cargar y descubre la invitación           */
+/* ---------------------------------------------------------------------- */
+
+/*
+ * Estado base = sobre ABIERTO (solapa invisible). La animación reproduce el
+ * cierre→apertura solo cuando hay movimiento permitido; si el usuario pide
+ * menos movimiento, o si la animación no llega a ejecutarse, la invitación se
+ * ve igualmente. Nunca queda contenido tapado.
+ */
+.landing-flap {
+  opacity: 0;
+  transform-origin: top center;
+  backface-visibility: hidden;
+  animation: landing-flap-open 1s cubic-bezier(0.62, 0, 0.3, 1) 0.2s both;
+}
+
+@keyframes landing-flap-open {
+  0% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+  70% {
+    transform: rotateX(-150deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateX(-178deg);
+    opacity: 0;
+  }
+}
+
+/* Entrada escalonada del contenido del hero, sincronizada con la solapa. */
 @keyframes landing-fade-up {
   from {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -22,67 +64,108 @@
 .landing-enter-4,
 .landing-enter-5,
 .landing-enter-6 {
-  animation: landing-fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: landing-fade-up 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.landing-enter-1 { animation-delay: 0.05s; }
-.landing-enter-2 { animation-delay: 0.16s; }
-.landing-enter-3 { animation-delay: 0.28s; }
-.landing-enter-4 { animation-delay: 0.4s; }
-.landing-enter-5 { animation-delay: 0.52s; }
-.landing-enter-6 { animation-delay: 0.66s; }
+.landing-enter-1 { animation-delay: 0.6s; }
+.landing-enter-2 { animation-delay: 0.75s; }
+.landing-enter-3 { animation-delay: 0.9s; }
+.landing-enter-4 { animation-delay: 1.05s; }
+.landing-enter-5 { animation-delay: 1.2s; }
+.landing-enter-6 { animation-delay: 1.35s; }
 
-/* Slow Ken Burns on the couple photo. */
+/* El sello lacrado aterriza cuando la solapa ya ha subido. */
+@keyframes landing-seal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.82) rotate(-8deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.landing-seal {
+  animation: landing-seal-in 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) 0.95s both;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Atmósfera                                                               */
+/* ---------------------------------------------------------------------- */
+
+/* Ken Burns lento sobre la foto de la pareja. */
 @keyframes landing-kenburns {
   from { transform: scale(1); }
   to { transform: scale(1.07); }
 }
 .landing-kenburns {
-  animation: landing-kenburns 18s ease-in-out infinite alternate;
+  animation: landing-kenburns 20s ease-in-out infinite alternate;
 }
 
-/* Branches swaying in a light breeze (origin at the stem). */
+/* Hojas mecidas por la brisa (origen en el tallo). */
 @keyframes landing-sway {
   0%, 100% { transform: rotate(-2deg); }
   50% { transform: rotate(2.4deg); }
 }
 .landing-sway {
-  animation: landing-sway 8s ease-in-out infinite;
+  animation: landing-sway 9s ease-in-out infinite;
   transform-origin: 50% 100%;
 }
 .landing-sway-slow {
-  animation: landing-sway 13s ease-in-out infinite;
+  animation: landing-sway 14s ease-in-out infinite;
   transform-origin: 50% 100%;
 }
 
-/* Petals drifting — three phase-shifted variants. */
+/* Pétalos/hojas a la deriva — tres variantes desfasadas. */
 @keyframes landing-drift {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
   33% { transform: translate3d(10px, 16px, 0) rotate(14deg); }
   66% { transform: translate3d(-8px, 6px, 0) rotate(-8deg); }
 }
-.landing-drift-a { animation: landing-drift 11s ease-in-out infinite; }
-.landing-drift-b { animation: landing-drift 14s ease-in-out -4s infinite; }
-.landing-drift-c { animation: landing-drift 17s ease-in-out -8s infinite; }
+.landing-drift-a { animation: landing-drift 12s ease-in-out infinite; }
+.landing-drift-b { animation: landing-drift 15s ease-in-out -4s infinite; }
+.landing-drift-c { animation: landing-drift 18s ease-in-out -9s infinite; }
 
-/* Rose→gold shimmer for the ampersand (background-clip: text). */
-@keyframes landing-shimmer {
+/*
+ * Champán prensado en caliente: degradado metálico recortado sobre el texto,
+ * con un brillo que recorre la letra muy despacio. Reservado al «&» y al
+ * monograma — es el único sitio donde el champán se comporta como lámina.
+ */
+@keyframes landing-foil {
   to { background-position: 200% center; }
 }
-.landing-shimmer {
-  background: linear-gradient(
-    110deg,
-    var(--color-accent) 20%,
-    var(--color-gold) 45%,
-    var(--color-accent) 70%
+.landing-foil {
+  /*
+   * `background-image`, NUNCA el atajo `background`: el compilador de CSS
+   * duplica esta regla dentro de un `@supports` para el fallback de color, y un
+   * atajo `background` allí resetearía `background-clip` a `border-box` — la
+   * lámina se vería como un rectángulo dorado en lugar del glifo.
+   */
+  background-image: linear-gradient(
+    100deg,
+    var(--color-gold-deep) 18%,
+    oklch(0.955 0.035 88) 42%,
+    var(--color-gold) 58%,
+    var(--color-gold-deep) 82%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: landing-shimmer 7s linear infinite;
+  animation: landing-foil 9s linear infinite;
+}
+
+/* Latido discreto del corazón que marca el día en el calendario. */
+@keyframes landing-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+.landing-pulse {
+  animation: landing-pulse 3.5s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .landing-flap,
+  .landing-seal,
   .landing-enter-1,
   .landing-enter-2,
   .landing-enter-3,
@@ -95,7 +178,13 @@
   .landing-drift-a,
   .landing-drift-b,
   .landing-drift-c,
-  .landing-shimmer {
+  .landing-foil,
+  .landing-pulse {
     animation: none;
+  }
+
+  /* Sin animación, el degradado de lámina se queda fijo: sigue siendo champán. */
+  .landing-foil {
+    background-position: 50% center;
   }
 }

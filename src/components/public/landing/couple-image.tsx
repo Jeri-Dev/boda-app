@@ -54,7 +54,7 @@ export function CoupleImage({
       className={className}
       style={{
         background:
-          'radial-gradient(120% 120% at 50% 0%, var(--color-muted) 0%, var(--color-background) 45%, oklch(0.9 0.045 20) 100%)',
+          'radial-gradient(125% 125% at 50% 0%, var(--color-background) 0%, var(--color-muted) 48%, oklch(0.925 0.030 192) 100%)',
       }}
     >
       <div className="flex h-full w-full flex-col items-center justify-center gap-3 px-4 text-center">
@@ -71,7 +71,7 @@ export function CoupleImage({
         </span>
         {compact ? null : (
           <span className="text-[0.65rem] uppercase tracking-[0.25em] text-[var(--color-muted-foreground)]">
-            Vuestra foto aquí
+            Aquí va nuestra foto
           </span>
         )}
       </div>

@@ -3,52 +3,66 @@
 /*
  * boda-app design tokens.
  *
- * An elegant, romantic wedding palette: warm ivory paper, deep plum-ink text,
- * a dusty rose accent, with sage and champagne-gold as secondary notes. Aim is
- * editorial and tactile — not a generic SaaS template.
+ * The guest-facing palette is stationery, not screen: **champagne is foil,
+ * turquoise is ink**. Champagne (`--color-gold`) is reserved for hairlines,
+ * seals, ornaments and type on the deep-teal panels — never for small text on
+ * paper, where it would fail contrast. Turquoise (`--color-accent`) carries
+ * every link, label and control on paper. That one rule keeps the two-colour
+ * scheme disciplined across the whole invitation.
  *
- * Colors use OKLCH for perceptual uniformity. The neutral `stone` ramp drifts
- * gently toward plum at the dark end so shadows read warm, never cold gray.
+ * Colors use OKLCH for perceptual uniformity. The neutral `stone` ramp starts
+ * warm (champagne paper) and drifts to teal at the dark end, so shadows and
+ * dividers always belong to the sea-and-sand family.
  */
 
 @theme inline {
   /* ------------------------------------------------------------------ */
   /* Surface + text                                                      */
   /* ------------------------------------------------------------------ */
-  --color-background: oklch(0.987 0.007 70);  /* warm ivory */
-  --color-foreground: oklch(0.27 0.025 340);  /* deep plum-ink */
+  --color-background: oklch(0.978 0.010 88);  /* champagne paper */
+  --color-foreground: oklch(0.270 0.028 205); /* teal ink */
 
   /* ------------------------------------------------------------------ */
-  /* Stone ramp — warm neutral greige from paper to near-black plum      */
+  /* Stone ramp — champagne paper drifting to deep teal                  */
   /* ------------------------------------------------------------------ */
-  --color-stone-50:  oklch(0.975 0.006 70);
-  --color-stone-100: oklch(0.945 0.008 68);
-  --color-stone-200: oklch(0.900 0.010 66);
-  --color-stone-300: oklch(0.835 0.012 60);
-  --color-stone-400: oklch(0.720 0.014 55);
-  --color-stone-500: oklch(0.600 0.016 50);
-  --color-stone-600: oklch(0.490 0.016 48);
-  --color-stone-700: oklch(0.395 0.017 45);
-  --color-stone-800: oklch(0.310 0.018 350);
-  --color-stone-900: oklch(0.235 0.020 345);
+  --color-stone-50:  oklch(0.970 0.009 88);
+  --color-stone-100: oklch(0.942 0.011 86);
+  --color-stone-200: oklch(0.900 0.013 82);
+  --color-stone-300: oklch(0.838 0.015 78);
+  --color-stone-400: oklch(0.724 0.016 120);
+  --color-stone-500: oklch(0.604 0.018 165);
+  --color-stone-600: oklch(0.492 0.020 185);
+  --color-stone-700: oklch(0.398 0.024 192);
+  --color-stone-800: oklch(0.312 0.030 196);
+  --color-stone-900: oklch(0.238 0.032 200);
 
   /* ------------------------------------------------------------------ */
   /* Accents                                                             */
   /* ------------------------------------------------------------------ */
-  --color-accent: oklch(0.55 0.125 10);             /* dusty rose / wine-rose */
-  --color-accent-foreground: oklch(0.987 0.007 70); /* ivory on rose */
+  /* Turquoise on paper: 5.4:1 against the background, 5.5:1 for cream on it. */
+  --color-accent: oklch(0.495 0.100 193);            /* verde turquesa */
+  --color-accent-foreground: oklch(0.982 0.010 88);  /* champagne on teal */
 
   /* Secondary accents */
-  --color-sage: oklch(0.60 0.045 150);  /* eucalyptus green */
-  --color-gold: oklch(0.80 0.075 85);   /* champagne gold */
+  --color-sage: oklch(0.660 0.075 185);      /* sea glass */
+  --color-gold: oklch(0.855 0.058 84);       /* champagne foil */
+  --color-gold-deep: oklch(0.735 0.072 80);  /* champagne, one stop down */
+
+  /*
+   * Deep-turquoise plaques (hero, fecha, regalos, footer). Deliberately kept
+   * above L 0.29 so the panels read turquoise and not forest green; champagne
+   * lands at 8:1 on the dark end and 5.6:1 on the light end of the gradient.
+   */
+  --color-ink: oklch(0.295 0.068 194);
+  --color-ink-2: oklch(0.375 0.082 190);
 
   /* ------------------------------------------------------------------ */
   /* Neutrals derived from the warm palette                              */
   /* ------------------------------------------------------------------ */
-  --color-muted: oklch(0.955 0.010 75);
-  --color-muted-foreground: oklch(0.50 0.018 50);
+  --color-muted: oklch(0.952 0.012 88);
+  --color-muted-foreground: oklch(0.478 0.024 200);
 
-  --color-card: oklch(0.995 0.004 75);
+  --color-card: oklch(0.995 0.005 90);
   --color-card-foreground: var(--color-foreground);
 
   /* Dashboard shell — a crisp panel for the sidebar, a hair off the paper. */
@@ -56,15 +70,15 @@
   --color-sidebar-foreground: var(--color-foreground);
   --color-sidebar-accent: oklch(0.955 0.010 75);
 
-  --color-border: oklch(0.900 0.012 65);
-  --color-input: oklch(0.900 0.012 65);
-  --color-ring: oklch(0.55 0.125 10); /* matches accent for focus */
+  --color-border: oklch(0.888 0.016 84);
+  --color-input: oklch(0.888 0.016 84);
+  --color-ring: oklch(0.495 0.100 193); /* matches accent for focus */
 
   /* Feedback */
   --color-destructive: oklch(0.555 0.205 27);
-  --color-destructive-foreground: oklch(0.987 0.007 70);
-  --color-success: oklch(0.575 0.105 150);
-  --color-success-foreground: oklch(0.987 0.007 70);
+  --color-destructive-foreground: oklch(0.982 0.010 88);
+  --color-success: oklch(0.560 0.090 168);
+  --color-success-foreground: oklch(0.982 0.010 88);
 
   /* ------------------------------------------------------------------ */
   /* Typography                                                          */
@@ -73,23 +87,23 @@
   --font-display: var(--font-display-stack);
 
   /* ------------------------------------------------------------------ */
-  /* Radii — gentle, not pillowy                                         */
+  /* Radii — crisp like a printed card, not pillowy                      */
   /* ------------------------------------------------------------------ */
-  --radius-sm: 0.375rem;
-  --radius: 0.625rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
+  --radius-sm: 0.25rem;
+  --radius: 0.375rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
 
   /* ------------------------------------------------------------------ */
-  /* Shadows — warm-tinted, never pure black                             */
+  /* Shadows — teal-tinted, never pure black                             */
   /* ------------------------------------------------------------------ */
   --shadow-soft:
-    0 1px 2px oklch(0.30 0.03 340 / 0.06),
-    0 2px 6px oklch(0.30 0.03 340 / 0.05);
+    0 1px 2px oklch(0.25 0.03 200 / 0.06),
+    0 2px 6px oklch(0.25 0.03 200 / 0.05);
   --shadow-warm:
-    0 4px 12px oklch(0.30 0.03 340 / 0.08),
-    0 12px 28px oklch(0.30 0.03 340 / 0.07);
-  --shadow-press: 0 1px 0 oklch(0.30 0.03 340 / 0.15) inset;
+    0 4px 12px oklch(0.25 0.03 200 / 0.08),
+    0 12px 28px oklch(0.25 0.03 200 / 0.07);
+  --shadow-press: 0 1px 0 oklch(0.25 0.03 200 / 0.14) inset;
 }
 
 /* ====================================================================== */
@@ -122,6 +136,9 @@
   --color-accent-foreground: oklch(0.99 0 0);
   --color-sage: oklch(0.62 0.11 200);
   --color-gold: oklch(0.78 0.13 75);
+  --color-gold-deep: oklch(0.68 0.13 72);
+  --color-ink: oklch(0.208 0.021 270);
+  --color-ink-2: oklch(0.279 0.019 268);
 
   --color-muted: oklch(0.966 0.003 255);
   --color-muted-foreground: oklch(0.50 0.015 262);
@@ -199,7 +216,7 @@
 
   /* Native dialog backdrop styling. */
   dialog::backdrop {
-    background-color: oklch(0.22 0.02 340 / 0.55);
+    background-color: oklch(0.22 0.03 200 / 0.55);
     backdrop-filter: blur(2px);
   }
 
@@ -225,7 +242,7 @@
 
   /* Selection picks up the accent. */
   ::selection {
-    background-color: oklch(0.55 0.125 10 / 0.22);
+    background-color: oklch(0.495 0.100 193 / 0.20);
     color: var(--color-foreground);
   }
 }

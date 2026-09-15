@@ -1,40 +1,58 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { cn } from '@/lib/utils/cn'
 
 import { Close, Menu } from './icons'
 
-const NAV = [
-  { href: '#info', label: 'Info' },
-  { href: '#lugar', label: 'Lugar' },
-  { href: '#regalos', label: 'Regalos' },
-]
+export type NavSection = { id: string; label: string }
 
 /**
- * Cabecera fija con monograma + anclas. Sobre el hero es transparente (el sobre
- * es de tinta, así que el texto va en champán); en cuanto se entra en el papel
- * adopta un fondo de vidrio y el texto pasa a tinta. El filete de progreso de
- * abajo dice cuánto queda de invitación.
+ * Cabecera fija con monograma + anclas. Sobre el hero (tinta) es transparente y
+ * el texto va en champán; en cuanto se entra en el papel adopta un fondo de
+ * vidrio y el texto pasa a tinta. Se esconde al bajar y reaparece al subir,
+ * para no tapar la invitación mientras se lee. El filete inferior es el
+ * progreso de lectura.
  */
-export function SiteHeader({ monogram }: { monogram: string }) {
+export function SiteHeader({
+  monogram,
+  sections,
+}: {
+  monogram: string
+  sections: NavSection[]
+}) {
   const [scrolled, setScrolled] = useState(false)
+  const [hidden, setHidden] = useState(false)
   const [progress, setProgress] = useState(0)
   const [open, setOpen] = useState(false)
+  const lastY = useRef(0)
 
   useEffect(() => {
+    let raf = 0
     const onScroll = () => {
-      setScrolled(window.scrollY > 24)
-      const max = document.documentElement.scrollHeight - window.innerHeight
-      setProgress(max > 0 ? Math.min(1, window.scrollY / max) : 0)
+      if (raf) return
+      raf = requestAnimationFrame(() => {
+        raf = 0
+        const y = window.scrollY
+        setScrolled(y > 24)
+        const max = document.documentElement.scrollHeight - window.innerHeight
+        setProgress(max > 0 ? Math.min(1, y / max) : 0)
+        // Hide when scrolling down past the hero, show as soon as we scroll up.
+        const delta = y - lastY.current
+        if (y > 160 && delta > 4) setHidden(true)
+        else if (delta < -4 || y <= 160) setHidden(false)
+        lastY.current = y
+      })
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+    }
   }, [])
 
-  // Cierra el menú móvil al pulsar Escape.
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
@@ -42,8 +60,8 @@ export function SiteHeader({ monogram }: { monogram: string }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
 
-  // Sobre la tinta del hero el texto es champán; sobre el papel, turquesa.
   const onInk = !scrolled
+  const nav = sections.filter((s) => s.id !== 'confirmar')
   const linkColor = onInk
     ? 'text-[oklch(0.94_0.025_88)]/85 hover:text-[var(--color-gold)]'
     : 'text-[var(--color-foreground)]/75 hover:text-[var(--color-accent)]'
@@ -51,10 +69,11 @@ export function SiteHeader({ monogram }: { monogram: string }) {
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-colors duration-500',
+        'landing-header fixed inset-x-0 top-0 z-50 transition-[transform,background-color,border-color] duration-500',
         scrolled
           ? 'border-b border-[var(--color-border)]/70 bg-[var(--color-background)]/85 backdrop-blur-md'
           : 'border-b border-transparent bg-transparent',
+        hidden && !open && '-translate-y-full',
       )}
     >
       <nav
@@ -72,12 +91,11 @@ export function SiteHeader({ monogram }: { monogram: string }) {
           {monogram}
         </a>
 
-        {/* Navegación en escritorio */}
         <ul className="hidden items-center gap-9 md:flex">
-          {NAV.map((item) => (
-            <li key={item.href}>
+          {nav.map((item) => (
+            <li key={item.id}>
               <a
-                href={item.href}
+                href={`#${item.id}`}
                 className={cn(
                   'group relative text-[0.7rem] uppercase tracking-[0.24em] transition-colors',
                   linkColor,
@@ -98,7 +116,7 @@ export function SiteHeader({ monogram }: { monogram: string }) {
         <a
           href="#confirmar"
           className={cn(
-            'hidden border px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.2em] transition-colors md:inline-block',
+            'landing-shine hidden border px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.2em] transition-colors md:inline-block',
             onInk
               ? 'border-[var(--color-gold)]/50 text-[var(--color-gold)] hover:bg-[var(--color-gold)] hover:text-[var(--color-ink)]'
               : 'border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-accent-foreground)] hover:bg-transparent hover:text-[var(--color-accent)]',
@@ -107,7 +125,6 @@ export function SiteHeader({ monogram }: { monogram: string }) {
           Confirmar
         </a>
 
-        {/* CTA compacto + botón de menú (móvil) */}
         <div className="flex items-center gap-1.5 md:hidden">
           <a
             href="#confirmar"
@@ -136,14 +153,12 @@ export function SiteHeader({ monogram }: { monogram: string }) {
         </div>
       </nav>
 
-      {/* Filete de progreso de lectura (turquesa → champán) */}
       <div
         aria-hidden
         className="absolute inset-x-0 bottom-0 h-px origin-left bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-gold)] transition-transform duration-150 ease-out"
         style={{ transform: `scaleX(${progress})` }}
       />
 
-      {/* Menú móvil desplegable */}
       <div
         id="menu-movil"
         className={cn(
@@ -152,10 +167,10 @@ export function SiteHeader({ monogram }: { monogram: string }) {
         )}
       >
         <ul className="flex flex-col px-5 py-2">
-          {[{ href: '#inicio', label: 'Inicio' }, ...NAV].map((item) => (
-            <li key={item.href}>
+          {[{ id: 'inicio', label: 'Inicio' }, ...nav].map((item) => (
+            <li key={item.id}>
               <a
-                href={item.href}
+                href={`#${item.id}`}
                 onClick={() => setOpen(false)}
                 className="block border-b border-[var(--color-border)]/50 py-3.5 text-[0.72rem] uppercase tracking-[0.22em] text-[var(--color-foreground)] transition-colors hover:text-[var(--color-accent)]"
               >

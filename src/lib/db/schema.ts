@@ -6,6 +6,7 @@ import {
   check,
   index,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -44,6 +45,22 @@ const timestamps = {
     .$onUpdate(() => new Date()),
 }
 
+/**
+ * A bank account shown on the public gift registry (stored as JSON on the
+ * `wedding` singleton — edited as a repeatable list in /configuracion).
+ */
+export type GiftAccount = {
+  bank: string
+  holder: string
+  /** e.g. «Cuenta de ahorros». */
+  type: string
+  number: string
+  /** e.g. «DOP» / «USD». */
+  currency: string
+  /** Optional: cédula/RNC or an alias for instant transfers. */
+  reference: string
+}
+
 /** Singleton event-config row (id fixed to 1). */
 export const wedding = pgTable(
   'wedding',
@@ -77,6 +94,41 @@ export const wedding = pgTable(
     ceremonyEnd: text('ceremony_end'),
     receptionStart: text('reception_start'),
     receptionEnd: text('reception_end'),
+    /* ── Public landing «Nuestra boda» (/nuestra-boda + /i/[token]) ──────
+     * Everything the invitation shows is edited from /configuracion. All
+     * optional: an empty field hides its block on the landing. */
+    /** Monogram, e.g. «E & J»; derived from the initials when empty. */
+    monogram: text('monogram'),
+    hashtag: text('hashtag'),
+    /** City line under the names, e.g. «Santo Domingo, República Dominicana». */
+    city: text('city'),
+    /** Short hero line, e.g. «Nos casamos». */
+    tagline: text('tagline'),
+    /** «Nuestra historia» — one paragraph per line. */
+    story: text('story'),
+    quoteText: text('quote_text'),
+    quoteAttribution: text('quote_attribution'),
+    /** Parents' names — one per line. */
+    brideParents: text('bride_parents'),
+    groomParents: text('groom_parents'),
+    /** Second line under the dress-code title. */
+    dressCodeNote: text('dress_code_note'),
+    /** Practical notes — blocks separated by a blank line; first line = title. */
+    guestNotes: text('guest_notes'),
+    /** Reception venue when it differs from the ceremony venue. */
+    receptionPlace: text('reception_place'),
+    receptionAddress: text('reception_address'),
+    receptionMapUrl: text('reception_map_url'),
+    /** «Lluvia de sobres» line on the gift registry. */
+    giftEnvelopeNote: text('gift_envelope_note'),
+    /** Bank accounts for transfers (rendered as cards). */
+    giftAccounts: jsonb('gift_accounts').$type<GiftAccount[]>(),
+    /** WhatsApp in E.164 digits (no «+»), e.g. 18095550000. */
+    contactWhatsapp: text('contact_whatsapp'),
+    /** Couple photo — same-origin path (`/pareja.jpg`) or an https URL. */
+    coupleImageUrl: text('couple_image_url'),
+    /** Song title shown in the floating player (file: /musica/nuestra-cancion.mp3). */
+    musicTitle: text('music_title'),
     ...timestamps,
   },
   (t) => [

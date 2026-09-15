@@ -1,18 +1,20 @@
+'use client'
+
 import { Heart } from './icons'
 import { monthGrid, WEEKDAY_INITIALS } from './format'
+import { useInView } from './reveal'
 
 /**
- * El mes de la boda, impreso. Un calendario dice la fecha mejor que cualquier
- * frase: se ve en qué semana cae, cuánto queda de mes y qué día hay que pedir
- * libre. El día señalado lleva un disco de champán y un corazón.
- *
- * Pensado para ir sobre los paneles de tinta (fondo oscuro).
+ * El mes de la boda, impreso. El día señalado lleva un disco de champán y un
+ * corazón; un anillo se dibuja alrededor cuando el calendario entra en
+ * pantalla, como si alguien lo rodeara con la pluma. Sobre tinta.
  */
 export function CalendarCard({ dateISO }: { dateISO: string }) {
   const { weeks, day, year, monthLabel } = monthGrid(dateISO)
+  const { ref, inView } = useInView<HTMLDivElement>({ threshold: 0.4 })
 
   return (
-    <div className="mx-auto w-full max-w-sm">
+    <div ref={ref} className={`mx-auto w-full max-w-sm ${inView ? 'is-shown' : ''}`}>
       <p className="text-center text-[0.68rem] uppercase tracking-[0.38em] text-[var(--color-gold)]">
         {monthLabel} {year}
       </p>
@@ -42,13 +44,27 @@ export function CalendarCard({ dateISO }: { dateISO: string }) {
                 if (cell === day) {
                   return (
                     <td key={ci}>
-                      <span className="relative inline-flex h-8 w-8 items-center justify-center">
-                        <span className="absolute inset-0 rounded-full bg-[var(--color-gold)]" />
+                      <span className="relative inline-flex h-9 w-9 items-center justify-center">
+                        <svg
+                          aria-hidden
+                          viewBox="0 0 40 40"
+                          className="landing-ring absolute -inset-1 h-[calc(100%+0.5rem)] w-[calc(100%+0.5rem)] text-[var(--color-gold)]"
+                        >
+                          <circle
+                            cx="20"
+                            cy="20"
+                            r="18"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.1"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        <span className="absolute inset-0.5 rounded-full bg-[var(--color-gold)]" />
                         <span className="relative text-sm font-medium tabular-nums text-[var(--color-ink)]">
                           {cell}
                         </span>
                         <Heart className="landing-pulse absolute -right-1.5 -top-1.5 h-3.5 w-3.5 fill-[var(--color-gold)] text-[var(--color-gold)]" />
-                        <span className="sr-only"> — el gran día</span>
                       </span>
                     </td>
                   )
@@ -56,7 +72,7 @@ export function CalendarCard({ dateISO }: { dateISO: string }) {
                 return (
                   <td
                     key={ci}
-                    className="text-sm tabular-nums text-[oklch(0.92_0.02_88)]/78"
+                    className="h-9 text-sm tabular-nums text-[oklch(0.92_0.02_88)]/75"
                   >
                     {cell}
                   </td>

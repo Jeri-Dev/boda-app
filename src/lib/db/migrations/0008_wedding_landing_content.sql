@@ -1,0 +1,19 @@
+ALTER TABLE "wedding" ADD COLUMN "monogram" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "hashtag" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "city" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "tagline" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "story" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "quote_text" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "quote_attribution" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "bride_parents" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "groom_parents" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "dress_code_note" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "guest_notes" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "reception_place" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "reception_address" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "reception_map_url" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "gift_envelope_note" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "gift_accounts" jsonb;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "contact_whatsapp" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "couple_image_url" text;--> statement-breakpoint
+ALTER TABLE "wedding" ADD COLUMN "music_title" text;

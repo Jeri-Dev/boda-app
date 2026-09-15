@@ -10,10 +10,12 @@ import type { Config, Context } from '@netlify/edge-functions'
  *
  * PUBLIC (no credentials) — the guest surface + the assets it needs:
  *   /i/…              guest invitation + RSVP (server action posts back to /i/…)
- *   /info             public info page
+ *   /nuestra-boda(/…) public landing (+ /nuestra-boda/evento.ics)
+ *   /info             legacy path → 308 to /nuestra-boda (issued by the origin)
  *   /~offline         PWA offline fallback
  *   /_next/…          static JS/CSS/chunks (app code, not data)
- *   /manifest.webmanifest, /sw.js, /favicon.ico
+ *   /musica/…, /pareja.jpg, /og-boda.jpg   landing media (song, photo, OG)
+ *   /manifest.webmanifest, /sw.js, /favicon.ico, icons
  * EVERYTHING ELSE (/, /invitados, /proveedores, …) requires Basic Auth.
  *
  * Fails CLOSED: if BASIC_AUTH_USER/PASSWORD aren't set, every gated route is
@@ -21,12 +23,18 @@ import type { Config, Context } from '@netlify/edge-functions'
  */
 
 const PUBLIC_EXACT = new Set([
+  '/nuestra-boda',
   '/info',
   '/~offline',
   '/manifest.webmanifest',
   '/sw.js',
   '/favicon.ico',
   '/robots.txt',
+  '/icon.svg',
+  '/icon-192.png',
+  '/apple-touch-icon.png',
+  '/pareja.jpg',
+  '/og-boda.jpg',
 ])
 
 function isPublic(rawPathname: string): boolean {
@@ -49,7 +57,9 @@ function isPublic(rawPathname: string): boolean {
   if (PUBLIC_EXACT.has(path)) return true
   return (
     path.startsWith('/i/') ||
+    path.startsWith('/nuestra-boda/') ||
     path.startsWith('/info/') ||
+    path.startsWith('/musica/') ||
     path.startsWith('/_next/')
   )
 }

@@ -100,6 +100,16 @@ export function SidebarPanel({ onNavigate }: { onNavigate?: () => void }) {
         })}
       </nav>
 
+      <a
+        href="/nuestra-boda"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mx-3 mb-1 flex items-center justify-between rounded-[var(--radius)] border border-dashed border-[var(--color-border)] px-3 py-2 text-sm text-[var(--color-muted-foreground)] transition-colors hover:border-[var(--color-accent)]/50 hover:text-[var(--color-foreground)]"
+      >
+        Ver la invitación
+        <span aria-hidden>↗</span>
+      </a>
+
       <InstallPwa />
     </div>
   );

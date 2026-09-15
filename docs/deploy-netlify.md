@@ -91,7 +91,7 @@ Contra el deploy (draft o prod):
 - [ ] La misma ruta **con credenciales** responde 200:
       `curl -u user:pass https://<sitio>/invitados` → 200.
 - [ ] El RSVP público **sin credenciales** responde 200 (no challenge):
-      `https://<sitio>/i/<token>`, `…/info` → 200.
+      `https://<sitio>/i/<token>`, `…/nuestra-boda` → 200 (`…/info` → 308 a `/nuestra-boda`).
 - [ ] Un **Server Action del back-office** POSTeado a una ruta pública sin
       credenciales es rechazado (no ejecuta) — la defensa server-side de
       `requireBackofficeAuth()`. El RSVP (`submitRsvp`) sí funciona sin ellas.

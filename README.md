@@ -3,7 +3,7 @@
 PWA para gestionar una sola boda. **App abierta, sin autenticación.** Dos superficies sobre una misma base de datos:
 
 - **Back-office** (`(host)`, raíz `/`) — gestión de invitados, presupuesto, proveedores, tareas, mesas y plano. Instalable como PWA. `robots: noindex`. El control de acceso, si lo hay, es a nivel de despliegue (URL privada, hosting con contraseña, uso local), no en la app.
-- **Cara al invitado** (`(public)`) — sin login, por link: invitación digital + RSVP (`/i/[token]`), web informativa y mesa de regalos (`/info`), fallback offline (`/~offline`).
+- **Cara al invitado** (`(public)`) — sin login, por link: una sola landing «Nuestra boda» con toda la información, la mesa de regalos y la confirmación. `/i/[token]` la muestra con el RSVP real del grupo; `/nuestra-boda` es la misma página sin token (`/info` redirige ahí). Todo el contenido se edita en **Configuración**; la foto (`public/pareja.jpg`), la imagen para compartir (`public/og-boda.jpg`) y la canción del reproductor flotante (`public/musica/nuestra-cancion.mp3`) son archivos estáticos. Fallback offline (`/~offline`).
 
 Stack: **Next.js 16** (App Router, React 19) · **Drizzle ORM + Supabase Postgres** (acceso server-side vía `postgres.js`) · **Tailwind v4** (CSS-first) · **Zod 4** · **Vitest + pglite** · **Playwright** · **pnpm**.
 

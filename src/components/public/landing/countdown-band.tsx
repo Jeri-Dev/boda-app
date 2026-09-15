@@ -1,21 +1,26 @@
 import { CalendarCard } from './calendar-card'
 import { Countdown } from './countdown'
+import { Edge } from './edges'
 import { BlossomSprig, PalmFrond } from './florals'
+import { Spotlight } from './motion'
 import { Ornament } from './ornament'
 import { Parallax } from './parallax'
+import { Petals } from './petals'
 import { Reveal } from './reveal'
 
 /**
- * Placa de tinta con las dos maneras de mirar la misma fecha: cuánto falta y en
- * qué casilla del mes cae. A partir de `md` van hombro con hombro, separadas
- * por un filete de champán.
+ * Placa de tinta con las dos maneras de mirar la misma fecha: cuánto falta y
+ * en qué casilla del mes cae. A partir de `md` van hombro con hombro,
+ * separadas por un filete de champán. Bordes rasgados arriba y abajo.
  */
 export function CountdownBand({ dateISO }: { dateISO: string }) {
   return (
     <section
       aria-label="Cuenta atrás para la boda"
-      className="relative isolate overflow-hidden px-5 py-20 sm:px-8 sm:py-24"
+      className="landing-ink relative isolate overflow-hidden px-5 py-24 sm:px-8 sm:py-32"
     >
+      <Edge position="top" />
+      <Edge position="bottom" />
       <div
         aria-hidden
         className="absolute inset-0 -z-20"
@@ -28,6 +33,7 @@ export function CountdownBand({ dateISO }: { dateISO: string }) {
         aria-hidden
         className="absolute inset-0 -z-10 bg-[radial-gradient(60%_60%_at_50%_0%,oklch(0.64_0.135_190/0.28),transparent_72%)]"
       />
+      <Spotlight />
 
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <Parallax
@@ -46,10 +52,11 @@ export function CountdownBand({ dateISO }: { dateISO: string }) {
             <BlossomSprig className="landing-sway w-full" />
           </div>
         </Parallax>
+        <Petals count={8} />
       </div>
 
       <div className="mx-auto grid max-w-4xl items-center gap-14 md:grid-cols-2 md:gap-0">
-        <Reveal className="text-center md:pr-12">
+        <Reveal variant="blur" className="text-center md:pr-12">
           <p className="text-[0.68rem] uppercase tracking-[0.38em] text-[var(--color-gold)]">
             El gran día se acerca
           </p>
@@ -73,12 +80,11 @@ export function CountdownBand({ dateISO }: { dateISO: string }) {
           </p>
         </Reveal>
 
-        {/* Filete divisorio: horizontal en móvil, vertical en escritorio. */}
         <div aria-hidden className="mx-auto w-32 text-[var(--color-gold)]/40 md:hidden">
           <Ornament />
         </div>
 
-        <Reveal delay={120} className="relative md:pl-12">
+        <Reveal variant="scale" delay={140} className="relative md:pl-12">
           <span
             aria-hidden
             className="absolute inset-y-2 left-0 hidden w-px bg-gradient-to-b from-transparent via-[var(--color-gold)]/35 to-transparent md:block"

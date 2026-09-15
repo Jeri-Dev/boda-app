@@ -35,7 +35,10 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' blob: data:",
+  // `https:` so the couple photo configured in /configuracion can be a hosted
+  // image (Supabase Storage, Cloudinary…). Images only — scripts/frames stay
+  // same-origin. Media (the landing's mp3) falls back to default-src 'self'.
+  "img-src 'self' blob: data: https:",
   "font-src 'self' data:",
   `connect-src 'self'${
     isDev ? " ws://127.0.0.1:* ws://localhost:* http://127.0.0.1:* http://localhost:*" : ""
@@ -98,6 +101,12 @@ const nextConfig: NextConfig = {
       {
         source: "/pendientes",
         destination: "/invitados/pendientes",
+        permanent: true,
+      },
+      // The public info page was merged into the «Nuestra boda» landing.
+      {
+        source: "/info",
+        destination: "/nuestra-boda",
         permanent: true,
       },
     ];

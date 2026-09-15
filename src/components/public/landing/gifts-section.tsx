@@ -2,16 +2,18 @@
 
 import { useState } from 'react'
 
-import type { BankAccount, WeddingContent } from '@/app/(public)/nuestra-boda/content'
+import type { GiftAccount, WeddingContent } from '@/lib/wedding-content'
 import { cn } from '@/lib/utils/cn'
 
+import { Edge } from './edges'
 import { BlossomSprig, PalmFrond } from './florals'
 import { Bank, Check, Copy, Envelope } from './icons'
+import { Spotlight } from './motion'
 import { SectionHeading } from './ornament'
 import { Parallax } from './parallax'
 import { Reveal } from './reveal'
 
-function AccountCard({ account }: { account: BankAccount }) {
+function AccountCard({ account }: { account: GiftAccount }) {
   const [copied, setCopied] = useState(false)
 
   async function copy() {
@@ -25,7 +27,7 @@ function AccountCard({ account }: { account: BankAccount }) {
   }
 
   return (
-    <div className="flex flex-col border border-[var(--color-gold)]/30 bg-[oklch(0.98_0.02_88/0.05)] p-6 text-left">
+    <div className="landing-ink-card flex flex-col p-6 text-left">
       <div className="flex items-start justify-between gap-3">
         <p className="text-[0.65rem] uppercase tracking-[0.28em] text-[var(--color-gold)]">
           {account.bank}
@@ -37,9 +39,11 @@ function AccountCard({ account }: { account: BankAccount }) {
         ) : null}
       </div>
 
-      <p className="mt-2 text-sm text-[oklch(0.92_0.02_88)]/80">
-        {account.holder} · {account.type}
-      </p>
+      {account.holder || account.type ? (
+        <p className="mt-2 text-sm text-[oklch(0.92_0.02_88)]/80">
+          {[account.holder, account.type].filter(Boolean).join(' · ')}
+        </p>
+      ) : null}
 
       <p className="mt-5 font-display text-[1.6rem] font-light tabular-nums tracking-wide text-[oklch(0.955_0.025_88)]">
         {account.number}
@@ -56,11 +60,11 @@ function AccountCard({ account }: { account: BankAccount }) {
         className={cn(
           'mt-6 inline-flex h-11 items-center justify-center gap-2 border px-4 text-sm transition-colors',
           copied
-            ? 'border-[var(--color-gold)] text-[var(--color-gold)]'
+            ? 'border-[var(--color-gold)] bg-[var(--color-gold)] text-[var(--color-ink)]'
             : 'border-[var(--color-gold)]/40 text-[oklch(0.94_0.02_88)] hover:bg-[var(--color-gold)] hover:text-[var(--color-ink)]',
         )}
       >
-        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+        {copied ? <Check className="landing-pop h-4 w-4" /> : <Copy className="h-4 w-4" />}
         {copied ? 'Número copiado' : 'Copiar número'}
       </button>
     </div>
@@ -68,21 +72,22 @@ function AccountCard({ account }: { account: BankAccount }) {
 }
 
 /**
- * Mesa de regalos sobre placa de tinta.
- *
- * Los novios prefieren el regalo monetario, así que las cuentas están a la
- * vista: esconderlas tras un desplegable obliga a buscar justo lo que se ha
- * venido a hacer. El orden del texto mantiene la cortesía —primero la
- * presencia, después la transferencia— pero no juega al despiste.
+ * Mesa de regalos sobre placa de tinta. Las cuentas están a la vista —
+ * esconderlas tras un desplegable obliga a buscar justo lo que se ha venido a
+ * hacer. El texto mantiene la cortesía: primero la presencia, después la
+ * transferencia.
  */
-export function GiftsSection({ data }: { data: WeddingContent }) {
-  const { gifts } = data
+export function GiftsSection({ content }: { content: WeddingContent }) {
+  const gifts = content.gifts
+  if (!gifts) return null
 
   return (
     <section
       id="regalos"
-      className="relative isolate scroll-mt-20 overflow-hidden px-5 py-20 sm:px-8 sm:py-28"
+      className="landing-ink relative isolate scroll-mt-20 overflow-hidden px-5 py-24 sm:px-8 sm:py-32"
     >
+      <Edge position="top" />
+      <Edge position="bottom" />
       <div
         aria-hidden
         className="absolute inset-0 -z-20"
@@ -95,6 +100,7 @@ export function GiftsSection({ data }: { data: WeddingContent }) {
         aria-hidden
         className="absolute inset-0 -z-10 bg-[radial-gradient(58%_55%_at_50%_10%,oklch(0.64_0.135_190/0.26),transparent_72%)]"
       />
+      <Spotlight />
 
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <Parallax
@@ -116,34 +122,53 @@ export function GiftsSection({ data }: { data: WeddingContent }) {
       </div>
 
       <div className="mx-auto max-w-3xl text-center">
-        <Reveal>
+        <Reveal variant="scale">
           <Bank className="mx-auto h-8 w-8 text-[var(--color-gold)]" />
         </Reveal>
 
-        <Reveal delay={60}>
-          <SectionHeading overline="Con cariño" title={gifts.intro} tone="ink" className="mt-6" />
+        <Reveal variant="line" delay={60}>
+          <SectionHeading overline="Con cariño" title="Mesa de regalos" tone="ink" className="mt-6" />
         </Reveal>
 
-        <Reveal delay={120}>
-          <p className="mx-auto mt-8 max-w-xl font-display text-[1.25rem] font-light leading-[1.7] text-[oklch(0.94_0.022_88)]/90">
-            {gifts.note}
-          </p>
-        </Reveal>
+        {gifts.message ? (
+          <Reveal variant="blur" delay={120}>
+            <p className="mx-auto mt-8 max-w-xl whitespace-pre-line font-display text-[1.25rem] font-light leading-[1.7] text-[oklch(0.94_0.022_88)]/90">
+              {gifts.message}
+            </p>
+          </Reveal>
+        ) : null}
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2">
-          {gifts.accounts.map((account, i) => (
-            <Reveal key={`${account.bank}-${i}`} delay={i * 100}>
-              <AccountCard account={account} />
-            </Reveal>
-          ))}
-        </div>
+        {gifts.accounts.length ? (
+          <div
+            className={cn(
+              'mt-12 grid gap-5',
+              gifts.accounts.length > 1 ? 'sm:grid-cols-2' : 'mx-auto max-w-md',
+            )}
+          >
+            {gifts.accounts.map((account, i) => (
+              <Reveal key={`${account.bank}-${i}`} variant="scale" delay={i * 100}>
+                <AccountCard account={account} />
+              </Reveal>
+            ))}
+          </div>
+        ) : null}
 
-        <Reveal delay={160}>
-          <p className="mx-auto mt-10 flex max-w-md items-center justify-center gap-2.5 text-sm text-[oklch(0.92_0.02_88)]/80">
-            <Envelope className="h-5 w-5 shrink-0 text-[var(--color-gold)]" />
-            {gifts.envelopeNote}
-          </p>
-        </Reveal>
+        {gifts.details ? (
+          <Reveal delay={140}>
+            <p className="mx-auto mt-8 max-w-md whitespace-pre-line border border-[var(--color-gold)]/25 px-5 py-4 text-sm leading-relaxed text-[oklch(0.94_0.02_88)]/85">
+              {gifts.details}
+            </p>
+          </Reveal>
+        ) : null}
+
+        {gifts.envelopeNote ? (
+          <Reveal delay={160}>
+            <p className="mx-auto mt-10 flex max-w-md items-center justify-center gap-2.5 text-sm text-[oklch(0.92_0.02_88)]/80">
+              <Envelope className="h-5 w-5 shrink-0 text-[var(--color-gold)]" />
+              {gifts.envelopeNote}
+            </p>
+          </Reveal>
+        ) : null}
       </div>
     </section>
   )

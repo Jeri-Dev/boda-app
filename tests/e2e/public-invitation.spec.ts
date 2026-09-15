@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test'
 
 /**
  * U2.2 — wedding config → create invitation → open the public invitation by
- * token → invalid token is handled gracefully. Self-cleaning (revokes + the
- * guest is deleted at the end so the list stays clean).
+ * token (the sealed envelope, then the landing with the guest's RSVP card) →
+ * invalid token is handled gracefully. Self-cleaning.
  */
 
 test.describe('Invitación pública (U2.2)', () => {
@@ -34,12 +34,9 @@ test.describe('Invitación pública (U2.2)', () => {
     // ── Create an invitation for that guest ──────────────────────────────
     await page.goto('/invitados/invitaciones')
     await page.getByRole('button', { name: 'Nueva invitación' }).click()
-    // The checkbox sits inside a <label> → its accessible name is the guest's.
     await page.getByRole('checkbox', { name: guestName }).check()
     await page.getByRole('button', { name: 'Crear invitación' }).click()
 
-    // Find OUR invitation card by the guest name, then read its link (robust to
-    // any other invitations in the list).
     const card = page.getByRole('listitem').filter({ hasText: guestName })
     const linkInput = card.getByLabel('Enlace de la invitación')
     await expect(linkInput).toBeVisible()
@@ -51,6 +48,7 @@ test.describe('Invitación pública (U2.2)', () => {
     // ── Open the public invitation by token ──────────────────────────────
     const pub = await context.newPage()
     await pub.goto(`/i/${token}`)
+    await pub.getByRole('button', { name: 'Abrir la invitación' }).click()
     await expect(pub.getByRole('heading', { name: couple })).toBeVisible()
     await expect(pub.getByText('Nos encantaría contar contigo.')).toBeVisible()
     await expect(pub.getByText(guestName)).toBeVisible()

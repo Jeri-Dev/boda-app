@@ -57,6 +57,13 @@
       "when": 1783183903800,
       "tag": "0007_timeline_events",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789507428050,
+      "tag": "0008_wedding_landing_content",
+      "breakpoints": true
     }
   ]
 }

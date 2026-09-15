@@ -21,9 +21,23 @@ const UNITS: { key: keyof Parts; label: string }[] = [
 ]
 
 /**
- * Cuenta atrás en vivo hacia la fecha del evento. Renderiza un estado estable
- * en el servidor/primer render (evita desajuste de hidratación) y arranca el
- * tick en `useEffect`. Va sobre los paneles de tinta.
+ * Un dígito que «rueda»: al cambiar, el nuevo valor entra desde abajo y el
+ * anterior sale por arriba (solo transform/opacity). El `key` fuerza el
+ * remount y con él la animación de entrada.
+ */
+function Digit({ value }: { value: string }) {
+  return (
+    <span className="landing-roll" aria-hidden>
+      <span key={value} className="landing-roll-in">
+        {value}
+      </span>
+    </span>
+  )
+}
+
+/**
+ * Cuenta atrás en vivo. Renderiza un estado estable en el servidor (evita
+ * desajuste de hidratación) y arranca el tick en `useEffect`. Sobre tinta.
  */
 export function Countdown({ dateISO }: { dateISO: string }) {
   const targetMs = new Date(dateISO).getTime()
@@ -35,7 +49,18 @@ export function Countdown({ dateISO }: { dateISO: string }) {
     return () => window.clearInterval(id)
   }, [targetMs])
 
-  const passed = parts && targetMs - Date.now() <= 0
+  const passed = parts !== null && targetMs - Date.now() <= 0
+
+  if (passed) {
+    return (
+      <p
+        className="text-[2.6rem] leading-tight text-[var(--color-gold)] sm:text-5xl"
+        style={{ fontFamily: 'var(--font-script)' }}
+      >
+        ¡Hoy es el gran día!
+      </p>
+    )
+  }
 
   return (
     <div
@@ -44,24 +69,34 @@ export function Countdown({ dateISO }: { dateISO: string }) {
       aria-live="off"
       aria-label="Cuenta atrás para la boda"
     >
-      {UNITS.map(({ key, label }, i) => (
-        <div key={key} className="flex items-center gap-2 sm:gap-3">
-          <div className="flex min-w-[3.9rem] flex-col items-center border border-[var(--color-gold)]/30 bg-[oklch(0.98_0.02_88/0.05)] px-3 py-3.5 sm:min-w-[5rem] sm:px-4">
-            <span className="font-display text-3xl font-light tabular-nums leading-none text-[oklch(0.955_0.025_88)] sm:text-[2.75rem]">
-              {parts ? String(parts[key]).padStart(2, '0') : '––'}
-            </span>
-            <span className="mt-2 text-[0.58rem] uppercase tracking-[0.22em] text-[oklch(0.92_0.02_88)]/75 sm:text-[0.62rem]">
-              {label}
-            </span>
+      {UNITS.map(({ key, label }, i) => {
+        const raw = parts ? String(parts[key]).padStart(2, '0') : '––'
+        return (
+          <div key={key} className="flex items-center gap-2 sm:gap-3">
+            <div className="landing-count-cell flex min-w-[3.9rem] flex-col items-center px-3 py-3.5 sm:min-w-[5rem] sm:px-4">
+              <span className="sr-only">
+                {raw} {label}
+              </span>
+              <span className="flex font-display text-3xl font-light tabular-nums leading-none text-[oklch(0.955_0.025_88)] sm:text-[2.75rem]">
+                {raw.split('').map((ch, j) => (
+                  <Digit key={j} value={ch} />
+                ))}
+              </span>
+              <span
+                aria-hidden
+                className="mt-2 text-[0.58rem] uppercase tracking-[0.22em] text-[oklch(0.92_0.02_88)]/75 sm:text-[0.62rem]"
+              >
+                {label}
+              </span>
+            </div>
+            {i < UNITS.length - 1 ? (
+              <span aria-hidden className="landing-colon font-display text-xl text-[var(--color-gold)]/50">
+                :
+              </span>
+            ) : null}
           </div>
-          {i < UNITS.length - 1 ? (
-            <span aria-hidden className="font-display text-xl text-[var(--color-gold)]/50">
-              :
-            </span>
-          ) : null}
-        </div>
-      ))}
-      {passed ? <span className="sr-only">¡Hoy es el gran día!</span> : null}
+        )
+      })}
     </div>
   )
 }

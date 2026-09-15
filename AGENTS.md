@@ -9,7 +9,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 PWA to manage a single wedding. **The app is open — there is NO authentication.** Two surfaces, one database:
 
 - **Back-office** (`(host)` route group) — wedding management (guests, budget, vendors, tasks, tables, floor plan). Lives at the app root `/`. `robots: noindex`. Access control, if any, is at the deployment layer (private URL, password-protected hosting, local use) — never in the app.
-- **Guest-facing** (`(public)` route group) — `/i/[token]` invitation + RSVP, `/info` web + gift registry, `/~offline` fallback.
+- **Guest-facing** (`(public)` route group) — ONE landing («Nuestra boda», `src/components/public/landing/`) served at `/nuestra-boda` (no token: info + «confirm from your link») and `/i/[token]` (same page + the group's real RSVP card). `/info` is a 308 to `/nuestra-boda`. `/~offline` fallback. Every landing text/number/place/link comes from the `wedding` row via `src/lib/wedding-content.ts` (pure mapper; empty field = hidden block). Media are static files: `public/pareja.jpg` (photo), `public/og-boda.jpg` (share preview), `public/musica/nuestra-cancion.mp3` (floating player).
 
 Stack: Next.js 16 (App Router, React 19) · **Drizzle ORM + Supabase Postgres** (server-side via `postgres.js`) · Tailwind v4 (CSS-first, no `tailwind.config.ts`) · Zod 4 · Vitest + pglite · Playwright · pnpm.
 

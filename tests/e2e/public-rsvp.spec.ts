@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
 
 /**
- * U2.3 — public RSVP. A guest confirms from their link (attendance + message),
- * and it flows into the host's guest list, tagged "por el invitado"
- * (last_modified_source). Self-cleaning.
+ * U2.3 — public RSVP from the unified landing. A guest opens the envelope,
+ * confirms (attendance + message) from the RSVP card, and it flows into the
+ * host's guest list, tagged "por el invitado" (last_modified_source).
+ * Self-cleaning.
  */
 
 test.describe('RSVP público (U2.3)', () => {
@@ -29,9 +30,10 @@ test.describe('RSVP público (U2.3)', () => {
     const url = await card.getByLabel('Enlace de la invitación').inputValue()
     const token = url.split('/i/')[1]
 
-    // ── Guest: open the link and confirm ─────────────────────────────────
+    // ── Guest: open the envelope and confirm ─────────────────────────────
     const guest = await context.newPage()
     await guest.goto(`/i/${token}`)
+    await guest.getByRole('button', { name: 'Abrir la invitación' }).click()
     await expect(
       guest.getByRole('heading', { name: 'Confirma tu asistencia' }),
     ).toBeVisible()

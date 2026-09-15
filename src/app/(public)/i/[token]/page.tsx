@@ -1,21 +1,23 @@
-import type { Metadata } from 'next'
-import { eq } from 'drizzle-orm'
+import type { Metadata, Viewport } from 'next'
 
-import { Invitation, InvitationInvalid } from '@/components/public/invitation'
+import { InvitationInvalid } from '@/components/public/landing/invitation-invalid'
+import { WeddingLanding } from '@/components/public/landing/wedding-landing'
 import { getRsvpView } from '@/lib/data/rsvp'
-import { db } from '@/lib/db'
-import { wedding } from '@/lib/db/schema'
+import { getWeddingContent } from '@/lib/data/wedding'
+import { landingMetadata } from '@/lib/landing-metadata'
 
 /**
- * Public invitation by token (U2.2). Genuinely public (no auth). The token is a
- * bearer secret in the path → `noindex, nofollow` (root layout already sets it;
- * reasserted here) and the app sends `Referrer-Policy: no-referrer` globally.
- *
- * Per-request render: the token comes from the URL, so this is always dynamic.
+ * Invitación personal por token (U2.2 + landing unificada). Misma página que
+ * /nuestra-boda con el RSVP real del grupo. Genuinamente pública (sin auth).
+ * El token es un secreto en la URL → `noindex, nofollow` y la app envía
+ * `Referrer-Policy: no-referrer` globalmente. Render por petición: el token
+ * viene de la URL, así que siempre es dinámica.
  */
-export const metadata: Metadata = {
-  title: 'Invitación',
-  robots: { index: false, follow: false },
+export const viewport: Viewport = { themeColor: '#184648' }
+
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await getWeddingContent()
+  return landingMetadata(content, `Invitación · ${content.couple.names}`)
 }
 
 export default async function InvitationPage({
@@ -24,14 +26,11 @@ export default async function InvitationPage({
   params: Promise<{ token: string }>
 }) {
   const { token } = await params
-  const view = await getRsvpView(token)
+  const [view, content] = await Promise.all([getRsvpView(token), getWeddingContent()])
 
   if (view.state !== 'valid') {
     return <InvitationInvalid />
   }
 
-  const weddingRow =
-    (await db.select().from(wedding).where(eq(wedding.id, 1)).limit(1))[0] ?? null
-
-  return <Invitation view={view} wedding={weddingRow} token={token} />
+  return <WeddingLanding content={content} rsvp={{ token, view }} />
 }

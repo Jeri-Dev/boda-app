@@ -70,7 +70,7 @@ export function CoupleImage({
           {monogram}
         </span>
         {compact ? null : (
-          <span className="text-[0.65rem] uppercase tracking-[0.25em] text-[var(--color-muted-foreground)]">
+          <span className="text-[0.65rem] uppercase tracking-[0.25em] indent-[0.25em] text-[var(--color-muted-foreground)]">
             Aquí va nuestra foto
           </span>
         )}

@@ -25,7 +25,12 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
   return (
     <ol
       ref={ref}
-      className={cn('landing-timeline relative ml-5 pl-9 sm:ml-10', inView && 'is-shown')}
+      className={cn(
+        // `inline-block` para que el padre pueda centrar el bloque en móvil;
+        // el `ml-5` reserva el carril de los nodos y entra en ese centrado.
+        'landing-timeline relative ml-5 inline-block max-w-full pl-9 text-left sm:ml-10 sm:block',
+        inView && 'is-shown',
+      )}
     >
       <span aria-hidden className="landing-timeline-line" />
       {items.map((item, i) => {

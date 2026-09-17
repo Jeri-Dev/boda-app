@@ -24,9 +24,9 @@ function PlaceCard({
   return (
     <Reveal variant="scale" delay={index * 120}>
       <Tilt max={4} className="h-full">
-        <div className="landing-card relative flex h-full flex-col p-8">
+        <div className="landing-card relative flex h-full flex-col p-6 sm:p-8">
           <CornerAccents />
-          <p className="text-[0.65rem] uppercase tracking-[0.34em] text-[var(--color-accent)]">
+          <p className="text-[0.65rem] uppercase tracking-[0.3em] text-[var(--color-accent)] sm:tracking-[0.34em]">
             {label}
           </p>
           <h3 className="mt-3 font-display text-[1.75rem] font-light leading-tight text-[var(--color-foreground)]">
@@ -66,7 +66,7 @@ function PlaceCard({
               href={place.mapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group mt-7 inline-flex h-11 items-center justify-center gap-2 self-start border border-[var(--color-accent)]/45 px-5 text-sm text-[var(--color-accent)] transition-colors hover:bg-[var(--color-accent)] hover:text-[var(--color-accent-foreground)]"
+              className="group mt-7 inline-flex h-11 items-center justify-center gap-2 self-stretch border border-[var(--color-accent)]/45 px-5 text-sm text-[var(--color-accent)] transition-colors hover:bg-[var(--color-accent)] hover:text-[var(--color-accent-foreground)] sm:self-start"
             >
               Cómo llegar
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />

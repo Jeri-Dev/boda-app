@@ -63,8 +63,10 @@ export function Countdown({ dateISO }: { dateISO: string }) {
   }
 
   return (
+    // Las cuatro celdas tienen que caber en 320 px sin recortarse: la sección
+    // va con `overflow-hidden`, así que lo que se sale desaparece.
     <div
-      className="flex items-stretch justify-center gap-2 sm:gap-3"
+      className="flex items-stretch justify-center gap-1.5 sm:gap-3"
       role="timer"
       aria-live="off"
       aria-label="Cuenta atrás para la boda"
@@ -72,25 +74,25 @@ export function Countdown({ dateISO }: { dateISO: string }) {
       {UNITS.map(({ key, label }, i) => {
         const raw = parts ? String(parts[key]).padStart(2, '0') : '––'
         return (
-          <div key={key} className="flex items-center gap-2 sm:gap-3">
-            <div className="landing-count-cell flex min-w-[3.9rem] flex-col items-center px-3 py-3.5 sm:min-w-[5rem] sm:px-4">
+          <div key={key} className="flex items-center gap-1.5 sm:gap-3">
+            <div className="landing-count-cell flex min-w-[3.25rem] flex-col items-center px-2 py-3 sm:min-w-[5rem] sm:px-4 sm:py-3.5">
               <span className="sr-only">
                 {raw} {label}
               </span>
-              <span className="flex font-display text-3xl font-light tabular-nums leading-none text-[oklch(0.955_0.025_88)] sm:text-[2.75rem]">
+              <span className="flex font-display text-[1.7rem] font-light tabular-nums leading-none text-[oklch(0.955_0.025_88)] sm:text-[2.75rem]">
                 {raw.split('').map((ch, j) => (
                   <Digit key={j} value={ch} />
                 ))}
               </span>
               <span
                 aria-hidden
-                className="mt-2 text-[0.58rem] uppercase tracking-[0.22em] text-[oklch(0.92_0.02_88)]/75 sm:text-[0.62rem]"
+                className="mt-2 text-[0.54rem] uppercase tracking-[0.16em] indent-[0.16em] text-[oklch(0.92_0.02_88)]/75 sm:text-[0.62rem] sm:tracking-[0.22em] sm:indent-[0.22em]"
               >
                 {label}
               </span>
             </div>
             {i < UNITS.length - 1 ? (
-              <span aria-hidden className="landing-colon font-display text-xl text-[var(--color-gold)]/50">
+              <span aria-hidden className="landing-colon font-display text-base text-[var(--color-gold)]/50 sm:text-xl">
                 :
               </span>
             ) : null}

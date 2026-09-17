@@ -256,7 +256,11 @@ html.landing-lock {
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.9rem;
+  /* El texto no debe partirse: los filetes lo empujarían contra los bordes. */
+  white-space: nowrap;
+  text-align: center;
   font-size: 0.66rem;
   letter-spacing: 0.34em;
   text-transform: uppercase;
@@ -266,9 +270,24 @@ html.landing-lock {
 }
 
 .landing-intro-hint-line {
+  flex: none;
   width: 2rem;
   height: 1px;
   background: oklch(0.855 0.058 84 / 0.5);
+}
+
+/* Móviles estrechos: menos letra espaciada y filetes más cortos para que la
+   pista quepa en una sola línea. */
+@media (max-width: 420px) {
+  .landing-intro-hint {
+    gap: 0.6rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+  }
+
+  .landing-intro-hint-line {
+    width: 1.1rem;
+  }
 }
 
 @keyframes landing-hint {
@@ -1229,6 +1248,33 @@ textarea.landing-input {
 
 .landing-player.is-muted .landing-player-mute {
   color: oklch(0.945 0.028 88 / 0.55);
+}
+
+/*
+ * En móvil el reproductor se encoge. Flota sobre el contenido y a tamaño
+ * completo se comía los botones del hero y el final del pie. (Va al final de
+ * la sección para ganar a las reglas base por orden.)
+ */
+@media (max-width: 640px) {
+  .landing-player {
+    gap: 0.15rem;
+    padding: 0.25rem 0.3rem 0.25rem 0.25rem;
+  }
+
+  .landing-player-disc {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+
+  .landing-player-mute {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .landing-player-title {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+  }
 }
 
 /* ---------------------------------------------------------------------- */

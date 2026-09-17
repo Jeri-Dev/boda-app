@@ -55,9 +55,11 @@ export function CountdownBand({ dateISO }: { dateISO: string }) {
         <Petals count={8} />
       </div>
 
+      {/* `min-w-0` en las columnas: sin él, un hijo ancho (la cuenta atrás)
+          estira la columna y el resto del bloque se recorta en móvil. */}
       <div className="mx-auto grid max-w-4xl items-center gap-14 md:grid-cols-2 md:gap-0">
-        <Reveal variant="blur" className="text-center md:pr-12">
-          <p className="text-[0.68rem] uppercase tracking-[0.38em] text-[var(--color-gold)]">
+        <Reveal variant="blur" className="min-w-0 text-center md:pr-12">
+          <p className="text-[0.68rem] uppercase tracking-[0.38em] indent-[0.38em] text-[var(--color-gold)]">
             El gran día se acerca
           </p>
           <p
@@ -84,7 +86,7 @@ export function CountdownBand({ dateISO }: { dateISO: string }) {
           <Ornament />
         </div>
 
-        <Reveal variant="scale" delay={140} className="relative md:pl-12">
+        <Reveal variant="scale" delay={140} className="relative min-w-0 md:pl-12">
           <span
             aria-hidden
             className="absolute inset-y-2 left-0 hidden w-px bg-gradient-to-b from-transparent via-[var(--color-gold)]/35 to-transparent md:block"

@@ -63,7 +63,7 @@ export function InvitationSection({ content }: { content: WeddingContent }) {
             <div className="landing-parents mt-10 grid gap-6 border-y border-[var(--color-border)] py-7 sm:grid-cols-2">
               {couple.parents.map((group) => (
                 <div key={group.line} className="text-center">
-                  <p className="text-[0.62rem] uppercase tracking-[0.3em] text-[var(--color-accent)]">
+                  <p className="text-[0.62rem] uppercase tracking-[0.3em] indent-[0.3em] text-[var(--color-accent)]">
                     {group.line}
                   </p>
                   <ul className="mt-2 space-y-0.5">
@@ -83,15 +83,18 @@ export function InvitationSection({ content }: { content: WeddingContent }) {
         ) : null}
 
         {/* Foto en arco con eco en champán */}
-        <Reveal variant="scale" delay={120} className="mt-14 flex justify-center">
-          <Tilt max={4} className="relative w-[min(74vw,20rem)]">
+        {/* Los dos arcos de eco salen hacia arriba y hacia la derecha: el
+            `pr-*` del contenedor devuelve el conjunto al centro óptico, y en
+            móvil el desplazamiento se reduce para que no se salgan de página. */}
+        <Reveal variant="scale" delay={120} className="mt-14 flex justify-center pr-3 sm:pr-6">
+          <Tilt max={4} className="relative w-[min(70vw,20rem)]">
             <div
               aria-hidden
-              className="absolute -inset-2.5 -z-10 translate-x-3 -translate-y-3 rounded-t-[999px] border border-[var(--color-gold-deep)]/70"
+              className="absolute -inset-2 -z-10 translate-x-1.5 -translate-y-1.5 rounded-t-[999px] border border-[var(--color-gold-deep)]/70 sm:-inset-2.5 sm:translate-x-3 sm:-translate-y-3"
             />
             <div
               aria-hidden
-              className="absolute -inset-5 -z-20 translate-x-6 -translate-y-6 rounded-t-[999px] border border-[var(--color-gold-deep)]/30"
+              className="absolute -inset-4 -z-20 translate-x-3 -translate-y-3 rounded-t-[999px] border border-[var(--color-gold-deep)]/30 sm:-inset-5 sm:translate-x-6 sm:-translate-y-6"
             />
             <div className="landing-arch overflow-hidden rounded-t-[999px] border border-[var(--color-border)] bg-[var(--color-muted)] shadow-[var(--shadow-warm)]">
               <CoupleImage
@@ -107,7 +110,7 @@ export function InvitationSection({ content }: { content: WeddingContent }) {
         {story.length ? (
           <div className="mx-auto mt-14 max-w-xl">
             <Reveal variant="line">
-              <p className="text-center text-[0.65rem] uppercase tracking-[0.36em] text-[var(--color-accent)]">
+              <p className="text-center text-[0.65rem] uppercase tracking-[0.36em] indent-[0.36em] text-[var(--color-accent)]">
                 Nuestra historia
               </p>
             </Reveal>
@@ -134,7 +137,7 @@ export function InvitationSection({ content }: { content: WeddingContent }) {
                 {quote.text}
               </p>
               {quote.attribution ? (
-                <footer className="mt-5 text-[0.65rem] uppercase tracking-[0.36em] text-[var(--color-muted-foreground)]">
+                <footer className="mt-5 text-[0.65rem] uppercase tracking-[0.36em] indent-[0.36em] text-[var(--color-muted-foreground)]">
                   {quote.attribution}
                 </footer>
               ) : null}

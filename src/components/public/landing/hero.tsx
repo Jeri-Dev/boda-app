@@ -25,9 +25,12 @@ export function Hero({ content }: { content: WeddingContent }) {
   const placeLine = event.city ?? content.ceremony?.place ?? null
 
   return (
+    // El ritmo vertical se comprime en móvil y `pb-28` reserva la franja donde
+    // flotan el indicador de scroll y el reproductor: así el hero cabe en una
+    // pantalla de 667 px sin dejar el botón principal bajo la línea de flotación.
     <section
       id="inicio"
-      className="landing-hero relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden px-5 pb-16 pt-24 text-center sm:px-8"
+      className="landing-hero relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden px-5 pb-28 pt-20 text-center sm:px-8 sm:pb-16 sm:pt-24"
     >
       {/* Tinta con la luz cayendo desde arriba */}
       <div
@@ -85,13 +88,13 @@ export function Hero({ content }: { content: WeddingContent }) {
       <div className="landing-enter" style={{ '--i': 0 } as React.CSSProperties}>
         <Seal
           monogram={couple.monogram}
-          className="landing-seal-float h-[4.5rem] w-[4.5rem] text-[var(--color-gold)] sm:h-20 sm:w-20"
+          className="landing-seal-float h-16 w-16 text-[var(--color-gold)] sm:h-20 sm:w-20"
           monogramClassName="text-[1.35rem] sm:text-2xl"
         />
       </div>
 
       <p
-        className="landing-enter mt-7 text-[0.68rem] uppercase tracking-[0.42em] text-[var(--color-gold)]"
+        className="landing-enter mt-6 text-[0.68rem] uppercase tracking-[0.42em] indent-[0.42em] text-[var(--color-gold)] sm:mt-7"
         style={{ '--i': 1 } as React.CSSProperties}
       >
         {tagline}
@@ -123,27 +126,29 @@ export function Hero({ content }: { content: WeddingContent }) {
 
       {placeLine ? (
         <p
-          className="landing-enter mt-7 flex items-center gap-1.5 text-sm text-[oklch(0.92_0.02_88)]/80"
+          className="landing-enter mt-6 flex max-w-[22rem] items-center justify-center gap-1.5 text-balance px-2 text-sm text-[oklch(0.92_0.02_88)]/80 sm:mt-7 sm:max-w-none"
           style={{ '--i': 4 } as React.CSSProperties}
         >
-          <MapPin className="h-4 w-4 text-[var(--color-gold)]" />
+          <MapPin className="h-4 w-4 shrink-0 text-[var(--color-gold)]" />
           {placeLine}
         </p>
       ) : null}
 
+      {/* En móvil los dos botones comparten ancho (si no, quedan escalonados y
+          el bloque se ve descentrado); en sm vuelven a ir en fila. */}
       <div
-        className="landing-enter mt-10 flex flex-col items-center gap-3 sm:flex-row sm:gap-4"
+        className="landing-enter mt-7 flex w-full max-w-[18rem] flex-col items-stretch gap-2.5 sm:mt-10 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:gap-4"
         style={{ '--i': 5 } as React.CSSProperties}
       >
         <a
           href="#confirmar"
-          className="landing-shine inline-flex h-12 items-center justify-center bg-[var(--color-gold)] px-7 text-[0.72rem] uppercase tracking-[0.22em] text-[var(--color-ink)] shadow-[0_10px_30px_oklch(0.2_0.05_195/0.35)] transition-transform duration-300 hover:-translate-y-0.5"
+          className="landing-shine inline-flex h-11 items-center justify-center bg-[var(--color-gold)] px-7 text-[0.72rem] uppercase tracking-[0.22em] indent-[0.22em] text-[var(--color-ink)] shadow-[0_10px_30px_oklch(0.2_0.05_195/0.35)] transition-transform duration-300 hover:-translate-y-0.5 sm:h-12"
         >
           Confirmar asistencia
         </a>
         <a
           href="#invitacion"
-          className="inline-flex h-12 items-center justify-center border border-[var(--color-gold)]/45 px-7 text-[0.72rem] uppercase tracking-[0.22em] text-[var(--color-gold)] transition-colors hover:bg-[var(--color-gold)]/10"
+          className="inline-flex h-11 items-center justify-center border border-[var(--color-gold)]/45 px-7 text-[0.72rem] uppercase tracking-[0.22em] indent-[0.22em] text-[var(--color-gold)] transition-colors hover:bg-[var(--color-gold)]/10 sm:h-12"
         >
           Abrir la invitación
         </a>
@@ -152,7 +157,7 @@ export function Hero({ content }: { content: WeddingContent }) {
       <a
         href="#invitacion"
         aria-label="Bajar a la invitación"
-        className="landing-enter group absolute bottom-7 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-[oklch(0.92_0.02_88)]/60 transition-colors hover:text-[var(--color-gold)]"
+        className="landing-enter group absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-[oklch(0.92_0.02_88)]/60 transition-colors hover:text-[var(--color-gold)] sm:bottom-7"
         style={{ '--i': 6 } as React.CSSProperties}
       >
         <span className="landing-scroll-line" aria-hidden />
@@ -180,26 +185,34 @@ function DateStamp({
   time: string | null
 }) {
   return (
-    <div className="landing-enter mt-9" style={{ '--i': 3 } as React.CSSProperties}>
-      <p className="text-[0.68rem] uppercase tracking-[0.42em] text-[var(--color-gold)]/85">{month}</p>
-      <div className="mt-3 flex items-center justify-center gap-5 sm:gap-7">
-        <span className="landing-hairline h-px w-10 sm:w-14" />
-        <span className="text-[0.72rem] uppercase tracking-[0.24em] text-[oklch(0.92_0.02_88)]/75">
+    <div
+      className="landing-enter mt-7 w-full max-w-[26rem] sm:mt-9 sm:max-w-none"
+      style={{ '--i': 3 } as React.CSSProperties}
+    >
+      <p className="text-[0.68rem] uppercase tracking-[0.42em] indent-[0.42em] text-[var(--color-gold)]/85">
+        {month}
+      </p>
+      {/* Los filetes son elásticos (`flex-1` con tope): así el grupo central
+          queda centrado exacto y en pantallas estrechas se acortan en vez de
+          empujar el día fuera de la caja. */}
+      <div className="mt-2.5 flex items-center justify-center gap-3 sm:mt-3 sm:gap-7">
+        <span className="landing-hairline h-px max-w-10 min-w-3 flex-1 sm:max-w-14" />
+        <span className="shrink-0 text-[0.72rem] uppercase tracking-[0.18em] indent-[0.18em] text-[oklch(0.92_0.02_88)]/75 sm:tracking-[0.24em] sm:indent-[0.24em]">
           {weekday}
         </span>
         <span
-          className="font-display text-[2.7rem] font-light leading-none text-[oklch(0.955_0.025_88)] sm:text-5xl"
+          className="shrink-0 font-display text-[2.7rem] font-light leading-none text-[oklch(0.955_0.025_88)] sm:text-5xl"
           style={{ fontVariantNumeric: 'lining-nums' }}
         >
           {day}
         </span>
-        <span className="text-[0.72rem] uppercase tracking-[0.24em] text-[oklch(0.92_0.02_88)]/75">
+        <span className="shrink-0 text-[0.72rem] uppercase tracking-[0.18em] indent-[0.18em] text-[oklch(0.92_0.02_88)]/75 sm:tracking-[0.24em] sm:indent-[0.24em]">
           {year}
         </span>
-        <span className="landing-hairline h-px w-10 sm:w-14" />
+        <span className="landing-hairline h-px max-w-10 min-w-3 flex-1 sm:max-w-14" />
       </div>
       {time ? (
-        <p className="mt-3 text-[0.72rem] uppercase tracking-[0.3em] text-[var(--color-gold)]/85">
+        <p className="mt-2.5 text-[0.72rem] uppercase tracking-[0.3em] indent-[0.3em] text-[var(--color-gold)]/85 sm:mt-3">
           {time}
         </p>
       ) : null}

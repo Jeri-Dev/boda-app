@@ -115,7 +115,7 @@ function NoTokenCard({ contact }: { contact: { href: string } | null }) {
           href={contact.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="landing-shine mt-7 inline-flex h-12 items-center justify-center gap-2 bg-[var(--color-accent)] px-6 text-[0.72rem] uppercase tracking-[0.18em] text-[var(--color-accent-foreground)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5"
+          className="landing-shine mt-7 inline-flex h-12 items-center justify-center gap-2 bg-[var(--color-accent)] px-6 text-[0.72rem] uppercase tracking-[0.18em] indent-[0.18em] text-[var(--color-accent-foreground)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5"
         >
           <Whatsapp className="h-4 w-4" />
           ¿No tienes tu enlace? Escríbenos
@@ -294,7 +294,7 @@ function RsvpForm({
           type="submit"
           disabled={pending}
           aria-busy={pending}
-          className="landing-shine inline-flex h-12 w-full items-center justify-center gap-2 bg-[var(--color-accent)] px-7 text-[0.75rem] uppercase tracking-[0.2em] text-[var(--color-accent-foreground)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-warm)] disabled:cursor-progress disabled:opacity-60 sm:w-auto"
+          className="landing-shine inline-flex h-12 w-full items-center justify-center gap-2 bg-[var(--color-accent)] px-7 text-[0.75rem] uppercase tracking-[0.2em] indent-[0.2em] text-[var(--color-accent-foreground)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-warm)] disabled:cursor-progress disabled:opacity-60 sm:w-auto"
         >
           {pending ? 'Enviando…' : 'Enviar confirmación'}
           {!pending ? <Check className="h-4 w-4" /> : null}

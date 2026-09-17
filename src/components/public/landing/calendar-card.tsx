@@ -15,11 +15,14 @@ export function CalendarCard({ dateISO }: { dateISO: string }) {
 
   return (
     <div ref={ref} className={`mx-auto w-full max-w-sm ${inView ? 'is-shown' : ''}`}>
-      <p className="text-center text-[0.68rem] uppercase tracking-[0.38em] text-[var(--color-gold)]">
+      <p className="text-center text-[0.68rem] uppercase tracking-[0.38em] indent-[0.38em] text-[var(--color-gold)]">
         {monthLabel} {year}
       </p>
 
-      <table className="mt-5 w-full border-separate border-spacing-y-1.5 text-center">
+      {/* `table-fixed`: las siete columnas miden lo mismo pase lo que pase. Sin
+          él, la casilla del día (que lleva el disco) ensancha su columna y la
+          retícula se desalinea. */}
+      <table className="mt-5 w-full table-fixed border-separate border-spacing-y-1.5 text-center">
         <caption className="sr-only">
           Calendario de {monthLabel} de {year}; la boda es el día {day}.
         </caption>
@@ -29,7 +32,7 @@ export function CalendarCard({ dateISO }: { dateISO: string }) {
               <th
                 key={i}
                 scope="col"
-                className="pb-2 text-[0.62rem] font-normal uppercase tracking-[0.14em] text-[oklch(0.92_0.02_88)]/65"
+                className="pb-2 text-[0.62rem] font-normal uppercase tracking-[0.14em] indent-[0.14em] text-[oklch(0.92_0.02_88)]/65"
               >
                 {initial}
               </th>
@@ -40,10 +43,10 @@ export function CalendarCard({ dateISO }: { dateISO: string }) {
           {weeks.map((week, wi) => (
             <tr key={wi}>
               {week.map((cell, ci) => {
-                if (cell === null) return <td key={ci} />
+                if (cell === null) return <td key={ci} className="h-9" />
                 if (cell === day) {
                   return (
-                    <td key={ci}>
+                    <td key={ci} className="h-9">
                       <span className="relative inline-flex h-9 w-9 items-center justify-center">
                         <svg
                           aria-hidden

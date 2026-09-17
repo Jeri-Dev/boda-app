@@ -27,7 +27,9 @@ export function Footer({
 
   return (
     <footer
-      className="landing-ink relative overflow-hidden px-5 pb-16 pt-24 text-center sm:px-8 sm:pt-28"
+      // `pb-28` en móvil: el reproductor flota sobre la esquina inferior y a
+      // `pb-16` tapaba la última línea del pie.
+      className="landing-ink relative overflow-hidden px-5 pb-28 pt-24 text-center sm:px-8 sm:pb-16 sm:pt-28"
       style={{
         background: 'linear-gradient(180deg, var(--color-ink), oklch(0.235 0.055 199))',
       }}
@@ -71,7 +73,7 @@ export function Footer({
         </div>
 
         {event.startISO ? (
-          <p className="mt-7 text-[0.72rem] uppercase tracking-[0.3em] text-[oklch(0.93_0.02_88)]/85">
+          <p className="mt-7 text-balance text-[0.72rem] uppercase tracking-[0.22em] indent-[0.22em] text-[oklch(0.93_0.02_88)]/85 sm:tracking-[0.3em] sm:indent-[0.3em]">
             {formatLongDateEs(event.startISO)}
             {event.timeLabel ? ` · ${event.timeLabel}` : ''}
           </p>
@@ -91,7 +93,7 @@ export function Footer({
 
         {calendar ? (
           <Reveal delay={100} className="mt-9">
-            <p className="mb-4 text-[0.65rem] uppercase tracking-[0.34em] text-[var(--color-gold)]/80">
+            <p className="mb-4 text-[0.65rem] uppercase tracking-[0.34em] indent-[0.34em] text-[var(--color-gold)]/80">
               Guarda la fecha
             </p>
             <AddToCalendar event={calendar} />
@@ -103,7 +105,7 @@ export function Footer({
             href={contact.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 inline-flex items-center gap-2 border border-[var(--color-gold)]/40 px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--color-gold)] transition-colors hover:bg-[var(--color-gold)] hover:text-[var(--color-ink)]"
+            className="mt-8 inline-flex h-11 items-center justify-center gap-2 border border-[var(--color-gold)]/40 px-5 text-[0.7rem] uppercase tracking-[0.2em] indent-[0.2em] text-[var(--color-gold)] transition-colors hover:bg-[var(--color-gold)] hover:text-[var(--color-ink)]"
           >
             <Whatsapp className="h-4 w-4" />
             Escríbenos por WhatsApp

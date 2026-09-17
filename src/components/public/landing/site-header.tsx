@@ -116,7 +116,7 @@ export function SiteHeader({
         <a
           href="#confirmar"
           className={cn(
-            'landing-shine hidden border px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.2em] transition-colors md:inline-block',
+            'landing-shine hidden border px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.2em] indent-[0.2em] transition-colors md:inline-block',
             onInk
               ? 'border-[var(--color-gold)]/50 text-[var(--color-gold)] hover:bg-[var(--color-gold)] hover:text-[var(--color-ink)]'
               : 'border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-accent-foreground)] hover:bg-transparent hover:text-[var(--color-accent)]',
@@ -125,11 +125,14 @@ export function SiteHeader({
           Confirmar
         </a>
 
-        <div className="flex items-center gap-1.5 md:hidden">
+        {/* El botón de confirmar se oculta con el menú abierto: ahí ya está la
+            llamada a la acción a ancho completo, y así el aspa respira. */}
+        <div className="flex items-center gap-1 md:hidden">
           <a
             href="#confirmar"
             className={cn(
-              'border px-3.5 py-2 text-[0.65rem] uppercase tracking-[0.18em] transition-colors',
+              'border px-3 py-2 text-[0.6rem] uppercase tracking-[0.14em] indent-[0.14em] transition-opacity',
+              open && 'pointer-events-none opacity-0',
               onInk
                 ? 'border-[var(--color-gold)]/50 text-[var(--color-gold)]'
                 : 'border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-accent-foreground)]',
@@ -162,11 +165,12 @@ export function SiteHeader({
       <div
         id="menu-movil"
         className={cn(
-          'overflow-hidden border-t border-[var(--color-border)]/60 bg-[var(--color-background)]/97 backdrop-blur-md transition-[max-height,opacity] duration-300 md:hidden',
-          open ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0',
+          'overflow-y-auto overscroll-contain border-t border-[var(--color-border)]/60 bg-[var(--color-background)]/97 backdrop-blur-md transition-[max-height,opacity] duration-300 md:hidden',
+          // Cabe cualquier número de secciones sin recortar el último enlace.
+          open ? 'max-h-[calc(100dvh-4rem)] opacity-100' : 'max-h-0 opacity-0',
         )}
       >
-        <ul className="flex flex-col px-5 py-2">
+        <ul className="flex flex-col px-5 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           {[{ id: 'inicio', label: 'Inicio' }, ...nav].map((item) => (
             <li key={item.id}>
               <a
@@ -182,7 +186,7 @@ export function SiteHeader({
             <a
               href="#confirmar"
               onClick={() => setOpen(false)}
-              className="block bg-[var(--color-accent)] px-5 py-3 text-center text-[0.72rem] uppercase tracking-[0.22em] text-[var(--color-accent-foreground)]"
+              className="block bg-[var(--color-accent)] px-5 py-3 text-center text-[0.72rem] uppercase tracking-[0.22em] indent-[0.22em] text-[var(--color-accent-foreground)]"
             >
               Confirmar asistencia
             </a>

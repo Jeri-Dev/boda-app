@@ -46,7 +46,7 @@ export function MapCard({ places }: { places: EventPlace[] }) {
               aria-selected={active === i}
               onClick={() => setActive(i)}
               className={cn(
-                'flex-1 border-b-2 px-4 py-4 text-[0.68rem] uppercase tracking-[0.24em] transition-colors',
+                'flex-1 border-b-2 px-3 py-4 text-[0.68rem] uppercase tracking-[0.18em] indent-[0.18em] transition-colors sm:px-4 sm:tracking-[0.24em] sm:indent-[0.24em]',
                 active === i
                   ? 'border-[var(--color-accent)] text-[var(--color-accent)]'
                   : 'border-transparent text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]',
@@ -59,7 +59,10 @@ export function MapCard({ places }: { places: EventPlace[] }) {
       ) : null}
 
       <div className="grid md:grid-cols-[1.4fr_1fr]">
-        <div className="relative aspect-[16/11] w-full md:aspect-auto">
+        {/* La proporción de la caja es la del `viewBox` (400×260): con `slice`
+            cualquier otra recortaría los lados y los pines —posicionados en %
+            de la caja— dejarían de caer sobre su calle. */}
+        <div className="relative aspect-[20/13] w-full md:aspect-auto">
           <svg
             viewBox="0 0 400 260"
             className="h-full w-full"
@@ -132,7 +135,7 @@ export function MapCard({ places }: { places: EventPlace[] }) {
             </div>
           ))}
 
-          <span className="absolute bottom-2 right-3 bg-[var(--color-background)]/85 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.14em] text-[var(--color-muted-foreground)] backdrop-blur-sm">
+          <span className="absolute bottom-2 right-3 bg-[var(--color-background)]/85 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.14em] indent-[0.14em] text-[var(--color-muted-foreground)] backdrop-blur-sm">
             Mapa ilustrativo
           </span>
         </div>
@@ -156,7 +159,7 @@ export function MapCard({ places }: { places: EventPlace[] }) {
               href={place.mapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="landing-shine group inline-flex h-12 items-center justify-center gap-2 bg-[var(--color-accent)] px-5 text-[0.72rem] uppercase tracking-[0.18em] text-[var(--color-accent-foreground)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-warm)]"
+              className="landing-shine group inline-flex h-12 items-center justify-center gap-2 bg-[var(--color-accent)] px-5 text-[0.72rem] uppercase tracking-[0.18em] indent-[0.18em] text-[var(--color-accent-foreground)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-warm)]"
             >
               Abrir en Google Maps
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />

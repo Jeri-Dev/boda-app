@@ -38,7 +38,9 @@ export function DetailsSection({ content }: { content: WeddingContent }) {
             <Reveal variant="line">
               <SectionHeading overline="Cómo será el día" title="Itinerario" />
             </Reveal>
-            <div className="mt-12">
+            {/* En móvil el itinerario se centra como bloque: pegado al margen
+                izquierdo bajo un título centrado, la sección se veía torcida. */}
+            <div className="mt-12 text-center sm:text-left">
               <Timeline items={timeline} />
             </div>
           </>
@@ -48,14 +50,16 @@ export function DetailsSection({ content }: { content: WeddingContent }) {
           <Reveal variant="scale" delay={120} className={timeline.length ? 'mt-16' : ''}>
             <div className="landing-card relative flex flex-col items-center gap-3 px-6 py-9 text-center">
               <CornerAccents />
+              {/* La rama se queda dentro de la tarjeta en móvil: asomando por
+                  la esquina se salía de la página y cortaba el filete. */}
               <span
                 aria-hidden
-                className="absolute -right-4 -top-6 w-16 text-[var(--color-gold-deep)] opacity-40"
+                className="absolute right-1 top-1 w-12 text-[var(--color-gold-deep)] opacity-40 sm:-right-4 sm:-top-6 sm:w-16"
               >
                 <BlossomSprig className="w-full" />
               </span>
               <Attire className="h-8 w-8 text-[var(--color-accent)]" />
-              <p className="text-[0.65rem] uppercase tracking-[0.34em] text-[var(--color-accent)]">
+              <p className="text-[0.65rem] uppercase tracking-[0.34em] indent-[0.34em] text-[var(--color-accent)]">
                 Código de vestimenta
               </p>
               <p className="font-display text-2xl font-light text-[var(--color-foreground)]">

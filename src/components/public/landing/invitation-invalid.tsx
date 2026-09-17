@@ -23,7 +23,7 @@ export function InvitationInvalid() {
       </p>
       <a
         href="/nuestra-boda"
-        className="mt-8 inline-block border border-[var(--color-gold)]/40 px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.2em] text-[var(--color-gold)] transition-colors hover:bg-[var(--color-gold)] hover:text-[var(--color-ink)]"
+        className="mt-8 inline-block border border-[var(--color-gold)]/40 px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.2em] indent-[0.2em] text-[var(--color-gold)] transition-colors hover:bg-[var(--color-gold)] hover:text-[var(--color-ink)]"
       >
         Ver la web de la boda
       </a>

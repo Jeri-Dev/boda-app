@@ -27,13 +27,13 @@ function AccountCard({ account }: { account: GiftAccount }) {
   }
 
   return (
-    <div className="landing-ink-card flex flex-col p-6 text-left">
+    <div className="landing-ink-card flex h-full flex-col p-5 text-left sm:p-6">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-[0.65rem] uppercase tracking-[0.28em] text-[var(--color-gold)]">
+        <p className="text-[0.65rem] uppercase tracking-[0.22em] text-[var(--color-gold)] sm:tracking-[0.28em]">
           {account.bank}
         </p>
         {account.currency ? (
-          <span className="shrink-0 border border-[var(--color-gold)]/35 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.16em] text-[oklch(0.92_0.02_88)]/80">
+          <span className="shrink-0 border border-[var(--color-gold)]/35 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.16em] indent-[0.16em] text-[oklch(0.92_0.02_88)]/80">
             {account.currency}
           </span>
         ) : null}
@@ -45,7 +45,9 @@ function AccountCard({ account }: { account: GiftAccount }) {
         </p>
       ) : null}
 
-      <p className="mt-5 font-display text-[1.6rem] font-light tabular-nums tracking-wide text-[oklch(0.955_0.025_88)]">
+      {/* Los números largos (cuentas de 13+ dígitos) tienen que poder partirse:
+          si no, se salen de la tarjeta en pantallas estrechas. */}
+      <p className="mt-5 break-all font-display text-[1.35rem] font-light tabular-nums tracking-wide text-[oklch(0.955_0.025_88)] sm:text-[1.6rem]">
         {account.number}
       </p>
 
@@ -163,7 +165,9 @@ export function GiftsSection({ content }: { content: WeddingContent }) {
 
         {gifts.envelopeNote ? (
           <Reveal delay={160}>
-            <p className="mx-auto mt-10 flex max-w-md items-center justify-center gap-2.5 text-sm text-[oklch(0.92_0.02_88)]/80">
+            {/* En móvil el icono va encima: en fila, con el texto en dos
+                líneas, quedaba colgando lejos y descuadraba el centrado. */}
+            <p className="mx-auto mt-10 flex max-w-md flex-col items-center justify-center gap-2 text-center text-sm text-[oklch(0.92_0.02_88)]/80 sm:flex-row sm:gap-2.5 sm:text-left">
               <Envelope className="h-5 w-5 shrink-0 text-[var(--color-gold)]" />
               {gifts.envelopeNote}
             </p>

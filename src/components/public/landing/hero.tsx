@@ -30,7 +30,7 @@ export function Hero({ content }: { content: WeddingContent }) {
     // pantalla de 667 px sin dejar el botón principal bajo la línea de flotación.
     <section
       id="inicio"
-      className="landing-hero relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden px-5 pb-28 pt-20 text-center sm:px-8 sm:pb-16 sm:pt-24"
+      className="landing-hero  relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden px-5 pb-28 pt-20 text-center sm:px-8 sm:pb-16 sm:pt-24"
     >
       {/* Tinta con la luz cayendo desde arriba */}
       <div
@@ -85,7 +85,7 @@ export function Hero({ content }: { content: WeddingContent }) {
         <Petals count={14} />
       </div>
 
-      <div className="landing-enter" style={{ '--i': 0 } as React.CSSProperties}>
+      <div className="landing-enter " style={{ '--i': 0 } as React.CSSProperties}>
         <Seal
           monogram={couple.monogram}
           className="landing-seal-float h-16 w-16 text-[var(--color-gold)] sm:h-20 sm:w-20"
@@ -101,7 +101,7 @@ export function Hero({ content }: { content: WeddingContent }) {
       </p>
 
       <h1
-        className="landing-enter mt-4 leading-[0.9] text-[oklch(0.945_0.028_88)]"
+        className="landing-enter mt-4 leading-[0.9] text-[oklch(0.945_0.028_88)]  px-4 ml-4"
         style={{ '--i': 2 } as React.CSSProperties}
       >
         <span className="sr-only">{couple.names}</span>

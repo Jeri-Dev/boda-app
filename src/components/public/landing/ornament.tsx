@@ -66,6 +66,7 @@ export function SectionHeading({
     <div className={cn(centered ? 'text-center' : 'text-left', className)}>
       {/* `indent` compensa el espaciado que la última letra arrastra: sin él
           la versalita centrada queda medio espacio a la izquierda del eje. */}
+
       <p
         className={cn(
           'text-[0.68rem] uppercase tracking-[0.38em]',

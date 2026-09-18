@@ -62,9 +62,9 @@ export function Seal({
           'relative whitespace-nowrap leading-none text-[var(--color-ink)]',
           monogramClassName,
         )}
-        style={{ fontFamily: 'var(--font-script)' }}
+        style={{ fontFamily: 'var(--font-script)', padding: 12 }}
       >
-        {monogram}
+        <img src={"/boda_logo.png"} />
       </span>
     </span>
   )

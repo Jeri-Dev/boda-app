@@ -54,18 +54,22 @@ export function Footer({
         </Reveal>
 
         <Reveal variant="blur" delay={80}>
-          <p
-            className="mt-8 text-[2.6rem] leading-none text-[oklch(0.945_0.028_88)] sm:text-[3.5rem]"
-            style={{ fontFamily: 'var(--font-script)' }}
-          >
-            {couple.second ? (
-              <>
-                {couple.first} <span className="landing-foil">&amp;</span> {couple.second}
-              </>
-            ) : (
-              couple.names
-            )}
-          </p>
+          <div style={{
+            padding: "12px"
+          }} >
+            <p
+              className="mt-8 text-[2.6rem] leading-none text-[oklch(0.945_0.028_88)] sm:text-[3.5rem]"
+              style={{ fontFamily: 'var(--font-script)' }}
+            >
+              {couple.second ? (
+                <>
+                  {couple.first} <span className="landing-foil">&amp;</span> {couple.second}
+                </>
+              ) : (
+                couple.names
+              )}
+            </p>
+          </div>
         </Reveal>
 
         <div className="mx-auto mt-7 w-32 text-[var(--color-gold)]/55">

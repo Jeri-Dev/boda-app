@@ -83,6 +83,7 @@ html.landing-lock {
     opacity: 0;
     transform: translateY(28px) scale(0.96);
   }
+
   to {
     opacity: 1;
     transform: none;
@@ -161,20 +162,14 @@ html.landing-lock {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(
-        to bottom right,
-        transparent calc(50% - 0.6px),
-        oklch(0.855 0.058 84 / 0.28) 50%,
-        transparent calc(50% + 0.6px)
-      )
-      left top / 50% 52% no-repeat,
-    linear-gradient(
-        to bottom left,
-        transparent calc(50% - 0.6px),
-        oklch(0.855 0.058 84 / 0.28) 50%,
-        transparent calc(50% + 0.6px)
-      )
-      right top / 50% 52% no-repeat;
+    linear-gradient(to bottom right,
+      transparent calc(50% - 0.6px),
+      oklch(0.855 0.058 84 / 0.28) 50%,
+      transparent calc(50% + 0.6px)) left top / 50% 52% no-repeat,
+    linear-gradient(to bottom left,
+      transparent calc(50% - 0.6px),
+      oklch(0.855 0.058 84 / 0.28) 50%,
+      transparent calc(50% + 0.6px)) right top / 50% 52% no-repeat;
 }
 
 .landing-env-flap {
@@ -206,8 +201,13 @@ html.landing-lock {
 
 /* Cara interior, visible una vez abierta. */
 .landing-env-flap::after {
-  background: linear-gradient(0deg, oklch(0.48 0.09 190), oklch(0.4 0.08 192));
+  background: linear-gradient(0deg,
+      oklch(0.48 0.09 190),
+      oklch(0.4 0.08 192));
+
+  /* QUITAR esto:
   transform: rotateX(180deg);
+  */
 }
 
 .landing-env-seal {
@@ -246,6 +246,7 @@ html.landing-lock {
     transform: scale(0.9);
     opacity: 0.8;
   }
+
   100% {
     transform: scale(1.5);
     opacity: 0;
@@ -291,10 +292,12 @@ html.landing-lock {
 }
 
 @keyframes landing-hint {
+
   0%,
   100% {
     opacity: 0.55;
   }
+
   50% {
     opacity: 1;
   }
@@ -315,10 +318,12 @@ html.landing-lock {
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
   }
+
   35% {
     transform: translate(-50%, -50%) scale(1.14) rotate(-4deg);
     opacity: 1;
   }
+
   100% {
     transform: translate(-50%, -50%) scale(0) rotate(18deg);
     opacity: 0;
@@ -334,35 +339,59 @@ html.landing-lock {
     transform: rotateX(0deg);
     z-index: 4;
   }
-  49% {
-    z-index: 4;
-  }
-  50% {
-    z-index: 1;
-  }
+
+
+
   100% {
-    transform: rotateX(-180deg);
-    z-index: 1;
+    transform: rotateX(-120deg);
+    z-index: 4;
   }
 }
 
 .landing-intro.is-opening .landing-env-card {
-  animation: landing-card-out 1.3s var(--ease-out) 1.05s forwards;
+  animation: landing-card-out 2.3s var(--ease-out) 1.05s forwards;
 }
 
 @keyframes landing-card-out {
+
+  /* Carta dentro del sobre */
   0% {
     transform: translateY(0) scale(1);
     z-index: 2;
     opacity: 1;
   }
+
+  /* Sale completamente hacia arriba */
+  45% {
+    transform: translateY(-80%) scale(1);
+    z-index: 2;
+    opacity: 1;
+  }
+
+  /* Ya está fuera: pasa DELANTE del sobre */
   55% {
-    transform: translateY(-64%) scale(1);
+    transform: translateY(-72%) scale(1);
     z-index: 6;
     opacity: 1;
   }
+
+  /* Baja y se superpone al sobre */
+  72% {
+    transform: translateY(-48%) scale(1.02);
+    z-index: 6;
+    opacity: 1;
+  }
+
+  /* Se estabiliza delante del sobre */
+  82% {
+    transform: translateY(-42%) scale(1.04);
+    z-index: 6;
+    opacity: 1;
+  }
+
+  /* Sale de escena */
   100% {
-    transform: translateY(-54%) scale(1.14);
+    transform: translateY(-36%) scale(1.12);
     z-index: 6;
     opacity: 0;
   }
@@ -409,6 +438,7 @@ html.landing-lock {
     transform: translateY(18px);
     filter: blur(6px);
   }
+
   to {
     opacity: 1;
     transform: none;
@@ -456,18 +486,17 @@ html.landing-lock {
 .landing-hero-photo-veil {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    168deg,
-    oklch(0.375 0.082 190 / 0.84),
-    oklch(0.295 0.068 194 / 0.9) 58%,
-    oklch(0.245 0.058 198 / 0.96)
-  );
+  background: linear-gradient(168deg,
+      oklch(0.375 0.082 190 / 0.84),
+      oklch(0.295 0.068 194 / 0.9) 58%,
+      oklch(0.245 0.058 198 / 0.96));
 }
 
 @keyframes landing-fade {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -491,10 +520,12 @@ html.landing-lock {
     transform: scaleY(0);
     opacity: 0;
   }
+
   40% {
     transform: scaleY(1);
     opacity: 1;
   }
+
   100% {
     transform: scaleY(1) translateY(10px);
     opacity: 0;
@@ -506,10 +537,12 @@ html.landing-lock {
 }
 
 @keyframes landing-float {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-5px);
   }
@@ -570,21 +603,19 @@ html.landing-lock {
   pointer-events: none;
   opacity: 0.5;
   mix-blend-mode: screen;
-  background: conic-gradient(
-    from -30deg at 50% -12%,
-    transparent 0deg,
-    oklch(0.9 0.05 88 / 0.07) 8deg,
-    transparent 16deg,
-    transparent 30deg,
-    oklch(0.9 0.05 88 / 0.05) 40deg,
-    transparent 52deg,
-    transparent 66deg,
-    oklch(0.9 0.05 88 / 0.08) 74deg,
-    transparent 84deg,
-    transparent 100deg,
-    oklch(0.9 0.05 88 / 0.05) 108deg,
-    transparent 120deg
-  );
+  background: conic-gradient(from -30deg at 50% -12%,
+      transparent 0deg,
+      oklch(0.9 0.05 88 / 0.07) 8deg,
+      transparent 16deg,
+      transparent 30deg,
+      oklch(0.9 0.05 88 / 0.05) 40deg,
+      transparent 52deg,
+      transparent 66deg,
+      oklch(0.9 0.05 88 / 0.08) 74deg,
+      transparent 84deg,
+      transparent 100deg,
+      oklch(0.9 0.05 88 / 0.05) 108deg,
+      transparent 120deg);
   transform-origin: 50% -12%;
   animation: landing-rays 26s ease-in-out infinite alternate;
 }
@@ -593,6 +624,7 @@ html.landing-lock {
   from {
     transform: rotate(-6deg);
   }
+
   to {
     transform: rotate(6deg);
   }
@@ -622,15 +654,19 @@ html.landing-lock {
     transform: translate3d(0, 0, 0) rotate(var(--r, 0deg));
     opacity: 0;
   }
+
   8% {
     opacity: 0.42;
   }
+
   50% {
     transform: translate3d(28px, 55vh, 0) rotate(calc(var(--r, 0deg) + 200deg));
   }
+
   92% {
     opacity: 0.3;
   }
+
   100% {
     transform: translate3d(-18px, 110vh, 0) rotate(calc(var(--r, 0deg) + 420deg));
     opacity: 0;
@@ -642,6 +678,7 @@ html.landing-lock {
   from {
     transform: scale(1);
   }
+
   to {
     transform: scale(1.07);
   }
@@ -657,10 +694,12 @@ html.landing-lock {
 
 /* Hojas mecidas por la brisa (origen en el tallo). */
 @keyframes landing-sway {
+
   0%,
   100% {
     transform: rotate(-2deg);
   }
+
   50% {
     transform: rotate(2.4deg);
   }
@@ -678,13 +717,16 @@ html.landing-lock {
 
 /* Pétalos/hojas a la deriva — tres variantes desfasadas. */
 @keyframes landing-drift {
+
   0%,
   100% {
     transform: translate3d(0, 0, 0) rotate(0deg);
   }
+
   33% {
     transform: translate3d(10px, 16px, 0) rotate(14deg);
   }
+
   66% {
     transform: translate3d(-8px, 6px, 0) rotate(-8deg);
   }
@@ -693,9 +735,11 @@ html.landing-lock {
 .landing-drift-a {
   animation: landing-drift 12s ease-in-out infinite;
 }
+
 .landing-drift-b {
   animation: landing-drift 15s ease-in-out -4s infinite;
 }
+
 .landing-drift-c {
   animation: landing-drift 18s ease-in-out -9s infinite;
 }
@@ -714,13 +758,11 @@ html.landing-lock {
 }
 
 .landing-foil {
-  background-image: linear-gradient(
-    100deg,
-    var(--color-gold-deep) 18%,
-    oklch(0.955 0.035 88) 42%,
-    var(--color-gold) 58%,
-    var(--color-gold-deep) 82%
-  );
+  background-image: linear-gradient(100deg,
+      var(--color-gold-deep) 18%,
+      oklch(0.955 0.035 88) 42%,
+      var(--color-gold) 58%,
+      var(--color-gold-deep) 82%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -753,10 +795,12 @@ html.landing-lock {
 
 /* Latido discreto del corazón que marca el día en el calendario. */
 @keyframes landing-pulse {
+
   0%,
   100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.12);
   }
@@ -793,11 +837,9 @@ html.landing-lock {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    420px circle at var(--gx, 50%) var(--gy, 50%),
-    oklch(0.855 0.058 84 / 0.14),
-    transparent 60%
-  );
+  background: radial-gradient(420px circle at var(--gx, 50%) var(--gy, 50%),
+      oklch(0.855 0.058 84 / 0.14),
+      transparent 60%);
   opacity: 0;
   transition: opacity 0.5s;
   pointer-events: none;
@@ -852,11 +894,9 @@ html.landing-lock {
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.5s;
-  background: radial-gradient(
-    560px circle at var(--mx, 50%) var(--my, 50%),
-    oklch(0.8 0.09 190 / 0.2),
-    transparent 60%
-  );
+  background: radial-gradient(560px circle at var(--mx, 50%) var(--my, 50%),
+      oklch(0.8 0.09 190 / 0.2),
+      transparent 60%);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -869,11 +909,9 @@ html.landing-lock {
   top: 0.25rem;
   bottom: 0.25rem;
   width: 1px;
-  background: linear-gradient(
-    to bottom,
-    oklch(0.735 0.072 80 / 0.7),
-    oklch(0.735 0.072 80 / 0.25)
-  );
+  background: linear-gradient(to bottom,
+      oklch(0.735 0.072 80 / 0.7),
+      oklch(0.735 0.072 80 / 0.25));
   transform: scaleY(0);
   transform-origin: top;
   transition: transform 1.8s var(--ease-out);
@@ -975,6 +1013,7 @@ html.landing-lock {
     transform: translateY(70%);
     opacity: 0;
   }
+
   to {
     transform: none;
     opacity: 1;
@@ -1045,6 +1084,7 @@ textarea.landing-input {
   from {
     transform: scale(0);
   }
+
   to {
     transform: scale(1);
   }
@@ -1061,10 +1101,12 @@ textarea.landing-input {
     transform: scale(2.4) rotate(-14deg);
     opacity: 0;
   }
+
   60% {
     transform: scale(0.96) rotate(-3deg);
     opacity: 1;
   }
+
   100% {
     transform: scale(1) rotate(-4deg);
     opacity: 1;
@@ -1204,9 +1246,11 @@ textarea.landing-input {
 .landing-eq i:nth-child(2) {
   animation-delay: -0.2s;
 }
+
 .landing-eq i:nth-child(3) {
   animation-delay: -0.45s;
 }
+
 .landing-eq i:nth-child(4) {
   animation-delay: -0.7s;
 }
@@ -1216,10 +1260,12 @@ textarea.landing-input {
 }
 
 @keyframes landing-eq {
+
   0%,
   100% {
     transform: scaleY(0.25);
   }
+
   50% {
     transform: scaleY(1);
   }
@@ -1282,6 +1328,7 @@ textarea.landing-input {
 /* ---------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
+
   .landing-root *,
   .landing-root *::before,
   .landing-root *::after {

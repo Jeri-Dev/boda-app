@@ -124,11 +124,11 @@ export function GiftsSection({ content }: { content: WeddingContent }) {
       </div>
 
       <div className="mx-auto max-w-3xl text-center">
-        <Reveal variant="scale">
+        <Reveal variant="blur">
           <Bank className="mx-auto h-8 w-8 text-[var(--color-gold)]" />
         </Reveal>
 
-        <Reveal variant="line" delay={60}>
+        <Reveal variant="blur" delay={60}>
           <SectionHeading overline="Con cariño" title="Mesa de regalos" tone="ink" className="mt-6" />
         </Reveal>
 

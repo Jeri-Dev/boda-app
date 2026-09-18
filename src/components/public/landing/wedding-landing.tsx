@@ -46,27 +46,27 @@ export function WeddingLanding({
 
   const jsonLd = content.event.startISO
     ? {
-        '@context': 'https://schema.org',
-        '@type': 'Event',
-        name: `Boda de ${content.couple.names}`,
-        startDate: content.event.startISO,
-        eventStatus: 'https://schema.org/EventScheduled',
-        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-        ...(content.ceremony
-          ? {
-              location: {
-                '@type': 'Place',
-                name: content.ceremony.place,
-                ...(content.ceremony.address ? { address: content.ceremony.address } : {}),
-              },
-            }
-          : {}),
-      }
+      '@context': 'https://schema.org',
+      '@type': 'Event',
+      name: `Boda de ${content.couple.names}`,
+      startDate: content.event.startISO,
+      eventStatus: 'https://schema.org/EventScheduled',
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      ...(content.ceremony
+        ? {
+          location: {
+            '@type': 'Place',
+            name: content.ceremony.place,
+            ...(content.ceremony.address ? { address: content.ceremony.address } : {}),
+          },
+        }
+        : {}),
+    }
     : null
 
   return (
     <div
-      className={`landing-root landing-pending ${script.variable} ${serif.variable} bg-[var(--color-background)]`}
+      className={`landing-root landing-pending ${script.variable} ${serif.variable} bg-(--color-background)`}
     >
       {jsonLd ? (
         <script
@@ -85,28 +85,26 @@ export function WeddingLanding({
 
         <SiteHeader monogram={content.couple.monogram} sections={sections} />
 
-        <main>
-          <Hero content={content} />
-          <InvitationSection content={content} />
-          {content.event.startISO ? <CountdownBand dateISO={content.event.startISO} /> : null}
-          <VenueSection content={content} />
-          <DetailsSection content={content} />
-          <GiftsSection content={content} />
-          <RsvpSection
-            rsvp={
-              rsvp
-                ? {
-                    token: rsvp.token,
-                    members: rsvp.view.members,
-                    initialMessage: rsvp.view.message,
-                    partySize: rsvp.view.partySize,
-                  }
-                : null
-            }
-            contact={content.contact}
-            privacyContact={content.privacyContact}
-          />
-        </main>
+        <Hero content={content} />
+        <InvitationSection content={content} />
+        {content.event.startISO ? <CountdownBand dateISO={content.event.startISO} /> : null}
+        <VenueSection content={content} />
+        <DetailsSection content={content} />
+        <GiftsSection content={content} />
+        <RsvpSection
+          rsvp={
+            rsvp
+              ? {
+                token: rsvp.token,
+                members: rsvp.view.members,
+                initialMessage: rsvp.view.message,
+                partySize: rsvp.view.partySize,
+              }
+              : null
+          }
+          contact={content.contact}
+          privacyContact={content.privacyContact}
+        />
 
         <Footer content={content} calendar={calendar} />
         <MusicPlayer />

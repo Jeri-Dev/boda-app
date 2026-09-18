@@ -19,7 +19,7 @@ export function DetailsSection({ content }: { content: WeddingContent }) {
   return (
     <section
       id="detalles"
-      className="relative isolate scroll-mt-20 overflow-hidden px-5 py-20 sm:px-8 sm:py-28"
+      className="relative isolate  overflow-hidden px-5  sm:px-8 sm:py-8"
     >
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <Parallax
@@ -70,6 +70,53 @@ export function DetailsSection({ content }: { content: WeddingContent }) {
                   {dressCode.note}
                 </p>
               ) : null}
+
+              {/* Paleta sugerida */}
+              <div className="mt-7 flex flex-col items-center gap-5">
+                <p className="text-sm uppercase tracking-[0.18em] text-[var(--color-muted-foreground)] sm:text-base">
+                  Te invitamos a usar uno de estos tonos
+                </p>
+
+                <div
+                  className="flex items-center justify-center gap-5 sm:gap-7"
+                  aria-label="Paleta de colores sugerida"
+                >
+                  <span
+                    className="h-11 w-11 rounded-full border border-black/10 shadow-md transition-transform duration-300 hover:scale-110 sm:h-14 sm:w-14"
+                    style={{ backgroundColor: '#B8D8D8' }}
+                    aria-label="Aqua suave"
+                    title="Aqua suave"
+                  />
+
+                  <span
+                    className="h-11 w-11 rounded-full border border-black/10 shadow-md transition-transform duration-300 hover:scale-110 sm:h-14 sm:w-14"
+                    style={{ backgroundColor: '#9DD9D2' }}
+                    aria-label="Turquesa pastel"
+                    title="Turquesa pastel"
+                  />
+
+                  <span
+                    className="h-11 w-11 rounded-full border border-black/10 shadow-md transition-transform duration-300 hover:scale-110 sm:h-14 sm:w-14"
+                    style={{ backgroundColor: '#A8D5BA' }}
+                    aria-label="Verde menta"
+                    title="Verde menta"
+                  />
+
+                  <span
+                    className="h-11 w-11 rounded-full border border-black/10 shadow-md transition-transform duration-300 hover:scale-110 sm:h-14 sm:w-14"
+                    style={{ backgroundColor: '#BFD8BE' }}
+                    aria-label="Verde salvia"
+                    title="Verde salvia"
+                  />
+
+                  <span
+                    className="h-11 w-11 rounded-full border border-black/10 shadow-md transition-transform duration-300 hover:scale-110 sm:h-14 sm:w-14"
+                    style={{ backgroundColor: '#C5E1DC' }}
+                    aria-label="Verde agua"
+                    title="Verde agua"
+                  />
+                </div>
+              </div>
             </div>
           </Reveal>
         ) : null}

@@ -95,7 +95,7 @@ export function VenueSection({ content }: { content: WeddingContent }) {
   return (
     <section
       id="lugar"
-      className="relative isolate scroll-mt-20 overflow-hidden px-5 py-20 sm:px-8 sm:py-28"
+      className="relative isolate  overflow-hidden px-5  sm:px-8 sm:py-8"
     >
       <div
         aria-hidden
@@ -125,9 +125,9 @@ export function VenueSection({ content }: { content: WeddingContent }) {
               extraTimes={
                 reception
                   ? [
-                      { label: 'Ceremonia', time: ceremony?.time ?? null },
-                      { label: 'Recepción', time: reception.time },
-                    ]
+                    { label: 'Ceremonia', time: ceremony?.time ?? null },
+                    { label: 'Recepción', time: reception.time },
+                  ]
                   : undefined
               }
             />

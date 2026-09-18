@@ -64,7 +64,7 @@ export function RsvpSection({
   return (
     <section
       id="confirmar"
-      className="relative isolate scroll-mt-24 overflow-hidden px-5 pb-16 sm:px-8 "
+      className="relative isolate scroll-mt-24 overflow-hidden px-16 pb-16 sm:px-8 "
     >
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <Parallax speed={0.12} className="absolute -left-12 top-10 w-28 text-[var(--color-sage)] opacity-30 sm:w-40">

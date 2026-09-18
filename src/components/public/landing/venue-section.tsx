@@ -95,7 +95,7 @@ export function VenueSection({ content }: { content: WeddingContent }) {
   return (
     <section
       id="lugar"
-      className="relative isolate  overflow-hidden px-5  sm:px-8 sm:py-8"
+      className="relative isolate  overflow-hidden px-5  sm:px-8 py-16"
     >
       <div
         aria-hidden

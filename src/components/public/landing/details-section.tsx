@@ -66,14 +66,14 @@ export function DetailsSection({ content }: { content: WeddingContent }) {
                 {dressCode.title}
               </p>
               {dressCode.note ? (
-                <p className="mx-auto max-w-md text-sm leading-relaxed text-[var(--color-muted-foreground)]">
+                <p className="mx-auto max-w-md text-sm leading-relaxed text-red-500">
                   {dressCode.note}
                 </p>
               ) : null}
 
               {/* Paleta sugerida */}
-              <div className="mt-7 flex flex-col items-center gap-5">
-                <p className="text-sm uppercase tracking-[0.18em] text-[var(--color-muted-foreground)] sm:text-base">
+              <div className="mt-2 flex flex-col items-center gap-5">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--color-muted-foreground)] sm:text-base">
                   Te invitamos a usar uno de estos tonos
                 </p>
 

@@ -47,7 +47,7 @@ export function InvitationSection({ content }: { content: WeddingContent }) {
 
       <div className="mx-auto max-w-2xl">
         <Reveal variant="blur" delay={120}>
-          <SectionHeading overline="La invitación" title="Nos vas a hacer falta" />
+          <SectionHeading overline="Con mucho amor" title="Estas invitado" />
         </Reveal>
 
         {welcome ? (

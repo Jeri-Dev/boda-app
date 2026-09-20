@@ -66,7 +66,7 @@ export function DetailsSection({ content }: { content: WeddingContent }) {
                 {dressCode.title}
               </p>
               {dressCode.note ? (
-                <p className="mx-auto max-w-md text-sm leading-relaxed text-red-500">
+                <p className="mx-auto max-w-md text-sm leading-relaxed uppercase text-red-500">
                   {dressCode.note}
                 </p>
               ) : null}

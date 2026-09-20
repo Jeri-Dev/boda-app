@@ -21,6 +21,7 @@
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@netlify/edge-functions": "^4.0.0",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.4",

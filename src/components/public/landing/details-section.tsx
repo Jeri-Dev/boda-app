@@ -24,9 +24,9 @@ export function DetailsSection({ content }: { content: WeddingContent }) {
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <Parallax
           speed={0.1}
-          className="absolute -right-24 top-10 w-40 text-[var(--color-sage)] opacity-25 sm:w-56"
+          className="absolute -right-24 top-10 w-40 text-(--color-sage) opacity-25 sm:w-56"
         >
-          <div className="-rotate-[26deg] -scale-x-100">
+          <div className="rotate-[-26deg] -scale-x-100">
             <PalmFrond className="landing-sway-slow w-full" />
           </div>
         </Parallax>

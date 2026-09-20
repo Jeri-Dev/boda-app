@@ -80,39 +80,39 @@ const CHALLENGE = {
 	},
 }
 
-export default async function basicAuth(request: Request, context: Context) {
-	const { pathname } = new URL(request.url)
+// export default async function basicAuth(request: Request, context: Context) {
+// 	const { pathname } = new URL(request.url)
 
-	if (isPublic(pathname)) return context.next()
+// 	if (isPublic(pathname)) return context.next()
 
-	const user = Netlify.env.get("BASIC_AUTH_USER")
-	const pass = Netlify.env.get("BASIC_AUTH_PASSWORD")
-	// Not configured → deny (fail closed): never expose the back-office by default.
-	if (!user || !pass) {
-		return new Response("Back-office protection is not configured.", CHALLENGE)
-	}
+// 	const user = Netlify.env.get("BASIC_AUTH_USER")
+// 	const pass = Netlify.env.get("BASIC_AUTH_PASSWORD")
+// 	// Not configured → deny (fail closed): never expose the back-office by default.
+// 	if (!user || !pass) {
+// 		return new Response("Back-office protection is not configured.", CHALLENGE)
+// 	}
 
-	const header = request.headers.get("authorization") ?? ""
-	const [scheme, encoded] = header.split(" ")
-	if (scheme === "Basic" && encoded) {
-		let decoded = ""
-		try {
-			decoded = atob(encoded)
-		} catch {
-			decoded = ""
-		}
-		const sep = decoded.indexOf(":")
-		if (sep !== -1) {
-			const u = decoded.slice(0, sep)
-			const p = decoded.slice(sep + 1)
-			// Evaluate both comparisons so a wrong username can't short-circuit.
-			const ok = safeEqual(u, user) && safeEqual(p, pass)
-			if (ok) return context.next()
-		}
-	}
+// 	const header = request.headers.get("authorization") ?? ""
+// 	const [scheme, encoded] = header.split(" ")
+// 	if (scheme === "Basic" && encoded) {
+// 		let decoded = ""
+// 		try {
+// 			decoded = atob(encoded)
+// 		} catch {
+// 			decoded = ""
+// 		}
+// 		const sep = decoded.indexOf(":")
+// 		if (sep !== -1) {
+// 			const u = decoded.slice(0, sep)
+// 			const p = decoded.slice(sep + 1)
+// 			// Evaluate both comparisons so a wrong username can't short-circuit.
+// 			const ok = safeEqual(u, user) && safeEqual(p, pass)
+// 			if (ok) return context.next()
+// 		}
+// 	}
 
-	return new Response("Authentication required.", CHALLENGE)
-}
+// 	return new Response("Authentication required.", CHALLENGE)
+// }
 
 export const config: Config = {
 	// Run on every request; the function itself lets public paths through. Using

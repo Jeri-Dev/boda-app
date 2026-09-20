@@ -7,7 +7,7 @@
 # if you need reproducibility.
 
 [build]
-  command = "pnpm build"
+  command = "npm build"
   publish = ".next"
 
 [build.environment]
